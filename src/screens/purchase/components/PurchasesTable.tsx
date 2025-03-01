@@ -4,7 +4,10 @@ import { usePurchaseStore } from "../../../state_manager/purchaseData";
 import { fetchPurchaseData } from "../service";
 import { TableHeadingsTypes } from "../../../types/types";
 
-const PurchasesTable: React.FC = () => {
+type PurchasesTableProps = {
+  refresh: boolean;
+}
+const PurchasesTable: React.FC<PurchasesTableProps> = ({refresh}) => {
   const tableHeadings:TableHeadingsTypes[] = [
     { key: "productName", label: "Item" },
     { key: "price", label: "Price" },
@@ -23,7 +26,7 @@ const PurchasesTable: React.FC = () => {
       }
     };
     loadPurchaseData(); // Call the function to fetch and store data
-  }, [setPurchaseData]);
+  }, [setPurchaseData,  refresh]);
 
   return (
     <div>

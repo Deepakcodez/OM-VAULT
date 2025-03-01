@@ -19,7 +19,7 @@ const YearDropdown = () => {
     <div className="relative w-full  select-none  ">
       <button
         onClick={toggleDropdown}
-        className=" bg-transparent flex justify-between items-center md:p-2 p-1 w-full  rounded-lg shadow-sm text-white md:text-sm text-xs"
+        className=" bg-transparent flex justify-between items-center md:p-2 p-1 w-full  rounded-lg shadow-sm text-white md:text-sm text-xs focus:outline-none"
       >
         {selectedYear}
         {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}

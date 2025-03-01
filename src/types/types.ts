@@ -1,6 +1,7 @@
 type InstallmentType = {
   date: string;
   rate: number | null;
+  paymentMethod : string;
 };
 
 type PurchaseDataType = {
@@ -19,6 +20,7 @@ type PurchaseDataType = {
   paymentMethod: string;
   orderingDate: string;
   installments: InstallmentType[];
+  pending? : number
   totalPrice?: number ;
 };
 

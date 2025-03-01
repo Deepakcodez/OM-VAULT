@@ -1,48 +1,43 @@
 import React from "react";
 import Logo from "../assets/images/omvault_logo.webp";
 import { motion } from "motion/react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { YearDropdown } from "./ui";
 
 type sidebarOptionsTypes = {
-   name : string,
-   screen : string,
-}
-const Sidebar: React.FC = () => { 
-  const sidebarOptions:sidebarOptionsTypes[] = [
+  name: string;
+  screen: string;
+};
+const Sidebar: React.FC = () => {
+  const location = useLocation();
+  const sidebarOptions: sidebarOptionsTypes[] = [
     {
       name: "Dashboard",
-      screen: '/dashboard'
+      screen: "/dashboard",
     },
     {
       name: "Sale ",
-      screen: '/sale'
-
+      screen: "/sale",
     },
     {
       name: "Transactions",
-      screen: '/transactions'
-
+      screen: "/transactions",
     },
     {
       name: "Credit",
-      screen: '/credit'
-
+      screen: "/credit",
     },
     {
       name: "Debit",
-      screen: '/debit'
-
+      screen: "/debit",
     },
     {
       name: "Purchase",
-      screen: '/purchase'
-      
+      screen: "/purchase",
     },
     {
       name: "GST",
-      screen: '/gst'
-      
+      screen: "/gst",
     },
   ];
   return (
@@ -50,18 +45,20 @@ const Sidebar: React.FC = () => {
       <img src={Logo} alt="OM VAULT" className=" mx-auto opacity-80" />
       <div className="mt-12 h-[80%] w-full  overflow-y-scroll hide-scb  ">
         <div className="w-full bg-zinc-800 pe-2 rounded">
-         <YearDropdown/>
+          <YearDropdown />
         </div>
         {sidebarOptions.map((option) => (
           <Link
-          to={option.screen}
-          key={option.name}
-          className="p-2 hover:bg-zinc-800 cursor-pointer mt-2 rounded-md flex select-none"
+            to={option.screen}
+            key={option.name}
+            className={`p-2 hover:bg-zinc-800 cursor-pointer mt-2 rounded-md flex select-none ${
+              location.pathname === option.screen ? "bg-zinc-800 " : ""
+            }`}
           >
             {option.name}
           </Link>
         ))}
-      </div>  
+      </div>
     </motion.div>
   );
 };

@@ -12,7 +12,7 @@ import { v4 as uuid } from "uuid";
 const PurchaseForm: React.FC = () => {
   const { setShowForm } = useFormStore();
   const [purchaseData, setPurchaseData] = useState<PurchaseDataType>({
-    id: uuid(),
+    id: "",
     productName: "",
     price: 0,
     quantity: 0,
@@ -26,7 +26,14 @@ const PurchaseForm: React.FC = () => {
     paymentStatus: "null",
     paymentMethod: "null",
     orderingDate: "",
-    installments: [{ date: new Date().toISOString().split("T")[0], rate: 0 }],
+    installments: [
+      {
+        date: new Date().toISOString().split("T")[0],
+        rate: 0,
+        paymentMethod: "cash",
+      },
+    ],
+    pending: 0,
     totalPrice: 0,
   });
 
@@ -36,27 +43,39 @@ const PurchaseForm: React.FC = () => {
     >
   ) => {
     const { name, value } = e.target;
-    setPurchaseData((prev) => ({ ...prev, [name]: value }));
+    setPurchaseData((prev) => ({ ...prev, id: uuid(), [name]: value }));
     console.log(purchaseData);
   };
 
-  const handleInstallmentChange = (index: number, value: number) => {
+  const handleInstallmentChange = (
+    index: number,
+    value: number | string,
+    field: "rate" | "paymentMethod"
+  ) => {
     setPurchaseData((prev) => {
       const newInstallments = [...prev.installments];
-      newInstallments[index].rate = value;
+      if (field === "rate") {
+        newInstallments[index].rate = value as number;
+      } else {
+        newInstallments[index].paymentMethod = value as string;
+      }
       return { ...prev, installments: newInstallments };
     });
   };
 
   const addInstallment = () => {
     const lastInstallment = purchaseData.installments.at(-1);
-    if (lastInstallment && lastInstallment.rate === 0) return;
+    if (lastInstallment && lastInstallment.rate === 0) return; // Prevent adding if last installment rate is empty or 0
 
     setPurchaseData((prev) => ({
       ...prev,
       installments: [
         ...prev.installments,
-        { date: new Date().toISOString().split("T")[0], rate: 0 },
+        {
+          date: new Date().toISOString().split("T")[0],
+          rate: 0,
+          paymentMethod: "cash",
+        },
       ],
     }));
   };
@@ -66,7 +85,7 @@ const PurchaseForm: React.FC = () => {
   };
 
   React.useEffect(() => {
-    // Calculate the total price based on the price and quantity
+    // Calculate the total price based on the price, tax, discount, and quantity
     const calculatedTotalPrice = calculateTotalPrice(
       purchaseData.price,
       purchaseData.tax,
@@ -74,12 +93,25 @@ const PurchaseForm: React.FC = () => {
       purchaseData.quantity
     );
 
-    setPurchaseData((prev) => ({ ...prev, totalPrice: calculatedTotalPrice }));
+    // Calculate the total installments
+    const totalInstallments = purchaseData.installments.reduce(
+      (acc, installment) => acc + installment.rate,
+      0
+    );
+
+    const pendingAmount = calculatedTotalPrice - totalInstallments;
+
+    setPurchaseData((prev) => ({
+      ...prev,
+      totalPrice: calculatedTotalPrice,
+      pending: pendingAmount > 0 ? pendingAmount : 0,
+    }));
   }, [
     purchaseData.price,
     purchaseData.quantity,
     purchaseData.tax,
     purchaseData.discount,
+    purchaseData.installments,
   ]);
 
   return (
@@ -105,42 +137,28 @@ const PurchaseForm: React.FC = () => {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
         <Input
           name="price"
-          value={
-            (purchaseData.price != 0 ? purchaseData.price : "") as
-              | string
-              | number
-          }
+          value={purchaseData.price || ""}
           onChange={handleChange}
           label="Price"
           type="number"
         />
         <Input
           name="quantity"
-          value={
-            (purchaseData.quantity != 0 ? purchaseData.quantity : "") as
-              | string
-              | number
-          }
+          value={purchaseData.quantity || ""}
           onChange={handleChange}
           label="Quantity"
           type="number"
         />
         <Input
           name="discount"
-          value={
-            (purchaseData.discount != 0 ? purchaseData.discount : "") as
-              | string
-              | number
-          }
+          value={purchaseData.discount || ""}
           onChange={handleChange}
           label="Discount%"
           type="number"
         />
         <Input
           name="tax"
-          value={
-            (purchaseData.tax != 0 ? purchaseData.tax : "") as string | number
-          }
+          value={purchaseData.tax || ""}
           onChange={handleChange}
           label="Tax"
           type="number"
@@ -187,7 +205,7 @@ const PurchaseForm: React.FC = () => {
         <div className="w-full">
           <p>Supplier Address</p>
           <textarea
-            className="max-h-24 min-h-24 focus:outline-none w-full pe-4 bg-zinc-800  border-b border-gray-300 py-2 px-2 rounded-sm resize-none"
+            className="max-h-24 min-h-24 focus:outline-none w-full pe-4 bg-zinc-800 border-b border-gray-300 py-2 px-2 rounded-sm resize-none"
             name="supplierAddress"
             value={purchaseData.supplierAddress}
             onChange={handleChange}
@@ -196,7 +214,7 @@ const PurchaseForm: React.FC = () => {
         <div className="w-full">
           <p>Shipping Address</p>
           <textarea
-            className="max-h-24  min-h-24 focus:outline-none w-full pe-4 bg-zinc-800  border-b border-gray-300 py-2 px-2 rounded-sm resize-none"
+            className="max-h-24 min-h-24 focus:outline-none w-full pe-4 bg-zinc-800 border-b border-gray-300 py-2 px-2 rounded-sm resize-none"
             name="shippingAddress"
             value={purchaseData.shippingAddress}
             onChange={handleChange}
@@ -205,30 +223,36 @@ const PurchaseForm: React.FC = () => {
       </div>
 
       <div className="flex gap-2 items-center">
-        <div className="w-full pe-4 bg-zinc-800  border-b border-gray-300 py-2 px-2 rounded-sm">
-          <select
-            name="paymentStatus"
-            value={purchaseData.paymentStatus}
-            onChange={handleChange}
-            className="w-full bg-zinc-800 focus:outline-none"
-          >
-            <option value="null">Null</option>
-            <option value="done">Done</option>
-            <option value="pending">Pending</option>
-          </select>
+        <div className="w-full">
+          <label htmlFor="paymentMethod">Payment Status</label>
+          <div className="w-full pe-4 bg-zinc-800 border-b border-gray-300 py-2 px-2 rounded-sm">
+            <select
+              name="paymentStatus"
+              value={purchaseData.paymentStatus}
+              onChange={handleChange}
+              className="w-full bg-zinc-800 focus:outline-none"
+            >
+              <option value="null">Null</option>
+              <option value="done">Done</option>
+              <option value="pending">Pending</option>
+            </select>
+          </div>
         </div>
-        <div className="w-full pe-4 bg-zinc-800  border-b border-gray-300 py-2 px-2 rounded-sm">
-          <select
-            name="paymentMethod"
-            value={purchaseData.paymentMethod}
-            onChange={handleChange}
-            className="w-full bg-zinc-800 focus:outline-none"
-          >
-            <option value="null">Credit</option>
-            <option value="cash">Cash</option>
-            <option value="cheque">Cheque</option>
-            <option value="upi">UPI</option>
-          </select>
+        <div className="w-full">
+          <label htmlFor="paymentMethod">Payment Mode</label>
+          <div className="w-full pe-4 bg-zinc-800 border-b border-gray-300 py-2 px-2 rounded-sm">
+            <select
+              name="paymentMethod"
+              value={purchaseData.paymentMethod}
+              onChange={handleChange}
+              className="w-full bg-zinc-800 focus:outline-none"
+            >
+              <option value="null">Credit</option>
+              <option value="cash">Cash</option>
+              <option value="cheque">Cheque</option>
+              <option value="upi">UPI</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -246,30 +270,57 @@ const PurchaseForm: React.FC = () => {
         </div>
         {purchaseData.installments.map((inst, index) => (
           <div className="w-full my-2" key={index}>
-            <Input
-              value={(inst.rate != 0 ? inst.rate : "") as string | number}
-              type="number"
-              onChange={(e) =>
-                handleInstallmentChange(index, Number(e.target.value))
-              }
-              label={`Installment ${index + 1}`}
-            />
+            <div className="flex gap-2">
+              <Input
+                value={inst.rate || ""}
+                type="number"
+                onChange={(e) =>
+                  handleInstallmentChange(index, Number(e.target.value), "rate")
+                }
+                label={`Installment ${index + 1} Amount`}
+              />
+              <div className="w-1/4  px-2  flex justify-center items-end">
+                <select
+                  value={inst.paymentMethod}
+                  onChange={(e) =>
+                    handleInstallmentChange(
+                      index,
+                      e.target.value,
+                      "paymentMethod"
+                    )
+                  }
+                  className=" h-fit  bg-zinc-800 focus:border-none p-2 rounded-sm focus:outline-none w-full"
+                >
+                  <option value="null">Credit</option>
+                  <option value="cash">Cash</option>
+                  <option value="cheque">Cheque</option>
+                  <option value="upi">UPI</option>
+                </select>
+              </div>
+            </div>
           </div>
         ))}
       </div>
+
       <Input
-        name="supplierContact"
-        value={
-          (purchaseData.totalPrice != 0 ? purchaseData.totalPrice : "") as
-            | string
-            | number
-        }
+        name="totalPrice"
+        value={purchaseData.totalPrice || ""}
         onChange={handleChange}
         label="Total Price"
         type="number"
-        placeholder="Total Price will calculated here"
+        placeholder="Total Price will be calculated here"
         style="w-full"
       />
+      <Input
+        name="pending"
+        value={purchaseData.pending || ""}
+        onChange={handleChange}
+        label="Pending Amount"
+        type="number"
+        placeholder="Pending amount"
+        style="w-full"
+      />
+
       <Button onPress={submitHandler} label="Create" />
     </div>
   );
