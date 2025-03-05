@@ -11,6 +11,8 @@ import { v4 as uuid } from "uuid";
 
 const PurchaseForm: React.FC = () => {
   const { setShowForm } = useFormStore();
+  const [isInstallment, setIsInstallment] = useState<boolean>(false);
+  const [pendingPaymentAmount, setPendingPaymentAmount] = useState<number>(0);
   const [purchaseData, setPurchaseData] = useState<PurchaseDataType>({
     id: "",
     productName: "",
@@ -23,18 +25,19 @@ const PurchaseForm: React.FC = () => {
     supplierEmail: "",
     supplierAddress: "",
     shippingAddress: "",
-    paymentStatus: "null",
-    paymentMethod: "null",
+    paymentStatus: "pending",
+    paymentMethod: "other",
     orderingDate: "",
+    isInstallment: isInstallment,
     installments: [
       {
         date: new Date().toISOString().split("T")[0],
         rate: 0,
-        paymentMethod: "cash",
-      },
+        paymentMethod: "cash"
+      }
     ],
     pending: 0,
-    totalPrice: 0,
+    totalPrice: 0
   });
 
   const handleChange = (
@@ -74,13 +77,27 @@ const PurchaseForm: React.FC = () => {
         {
           date: new Date().toISOString().split("T")[0],
           rate: 0,
-          paymentMethod: "cash",
-        },
-      ],
+          paymentMethod: "cash"
+        }
+      ]
     }));
   };
 
   const submitHandler = async () => {
+    if (
+      !purchaseData.productName ||
+      !purchaseData.price ||
+      !purchaseData.quantity ||
+      !purchaseData.supplier ||
+      !purchaseData.supplierContact ||
+      !purchaseData.supplierEmail ||
+      !purchaseData.supplierAddress ||
+      !purchaseData.shippingAddress ||
+      !purchaseData.orderingDate
+    ) {
+      window.electronAPI.showCustomAlert("Please fill all the fields");
+      return;
+    }
     await window.electronAPI.onPurchaseData(purchaseData);
   };
 
@@ -95,24 +112,33 @@ const PurchaseForm: React.FC = () => {
 
     // Calculate the total installments
     const totalInstallments = purchaseData.installments.reduce(
-      (acc, installment) => acc + installment.rate,
+      (acc, installment) => acc + installment.rate!,
       0
     );
 
     const pendingAmount = calculatedTotalPrice - totalInstallments;
-
+    setPendingPaymentAmount(pendingAmount);
     setPurchaseData((prev) => ({
       ...prev,
       totalPrice: calculatedTotalPrice,
-      pending: pendingAmount > 0 ? pendingAmount : 0,
+      pending: pendingAmount > 0 ? pendingAmount : 0
     }));
   }, [
     purchaseData.price,
     purchaseData.quantity,
     purchaseData.tax,
     purchaseData.discount,
-    purchaseData.installments,
+    purchaseData.installments
   ]);
+
+  React.useEffect(() => {
+    if (!isInstallment)
+      setPurchaseData((prev) => ({ ...prev, paymentMethod: "cash" }));
+    if (purchaseData.paymentStatus == "paid")
+      setPurchaseData((prev) => ({ ...prev, pending: 0 }));
+    if (purchaseData.paymentStatus !== "paid")
+      setPurchaseData((prev) => ({ ...prev, pending: pendingPaymentAmount }));
+  }, [isInstallment, purchaseData]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -232,76 +258,97 @@ const PurchaseForm: React.FC = () => {
               onChange={handleChange}
               className="w-full bg-zinc-800 focus:outline-none"
             >
-              <option value="null">Null</option>
-              <option value="done">Done</option>
+              <option value="paid">Paid</option>
               <option value="pending">Pending</option>
+              <option value="cancelled">Cancelled</option>
             </select>
           </div>
         </div>
-        <div className="w-full">
+        <div className={`w-full`}>
           <label htmlFor="paymentMethod">Payment Mode</label>
           <div className="w-full pe-4 bg-zinc-800 border-b border-gray-300 py-2 px-2 rounded-sm">
             <select
+              disabled={isInstallment}
               name="paymentMethod"
               value={purchaseData.paymentMethod}
               onChange={handleChange}
               className="w-full bg-zinc-800 focus:outline-none"
             >
-              <option value="null">Credit</option>
               <option value="cash">Cash</option>
               <option value="cheque">Cheque</option>
+              <option value="creditCard">Credit Card</option>
+              <option value="bankTransfer">Bank Transfer</option>
               <option value="upi">UPI</option>
+              <option value="installment">Installment</option>
+              <option value="other">Other</option>
             </select>
           </div>
         </div>
       </div>
 
-      <div className="flex flex-col items-end mb-4">
-        <div className="w-full flex justify-between items-center">
-          <p>Installments</p>
-          <motion.div whileTap={{ scale: 0.8 }}>
-            <button
-              className="bg-zinc-800 p-2 font-semibold rounded-lg border border-white/20"
-              onClick={addInstallment}
-            >
-              <FaPlus color="white" />
-            </button>
-          </motion.div>
-        </div>
-        {purchaseData.installments.map((inst, index) => (
-          <div className="w-full my-2" key={index}>
-            <div className="flex gap-2">
-              <Input
-                value={inst.rate || ""}
-                type="number"
-                onChange={(e) =>
-                  handleInstallmentChange(index, Number(e.target.value), "rate")
-                }
-                label={`Installment ${index + 1} Amount`}
-              />
-              <div className="w-1/4  px-2  flex justify-center items-end">
-                <select
-                  value={inst.paymentMethod}
+      <div className="">
+        <label htmlFor="paymentMethod">Is Installments</label>
+        <Input
+          type="checkbox"
+          onChange={() => {
+            setIsInstallment(!isInstallment);
+            setPurchaseData({ ...purchaseData, paymentMethod: "installment" });
+          }}
+          style="w-fit scale-[1.8] ms-1 mt-2 accent-violet-500  "
+        />
+      </div>
+
+      {isInstallment && (
+        <div className="flex flex-col items-end mb-4">
+          <div className="w-full flex justify-between items-center">
+            <div />
+            <motion.div whileTap={{ scale: 0.8 }}>
+              <button
+                className="bg-zinc-800 p-2 font-semibold rounded-lg border border-white/20"
+                onClick={addInstallment}
+              >
+                <FaPlus color="white" />
+              </button>
+            </motion.div>
+          </div>
+          {purchaseData.installments.map((inst, index) => (
+            <div className="w-full my-2" key={index}>
+              <div className="flex gap-2">
+                <Input
+                  value={inst.rate || ""}
+                  type="number"
                   onChange={(e) =>
                     handleInstallmentChange(
                       index,
-                      e.target.value,
-                      "paymentMethod"
+                      Number(e.target.value),
+                      "rate"
                     )
                   }
-                  className=" h-fit  bg-zinc-800 focus:border-none p-2 rounded-sm focus:outline-none w-full"
-                >
-                  <option value="null">Credit</option>
-                  <option value="cash">Cash</option>
-                  <option value="cheque">Cheque</option>
-                  <option value="upi">UPI</option>
-                </select>
+                  label={`Installment ${index + 1} Amount`}
+                />
+                <div className="w-1/4  px-2  flex justify-center items-end">
+                  <select
+                    value={inst.paymentMethod}
+                    onChange={(e) =>
+                      handleInstallmentChange(
+                        index,
+                        e.target.value,
+                        "paymentMethod"
+                      )
+                    }
+                    className=" h-fit  bg-zinc-800 focus:border-none p-2 rounded-sm focus:outline-none w-full"
+                  >
+                    <option value="null">Credit</option>
+                    <option value="cash">Cash</option>
+                    <option value="cheque">Cheque</option>
+                    <option value="upi">UPI</option>
+                  </select>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
-
+          ))}
+        </div>
+      )}
       <Input
         name="totalPrice"
         value={purchaseData.totalPrice || ""}

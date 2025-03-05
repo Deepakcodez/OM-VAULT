@@ -6,5 +6,6 @@ electron.contextBridge.exposeInMainWorld("electronAPI", {
   isAuthenticated: (cb) => electron.ipcRenderer.once("isAuthenticated", (_, state) => cb(state)),
   removeListener: (channel) => electron.ipcRenderer.removeAllListeners(channel),
   onPurchaseData: (data) => electron.ipcRenderer.invoke("purchase-data", data),
-  getPurchaseData: () => electron.ipcRenderer.invoke("get-purchase-data")
+  getPurchaseData: () => electron.ipcRenderer.invoke("get-purchase-data"),
+  showCustomAlert: (message) => electron.ipcRenderer.invoke("show-custom-alert", message)
 });

@@ -9,4 +9,5 @@ contextBridge.exposeInMainWorld("electronAPI", {
  removeListener: (channel: string) => ipcRenderer.removeAllListeners(channel),
  onPurchaseData: (data: PurchaseDataType) => ipcRenderer.invoke("purchase-data", data),
  getPurchaseData: () => ipcRenderer.invoke("get-purchase-data"),
+ showCustomAlert: ( message: string) => ipcRenderer.invoke("show-custom-alert",  message),
 });

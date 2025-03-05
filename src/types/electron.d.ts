@@ -8,6 +8,7 @@ export interface ElectronAPI {
     removeListener: (channel: string) => void;
     onPurchaseData: (data: PurchaseDataType) => Promise<void>;
     getPurchaseData: ()=>Promise<PurchaseDataType[]>;
+    showCustomAlert: (message: string) => void;
   }
   
   declare global {

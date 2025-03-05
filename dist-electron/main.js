@@ -1,4 +1,4 @@
-import { ipcMain, app, BrowserWindow } from "electron";
+import { ipcMain, app, dialog, BrowserWindow } from "electron";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import fs from "fs";
@@ -1788,6 +1788,15 @@ const readDataFromFile = (filePath) => {
     return [];
   }
 };
+ipcMain.handle("show-custom-alert", async (event, message) => {
+  await dialog.showMessageBox(win, {
+    type: "error",
+    buttons: ["OK"],
+    title: "Alert",
+    message,
+    detail: "Please fill all the fields correctly and try again."
+  });
+});
 ipcMain.handle("get-purchase-data", async () => {
   const filePath = path.join(app.getPath("userData"), "purchaseData.json");
   console.log(filePath);

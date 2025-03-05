@@ -16,9 +16,10 @@ type PurchaseDataType = {
   supplierEmail: string;
   supplierAddress: string;
   shippingAddress: string;
-  paymentStatus: string;
-  paymentMethod: string;
+  paymentStatus: "pending"| "paid" | "cancelled";
+  paymentMethod: "cash" | "creditCard" | "bankTransfer" | "upi" | "cheque" | "installment" | "other";
   orderingDate: string;
+  isInstallment: boolean;
   installments: InstallmentType[];
   pending? : number
   totalPrice?: number ;

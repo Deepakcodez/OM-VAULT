@@ -15,6 +15,7 @@
     "clsx": "^2.1.1",
     "lucide-react": "^0.476.0",
     "motion": "^12.4.7",
+    "node-notifier": "^10.0.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^5.5.0",
@@ -26,6 +27,7 @@
     "zustand": "^5.0.3"
   },
   "devDependencies": {
+    "@types/node-notifier": "^8.0.5",
     "@types/react": "^18.2.64",
     "@types/react-dom": "^18.2.21",
     "@typescript-eslint/eslint-plugin": "^7.1.1",

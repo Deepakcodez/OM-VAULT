@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from "electron";
+import { app, BrowserWindow, dialog, ipcMain } from "electron";
 // import { createRequire } from 'node:module'
 import { fileURLToPath } from "node:url";
 import path from "node:path";
@@ -76,7 +76,7 @@ ipcMain.handle("register-data", async (_, data) => {
   } else {
     return { success: false, message: "File save canceled" };
   }
-});
+}); 
 
 const readDataFromFile = (filePath: string) => {
   try {
@@ -87,6 +87,16 @@ const readDataFromFile = (filePath: string) => {
     return [];
   }
 };
+ipcMain.handle('show-custom-alert', async (event, message) => {
+  
+  await dialog.showMessageBox(win!, {
+    type: 'error',
+    buttons: ['OK'],
+    title: 'Alert',
+    message: message,
+    detail: 'Please fill all the fields correctly and try again.',
+  });
+});
 
 ipcMain.handle("get-purchase-data", async () => {
   const filePath = path.join(app.getPath("userData"), "purchaseData.json");
