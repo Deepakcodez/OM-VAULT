@@ -1788,7 +1788,7 @@ const readDataFromFile = (filePath) => {
     return [];
   }
 };
-ipcMain.handle("show-custom-alert", async (event, message) => {
+ipcMain.handle("show-custom-alert", async (_, message) => {
   await dialog.showMessageBox(win, {
     type: "error",
     buttons: ["OK"],
