@@ -9,7 +9,7 @@ import { PurchaseDataType } from "../../../types/types";
 import { calculateTotalPrice } from "../../../libs/utilityFunc";
 import { v4 as uuid } from "uuid";
 
-const PurchaseForm: React.FC = () => {
+const SaleForm: React.FC = () => {
   const { setShowForm } = useFormStore();
   const [isInstallment, setIsInstallment] = useState<boolean>(false);
   const [pendingPaymentAmount, setPendingPaymentAmount] = useState<number>(0);
@@ -47,6 +47,7 @@ const PurchaseForm: React.FC = () => {
   ) => {
     const { name, value } = e.target;
     setPurchaseData((prev) => ({ ...prev, id: uuid(), [name]: value }));
+    console.log(purchaseData);
   };
 
   const handleInstallmentChange = (
@@ -97,8 +98,7 @@ const PurchaseForm: React.FC = () => {
       window.electronAPI.showCustomAlert("Please fill all the fields");
       return;
     }
-    const resp =  await window.electronAPI.onPurchaseData(purchaseData);
-    console.log(resp);
+    await window.electronAPI.onPurchaseData(purchaseData);
   };
 
   React.useEffect(() => {
@@ -132,14 +132,13 @@ const PurchaseForm: React.FC = () => {
   ]);
 
   React.useEffect(() => {
-    if (isInstallment) {
-      setPurchaseData((prev) => ({ ...prev, paymentMethod: "installment" }));
-    }
+    if (!isInstallment)
+      setPurchaseData((prev) => ({ ...prev, paymentMethod: "cash" }));
     if (purchaseData.paymentStatus == "paid")
       setPurchaseData((prev) => ({ ...prev, pending: 0 }));
     if (purchaseData.paymentStatus !== "paid")
       setPurchaseData((prev) => ({ ...prev, pending: pendingPaymentAmount }));
-  }, [isInstallment, pendingPaymentAmount]);
+  }, [isInstallment, purchaseData]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -293,6 +292,7 @@ const PurchaseForm: React.FC = () => {
           type="checkbox"
           onChange={() => {
             setIsInstallment(!isInstallment);
+            setPurchaseData({ ...purchaseData, paymentMethod: "installment" });
           }}
           style="w-fit scale-[1.8] ms-1 mt-2 accent-violet-500  "
         />
@@ -358,21 +358,19 @@ const PurchaseForm: React.FC = () => {
         placeholder="Total Price will be calculated here"
         style="w-full"
       />
-      {purchaseData.paymentStatus !== "paid" && (
-        <Input
-          name="pending"
-          value={purchaseData.pending || ""}
-          onChange={handleChange}
-          label="Pending Amount"
-          type="number"
-          placeholder="Pending amount"
-          style="w-full"
-        />
-      )}
+      <Input
+        name="pending"
+        value={purchaseData.pending || ""}
+        onChange={handleChange}
+        label="Pending Amount"
+        type="number"
+        placeholder="Pending amount"
+        style="w-full"
+      />
 
       <Button onPress={submitHandler} label="Create" />
     </div>
   );
 };
 
-export default PurchaseForm;
+export default SaleForm;

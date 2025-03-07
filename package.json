@@ -4,14 +4,18 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite ",
     "build": "tsc && vite build && electron-builder",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "electron-trace": "electron --trace-warnings ."
   },
   "dependencies": {
+    "@rollup/plugin-commonjs": "^28.0.3",
     "@tailwindcss/vite": "^4.0.7",
+    "@types/rollup-plugin-commonjs": "^9.2.0",
     "bcryptjs": "^3.0.2",
+    "better-sqlite3": "^11.8.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.476.0",
     "motion": "^12.4.7",
@@ -23,10 +27,12 @@
     "tailwind-merge": "^3.0.2",
     "tailwindcss": "^4.0.7",
     "uuidv4": "^6.2.13",
+    "vite-plugin-node-polyfills": "^0.23.0",
     "xlsx": "^0.18.5",
     "zustand": "^5.0.3"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "^7.6.12",
     "@types/node-notifier": "^8.0.5",
     "@types/react": "^18.2.64",
     "@types/react-dom": "^18.2.21",
@@ -41,6 +47,7 @@
     "tailwindcss-motion": "^1.1.0",
     "typescript": "^5.2.2",
     "vite": "^5.1.6",
+    "vite-plugin-commonjs": "^0.10.4",
     "vite-plugin-electron": "^0.28.6",
     "vite-plugin-electron-renderer": "^0.14.5"
   },

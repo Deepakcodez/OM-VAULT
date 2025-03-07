@@ -10,7 +10,9 @@ const Login: React.FC = () => {
   });
 
   const handleLogin = async () => {
+    console.log(userData);  
     await window.electronAPI.onLoginData(userData);
+    
     window.electronAPI.removeListener("isAuthenticated");
      window.electronAPI.isAuthenticated((state: boolean) => {
       console.log(state);
