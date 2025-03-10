@@ -8,9 +8,7 @@ declare global {
     electron: ElectronAPI & {
       addPurchase: (purchaseData: PurchaseDataType) => Promise<void>
       addUser: (userDetail : UserDetailType) => Promise<void>
-      getAllUsers: () => Promise<
-        Array<{ id: number; name: string; email: string; created_at: string }>
-      >
+      getAllUsers: () => Promise<UserDetailType[]>
       updateUser: (id: number, name: string, email: string) => Promise<void>
       deleteUser: (id: number) => Promise<void>
     }

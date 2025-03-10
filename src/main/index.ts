@@ -57,6 +57,7 @@ app.whenReady().then(() => {
   })
 
   ipcMain.handle('getAllUsers', () => {
+    console.log('from main process get all users');
     return getAllUsers()
   })
 
