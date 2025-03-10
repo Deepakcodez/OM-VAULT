@@ -13,7 +13,7 @@ import { v4 as uuid } from "uuid";
 
 
 const PurchaseForm: React.FC = () => {
-  
+
 
   const { setShowForm } = useFormStore();
   const [isInstallment, setIsInstallment] = useState<boolean>(false);
@@ -99,11 +99,12 @@ const PurchaseForm: React.FC = () => {
       !purchaseData.shippingAddress ||
       !purchaseData.orderingDate
     ) {
-      window.electronAPI.showCustomAlert("Please fill all the fields");
+      // window.electronAPI.showCustomAlert("Please fill all the fields");
+      alert("Please fill all the fields")
       return;
     }
-    const resp =  await window.electronAPI.onPurchaseData(purchaseData);
-    console.log(resp);
+    const resp =  await window.electron.addPurchase(purchaseData);
+    console.log("res on render side",resp);
   };
 
   React.useEffect(() => {

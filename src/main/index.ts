@@ -13,7 +13,8 @@ function createWindow(): void {
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
-      sandbox: false
+      sandbox: false,
+      contextIsolation: true,
     }
   })
 
@@ -41,6 +42,12 @@ app.whenReady().then(() => {
 
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
+  })
+
+  ipcMain.handle('addPurchase', (_, purchaseData) => {
+    console.log("from main process purchase data",purchaseData)
+    return purchaseData
+    // return insertUser(name, email)
   })
 
   ipcMain.handle('insertUser', (_, name, email) => {
