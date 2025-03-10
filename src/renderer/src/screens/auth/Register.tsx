@@ -1,7 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { UserSchema } from '@renderer/libs/validation'
-import {z} from 'zod'
 import { UserDetailType } from '@renderer/types/auth.types'
 
 
