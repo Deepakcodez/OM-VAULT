@@ -11,9 +11,9 @@ function calculateTotalPrice(
     const tax = (priceAfterDiscount * taxRate!) / 100;
     const totalPriceWithoutTax = priceAfterDiscount;
     const totalPrice = totalPriceWithoutTax + tax;
-  
 
-  return parseFloat(totalPrice.toFixed(2)); // Round to 2 decimal places (optional)
+
+  return parseFloat(totalPrice.toFixed(2)); 
 }
 
 export { calculateTotalPrice };

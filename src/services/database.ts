@@ -9,6 +9,8 @@ function initializeDatabase(): void {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
       email TEXT NOT NULL UNIQUE,
+      phone INTEGER NOT NULL UNIQUE,
+      password TEXT NOT NULL,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `
@@ -16,18 +18,23 @@ function initializeDatabase(): void {
 }
 
 // Insert a new user
-function insertUser(name: string, email: string): Database.RunResult {
-  const stmt = db.prepare('INSERT INTO users (name, email) VALUES (?, ?)')
-  return stmt.run(name, email)
+function insertUser(userData: { name: string; email: string; phone: number; password: string }): Database.RunResult {
+  const stmt = db.prepare('INSERT INTO users (name, email, phone, password) VALUES (?, ?, ?, ?)')
+  return stmt.run(userData.name, userData.email, userData.phone, userData.password)
 }
 
 // Get all users
-function getAllUsers():
-  | Array<{ id: number; name: string; email: string; created_at: string }>
-  | unknown {
-  const stmt = db.prepare('SELECT * FROM users')
-  return stmt.all()
+function getAllUsers(): Array<{ id: number; name: string; email: string; phone: string; created_at: string }> {
+  try {
+    const stmt = db.prepare('SELECT id, name, email, phone, created_at FROM users')
+    const users = stmt.all() as Array<{ id: number; name: string; email: string; phone: string; created_at: string }>
+    return users
+  } catch (error) {
+    console.error('Error fetching users:', error)
+    return [] // Return an empty array on failure
+  }
 }
+
 
 // Update a user
 function updateUser(id: number, name: string, email: string): Database.RunResult {

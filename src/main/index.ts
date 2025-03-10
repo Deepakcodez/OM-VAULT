@@ -14,7 +14,7 @@ function createWindow(): void {
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false,
-      contextIsolation: true,
+      contextIsolation: true
     }
   })
 
@@ -45,13 +45,15 @@ app.whenReady().then(() => {
   })
 
   ipcMain.handle('addPurchase', (_, purchaseData) => {
-    console.log("from main process purchase data",purchaseData)
+    console.log('from main process purchase data', purchaseData)
     return purchaseData
     // return insertUser(name, email)
   })
 
-  ipcMain.handle('insertUser', (_, name, email) => {
-    return insertUser(name, email)
+  ipcMain.handle('addUser', (_, userData) => {
+    console.log('from main process user data', userData)
+    insertUser(userData)
+    return userData
   })
 
   ipcMain.handle('getAllUsers', () => {

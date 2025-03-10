@@ -1,20 +1,13 @@
-interface registerType {
-    name : string;
-    email : string;
-    password : string;
-    phone : string ;
+interface UserDetailType {
+  name: string
+  email: string
+  password: string
+  phone: string
 }
-
 
 interface loginType {
-    email : string;
-    password : string;
+  email: string
+  password: string
 }
 
-
-
-
-export type {
-    registerType,
-    loginType
-}
+export type { UserDetailType, loginType }

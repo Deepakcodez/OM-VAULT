@@ -1,25 +1,31 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { registerType } from "../../types/auth.types";
+import React from 'react'
+import { Link } from 'react-router-dom'
+import { UserSchema } from '@renderer/libs/validation'
+import {z} from 'zod'
+import { UserDetailType } from '@renderer/types/auth.types'
+
 
 const Register: React.FC = () => {
-  const [userData, setUserData] = React.useState<registerType>({
-    name: "",
-    email: "",
-    password: "",
-    phone: "",
-  });
+  const [userData, setUserData] = React.useState<UserDetailType>({
+    name: '',
+    email: '',
+    password: '',
+    phone: ''
+  })
 
- const handleRegister = async () => {
-    await window.electronAPI.onRegisterData(userData);
- }
- 
+  const handleRegister = async () => {
+    try {
+      UserSchema.parse(userData)
+      await window.electron.addUser(userData)
+    } catch (error) {
+      return alert("User Validation Error")
+    }
+  }
+
   return (
     <div className="h-screen w-full flex justify-center items-center ">
       <div className="relative group border border-gray-300/10 rounded-md px-6 py-12 bg-neutral-800 flex flex-col gap-2">
-        <h1 className="text-5xl font-bold text-white/50 text-center">
-          Register
-        </h1>
+        <h1 className="text-5xl font-bold text-white/50 text-center">Register</h1>
         <div className="flex flex-col gap-1">
           <label htmlFor="email" className="text-white">
             Name
@@ -43,9 +49,7 @@ const Register: React.FC = () => {
             type="email"
             name="email"
             id="email"
-            onChange={(e) =>
-              setUserData({ ...userData, email: e.target.value })
-            }
+            onChange={(e) => setUserData({ ...userData, email: e.target.value })}
             value={userData.email}
             placeholder="Enter your email"
             className="border border-gray-300/20 rounded-md p-2 w-96 outline-none focus:outline-none text-white"
@@ -60,9 +64,7 @@ const Register: React.FC = () => {
             name="phone"
             id="phone"
             placeholder="Enter your phone number"
-            onChange={(e) =>
-              setUserData({ ...userData, phone: e.target.value })
-            }
+            onChange={(e) => setUserData({ ...userData, phone: e.target.value })}
             value={userData.phone}
             className="border border-gray-300/20 rounded-md p-2 w-96 outline-none focus:outline-none text-white "
           />
@@ -76,9 +78,7 @@ const Register: React.FC = () => {
             name="password"
             id="password"
             placeholder="Enter your password"
-            onChange={(e) =>
-              setUserData({ ...userData, password: e.target.value })
-            }
+            onChange={(e) => setUserData({ ...userData, password: e.target.value })}
             value={userData.password}
             className="border border-gray-300/20 rounded-md p-2 w-96 outline-none focus:outline-none text-white"
           />
@@ -90,11 +90,11 @@ const Register: React.FC = () => {
           Register
         </button>
         <p className="text-white/50">
-          {" "}
-          Have an Account ?{" "}
-          <Link to={"/"} className="text-violet-400 cursor-pointer">
-            {" "}
-            Login{" "}
+          {' '}
+          Have an Account ?{' '}
+          <Link to={'/'} className="text-violet-400 cursor-pointer">
+            {' '}
+            Login{' '}
           </Link>
         </p>
 
@@ -104,7 +104,7 @@ const Register: React.FC = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Register;
+export default Register
