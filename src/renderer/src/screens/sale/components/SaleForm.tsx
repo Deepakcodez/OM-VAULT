@@ -98,7 +98,7 @@ const SaleForm: React.FC = () => {
       window.electronAPI.showCustomAlert("Please fill all the fields");
       return;
     }
-    await window.electronAPI.onPurchaseData(purchaseData);
+    await window.electronAPI.addSales(purchaseData);
   };
 
   React.useEffect(() => {

@@ -30,6 +30,31 @@ db.exec(`
 
 `)
 
+//sales
+db.exec(`
+  CREATE TABLE IF NOT EXISTS sales (
+    id TEXT PRIMARY KEY,
+    productName TEXT NOT NULL,
+    price REAL,
+    quantity INTEGER,
+    discount REAL,
+    tax REAL,
+    supplier TEXT,
+    supplierContact TEXT,
+    supplierEmail TEXT,
+    supplierAddress TEXT,
+    shippingAddress TEXT,
+    paymentStatus TEXT,
+    paymentMethod TEXT,
+    orderingDate TEXT,
+    isInstallment INTEGER,
+    installments TEXT,
+    pending REAL,
+    totalPrice REAL
+  )
+
+`)
+
 // Users Table
 db.exec(`
 CREATE TABLE IF NOT EXISTS users (

@@ -11,7 +11,7 @@ export interface ElectronAPI {
   ) => Promise<{ success: boolean; message: string; user?: UserDetailType }>
   isAuthenticated: (callback: (state: boolean) => void) => void
   removeListener: (channel: string) => void
-  onPurchaseData: (data: PurchaseDataType) => Promise<void>
+  addSales: (data: PurchaseDataType) => Promise<void>
   getPurchaseData: () => Promise<PurchaseDataType[]>
   showCustomAlert: (message: string) => void
 }
