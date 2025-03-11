@@ -4,8 +4,6 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import {
   insertUser,
   getAllUsers,
-  updateUser,
-  deleteUser,
   getUserByEmail
 } from '../services/user.services'
 import bcrypt from 'bcryptjs'
@@ -31,7 +29,10 @@ function createWindow(): void {
   })
 
   mainWindow.on('ready-to-show', () => {
-    if (mainWindow) mainWindow.show()
+    if (mainWindow){
+      mainWindow.setMenuBarVisibility(true)
+      mainWindow.menuBarVisible = true
+      mainWindow.show()}
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {

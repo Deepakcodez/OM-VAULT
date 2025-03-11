@@ -14,8 +14,8 @@ type InputProps = {
 const Input: React.FC<InputProps> = ({
   placeholder = "Enter text here",
   type = "text",
-  value, 
-  name,   
+  value,
+  name,
   onChange,
   label ,
   style,

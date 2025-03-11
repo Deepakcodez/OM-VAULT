@@ -1,7 +1,19 @@
-import React from "react";
-import { Route, Routes } from "react-router-dom";
-import { Credit, Dashboard, Debit, Gst, Home, Login, Purchase, Register, Sale, Transaction } from "../screens";
-import UserLayout from "../layout/UserLayout";
+import React from 'react'
+import { Route, Routes } from 'react-router-dom'
+import {
+  Credit,
+  Dashboard,
+  Debit,
+  Gst,
+  Home,
+  Login,
+  Purchase,
+  Register,
+  Sale,
+  Transaction
+} from '../screens'
+import UserLayout from '../layout/UserLayout'
+import Installments from '@renderer/screens/installments/Installments'
 
 const Router: React.FC = () => {
   return (
@@ -14,6 +26,7 @@ const Router: React.FC = () => {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/home" element={<Home />} />
           <Route path="/credit" element={<Credit />} />
+          <Route path="/installments" element={<Installments />} />
           <Route path="/sale" element={<Sale />} />
           <Route path="/gst" element={<Gst />} />
           <Route path="/transactions" element={<Transaction />} />
@@ -22,7 +35,7 @@ const Router: React.FC = () => {
         </Route>
       </Routes>
     </>
-  );
-};
+  )
+}
 
-export default Router;
+export default Router
