@@ -1,19 +1,17 @@
-import React from "react";
-import { useSinglePurchaseStore } from "../../../state_manager/singlePurchaseData";
-import { RxCross2 } from "react-icons/rx";
-import { motion } from "motion/react";
-import { MdEditSquare } from "react-icons/md";
-import {  MdCircle  } from "react-icons/md";
+import React from 'react'
+import { useSinglePurchaseStore } from '../../../state_manager/singlePurchaseData'
+import { RxCross2 } from 'react-icons/rx'
+import { motion } from 'motion/react'
+import { MdEditSquare } from 'react-icons/md'
+import { MdCircle } from 'react-icons/md'
 
 const SinglePurchase: React.FC = () => {
-  const { singlePurchaseData, setSinglePurchaseData } = useSinglePurchaseStore();
-  
+  const { singlePurchaseData, setSinglePurchaseData } = useSinglePurchaseStore()
+
   return (
     <div className="w-full h-full bg-zinc-800/20 border border-zinc-700 backdrop-blur-md p-4  px-12 rounded-lg">
       <div className="w-full h-full mt-12 flex  items-center justify-between">
-        <h1 className="text-3xl  truncate">
-          {singlePurchaseData?.productName}
-        </h1>
+        <h1 className="text-3xl  truncate">{singlePurchaseData?.productName}</h1>
         <div className="flex items-center gap-2">
           <MdEditSquare />
 
@@ -112,15 +110,15 @@ const SinglePurchase: React.FC = () => {
             <p>Payment Status</p>
           </div>
           <div className="w-full">
-            <div className="flex items-center gap-2" >
-              {singlePurchaseData?.paymentStatus}{" "}
-              {singlePurchaseData?.paymentStatus === "paid" ? 
-                <MdCircle  size={12} color="green" />
-                  : (singlePurchaseData?.paymentStatus === "pending") ?
-                <MdCircle  size={12} color="yellow" /> :
-                <MdCircle  size={12} color="red" />
-                
-              }
+            <div className="flex items-center gap-2">
+              {singlePurchaseData?.paymentStatus}{' '}
+              {singlePurchaseData?.paymentStatus === 'paid' ? (
+                <MdCircle size={12} color="green" />
+              ) : singlePurchaseData?.paymentStatus === 'pending' ? (
+                <MdCircle size={12} color="yellow" />
+              ) : (
+                <MdCircle size={12} color="red" />
+              )}
             </div>
           </div>
         </div>
@@ -133,30 +131,26 @@ const SinglePurchase: React.FC = () => {
           </div>
         </div>
         {singlePurchaseData?.installments &&
-          singlePurchaseData?.installments.length > 0 && (
+          JSON.parse(singlePurchaseData?.installments).length > 0 && (
             <div className="flex gap-12 py-4">
               <div className="w-full">
                 <p>Installments</p>
               </div>
               <div className="w-full">
-                {singlePurchaseData?.installments?.map((item) => {
+                {JSON.parse(singlePurchaseData?.installments)?.map((item) => {
                   return (
                     <div className="bg-zinc-800 border border-zinc-700/50 p-2 rounded-lg mb-1">
                       <p className="text-zinc-400">
                         Date : <span className="text-white">{item?.date} </span>
                       </p>
                       <p className="text-zinc-400">
-                        Price :{" "}
-                        <span className="text-white">{item?.rate} </span>
+                        Price : <span className="text-white">{item?.rate} </span>
                       </p>
                       <p className="text-zinc-400">
-                        Payment Mode :{" "}
-                        <span className="text-white">
-                          {item?.paymentMethod}{" "}
-                        </span>
+                        Payment Mode : <span className="text-white">{item?.paymentMethod} </span>
                       </p>
                     </div>
-                  );
+                  )
                 })}
               </div>
             </div>
@@ -174,14 +168,12 @@ const SinglePurchase: React.FC = () => {
             <p className="text-lg ">Total Price</p>
           </div>
           <div className="w-full">
-            <p className="text-lg font-semibold">
-              {singlePurchaseData?.totalPrice}{" "}
-            </p>
+            <p className="text-lg font-semibold">{singlePurchaseData?.totalPrice} </p>
           </div>
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default SinglePurchase;
+export default SinglePurchase

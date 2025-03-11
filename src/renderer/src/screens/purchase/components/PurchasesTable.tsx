@@ -21,11 +21,13 @@ const PurchasesTable: React.FC<PurchasesTableProps> = ({refresh}) => {
   React.useEffect(() => {
     const loadPurchaseData = async () => {
       const data = await fetchPurchaseData(); // Fetch data
+      console.table(data);
       if (data.length > 0) {
         setPurchaseData(data); // Update store with fetched data
       }
     };
-    loadPurchaseData(); // Call the function to fetch and store data
+    loadPurchaseData();
+     // Call the function to fetch and store data
   }, [setPurchaseData,  refresh]);
 
   return (

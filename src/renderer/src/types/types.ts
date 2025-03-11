@@ -1,4 +1,4 @@
-type InstallmentType = {
+ type InstallmentType = {
   date: string;
   rate: number | null;
   paymentMethod : string;
@@ -20,7 +20,7 @@ type PurchaseDataType = {
   paymentMethod: "cash" | "creditCard" | "bankTransfer" | "upi" | "cheque" | "installment" | "other";
   orderingDate: string;
   isInstallment: boolean;
-  installments: InstallmentType[];
+  installments:  string | undefined;
   pending? : number
   totalPrice?: number ;
 };
