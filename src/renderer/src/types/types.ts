@@ -37,7 +37,7 @@ type InstallmentType = {
 >>>>>>> ae05c78514565a5a1cf5de712c0ac67b10ec3179
 }
 
-type PurchaseDataType = {
+type SalesDataType = {
   id: string
   productName: string
   price: number | null
@@ -63,4 +63,4 @@ type TableHeadingsTypes = {
   label: string
 }
 
-export type { InstallmentType, PurchaseDataType, TableHeadingsTypes }
+export type { InstallmentType, PurchaseDataType, TableHeadingsTypes ,SalesDataType}

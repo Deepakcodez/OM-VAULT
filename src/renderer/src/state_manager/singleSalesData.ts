@@ -1,16 +1,16 @@
 import { create } from 'zustand';
-import { PurchaseDataType } from '../types/types';
+import {  SalesDataType } from '../types/types';
 
 type Store = {
-  singlePurchaseData: PurchaseDataType | null;
-  setSinglePurchaseData: (data: PurchaseDataType | null) => void;
+  singleSalesData: SalesDataType | null;
+  setSingleSalesData: (data: SalesDataType | null) => void;
 };
 
-const useSinglePurchaseStore = create<Store>((set) => ({
-  singlePurchaseData:null , // Initial state
-  setSinglePurchaseData: (data) => set(() => ({ singlePurchaseData: data })), // Correctly updating the state
+const useSingleSalesStore = create<Store>((set) => ({
+  singleSalesData:null , // Initial state
+  setSingleSalesData: (data) => set(() => ({ singleSalesData: data })), // Correctly updating the state
 }));
 
 export {
-  useSinglePurchaseStore,
+  useSingleSalesStore,
 };

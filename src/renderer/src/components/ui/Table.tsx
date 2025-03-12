@@ -1,19 +1,15 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { PurchaseDataType, TableHeadingsTypes } from '../../types/types'
 import { IoEllipsisHorizontalSharp } from 'react-icons/io5'
 import { motion } from 'motion/react'
-import { useSinglePurchaseStore } from '../../state_manager/singlePurchaseData'
 type TableProps = {
   tableHeadings: TableHeadingsTypes[]
   tableBody: any[]
   setRowData: (data: PurchaseDataType) => void
 }
 const Table: React.FC<TableProps> = ({ tableHeadings, tableBody, setRowData }) => {
-  const { singlePurchaseData, setSinglePurchaseData } = useSinglePurchaseStore()
 
-  useEffect(() => {
-    console.log('single purchase data in table', singlePurchaseData)
-  }, [singlePurchaseData])
+
   return (
     <div className="relative">
       <table className="table-fixed  rounded-t-lg border-spacing-x text-white w-full border-separate">
