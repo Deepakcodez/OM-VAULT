@@ -8,7 +8,7 @@ import {
 } from '../services/user.services'
 import bcrypt from 'bcryptjs'
 import icon from '../../resources/icon.png?asset'
-import { deletePurchase, getAllPurchases, getPurchaseById, insertPurchase, updatePurchase } from '../services/purchase.services'
+import { deletePurchase, getAllPurchases, getPurchaseById, getPurchaseByPaymentMethod, insertPurchase, updatePurchase } from '../services/purchase.services'
 import { insertSales } from '../services/sales.services'
 
 let mainWindow: BrowserWindow | null = null
@@ -147,6 +147,11 @@ app.whenReady().then(() => {
   ipcMain.handle('getPurchaseById', async (_, id) => {
     return getPurchaseById(id);
   });
+
+  ipcMain.handle("getPurchaseByPaymentMethod", async(__, paymentMethod) =>{
+    console.log("  getting installement data")
+    return getPurchaseByPaymentMethod(paymentMethod);
+  })
 
   ipcMain.handle('updatePurchase', async (_, purchaseData) => {
     try {

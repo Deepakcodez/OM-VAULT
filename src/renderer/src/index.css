@@ -44,3 +44,22 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
+
+.om-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+/* Track */
+.om-scrollbar::-webkit-scrollbar-track {
+  background: #919191;
+}
+
+/* Handle */
+.om-scrollbar::-webkit-scrollbar-thumb {
+  background: #e0b1ff;
+}
+
+/* Handle on hover */
+.om-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #f799ff
+}

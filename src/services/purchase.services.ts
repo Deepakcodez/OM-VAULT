@@ -1,5 +1,5 @@
 import db from "./database.table";
-import { randomUUID } from 'crypto'; 
+import { randomUUID } from 'crypto';
 // Helper function to sanitize purchase data
 const sanitizePurchase = (purchase: any) => ({
   id: purchase.id ?? randomUUID(), // Generate UUID if missing
@@ -47,6 +47,17 @@ export const getAllPurchases = () => {
 // Get Purchase by ID
 export const getPurchaseById = (id: string) => {
   return db.prepare('SELECT * FROM purchases WHERE id = ?').get(id);
+};
+
+export const getPurchaseByPaymentMethod = (paymentMethod: string) => {
+  try {
+    const stmt = db.prepare("SELECT * FROM purchases WHERE paymentMethod = ?");
+    const data = stmt.all(paymentMethod);
+    return data;
+  } catch (error) {
+    console.error("Error fetching purchases by payment method:", error);
+    return [];
+  }
 };
 
 // Update Purchase

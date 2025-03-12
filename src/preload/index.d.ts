@@ -1,4 +1,3 @@
-// src/electron.d.ts
 import { ElectronAPI } from '@electron-toolkit/preload'
 import { UserDetailType } from '@renderer/types/auth.types'
 import { PurchaseDataType } from '@renderer/types/types'
@@ -22,7 +21,8 @@ declare global {
       deleteUser: (id: number) => Promise<void>
 
       getAllPurchases: () => Promise<PurchaseDataType[]>
-
+      getPurchaseByPaymentMethod: (paymentMethod: string) => Promise<any>
+      
 
       openDialog: (
         title: string,

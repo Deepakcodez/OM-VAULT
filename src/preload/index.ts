@@ -13,6 +13,8 @@ contextBridge.exposeInMainWorld('electron', {
   updatePurchase: (purchaseData:any) => ipcRenderer.invoke('updatePurchase', purchaseData),
   deletePurchase: (id:any) => ipcRenderer.invoke('deletePurchase', id),
 
+  getPurchaseByPaymentMethod: (paymentMethod:string) => ipcRenderer.invoke('getPurchaseByPaymentMethod', paymentMethod),
+  
   openDialog: (title: string, message: string, type: 'info' | 'error' | 'warning' | 'question') =>
     ipcRenderer.invoke('open-dialog', { title, message, type })
 })

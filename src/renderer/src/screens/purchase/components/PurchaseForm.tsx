@@ -64,8 +64,19 @@ const PurchaseForm: React.FC = () => {
   }
 
   const addInstallment = () => {
-    const lastInstallment = purchaseData.installments.at(-1)
-    if (lastInstallment && lastInstallment.rate === 0) return // Prevent adding if last installment rate is empty or 0
+    const lastInstallment = purchaseData.installments.at(-1);
+
+    // Prevent adding if the last installment rate is empty or 0
+    if (lastInstallment && lastInstallment.rate === 0) return;
+
+    // Calculate total installments sum
+    const totalInstallments = purchaseData.installments.reduce(
+      (acc, installment) => acc + installment.rate!,
+      0
+    );
+
+    // Prevent adding a new installment if total installment sum >= total price
+    if (totalInstallments >= purchaseData.totalPrice!) return;
 
     setPurchaseData((prev) => ({
       ...prev,
@@ -77,8 +88,9 @@ const PurchaseForm: React.FC = () => {
           paymentMethod: 'cash'
         }
       ]
-    }))
-  }
+    }));
+  };
+
 
   const submitHandler = async () => {
     if (
@@ -115,19 +127,23 @@ const PurchaseForm: React.FC = () => {
       0
     )
 
-    const pendingAmount = calculatedTotalPrice - totalInstallments
+    const pendingAmount = calculatedTotalPrice - totalInstallments;
+
+    // Update purchase data with pending amount and total price
     setPendingPaymentAmount(pendingAmount)
     setPurchaseData((prev) => ({
       ...prev,
       totalPrice: calculatedTotalPrice,
-      pending: pendingAmount > 0 ? pendingAmount : 0
+      pending: pendingAmount > 0 ? pendingAmount : 0,
+      paymentStatus:pendingAmount==0 ? "paid":prev.paymentStatus
     }))
   }, [
     purchaseData.price,
     purchaseData.quantity,
     purchaseData.tax,
     purchaseData.discount,
-    purchaseData.installments
+    purchaseData.installments,
+    pendingPaymentAmount
   ])
 
   React.useEffect(() => {

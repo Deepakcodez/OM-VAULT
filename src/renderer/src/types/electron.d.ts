@@ -14,6 +14,8 @@ export interface ElectronAPI {
   addSales: (data: PurchaseDataType) => Promise<void>
   getPurchaseData: () => Promise<PurchaseDataType[]>
   showCustomAlert: (message: string) => void
+
+
 }
 
 declare global {
