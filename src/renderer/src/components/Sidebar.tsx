@@ -28,6 +28,10 @@ const Sidebar: React.FC = () => {
       screen: "/credit",
     },
     {
+      name: "Installments",
+      screen: "/installments",
+    },
+    {
       name: "Debit",
       screen: "/debit",
     },

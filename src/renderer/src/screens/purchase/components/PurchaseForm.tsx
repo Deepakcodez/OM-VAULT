@@ -139,6 +139,8 @@ const PurchaseForm: React.FC = () => {
   }, [isInstallment, pendingPaymentAmount])
 
   return (
+    <div className="absolute z-10  hide-scb w-full h-screen overflow-y-scroll p-12 top-0  mx-auto bg-zinc-800/50 backdrop-blur-xl left-0">
+          <div className="lg:w-8/12 md:w-11/12  mx-auto">
     <div className="flex flex-col gap-4">
       <div className="flex justify-between ">
         <h1 className="text-3xl">Add Purchase</h1>
@@ -358,6 +360,8 @@ const PurchaseForm: React.FC = () => {
       )}
 
       <Button onPress={submitHandler} label="Create" />
+    </div>
+    </div>
     </div>
   )
 }
