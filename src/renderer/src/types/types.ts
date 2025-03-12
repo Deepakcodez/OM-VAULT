@@ -20,7 +20,7 @@ type PurchaseDataType = {
   paymentMethod: "cash" | "creditCard" | "bankTransfer" | "upi" | "cheque" | "installment" | "other";
   orderingDate: string;
   isInstallment: boolean;
-  installments:  string | undefined;
+  installments:  any
   pending? : number
   totalPrice?: number ;
 };

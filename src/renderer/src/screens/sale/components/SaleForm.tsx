@@ -47,7 +47,6 @@ const SaleForm: React.FC = () => {
   ) => {
     const { name, value } = e.target;
     setPurchaseData((prev) => ({ ...prev, id: uuid(), [name]: value }));
-    console.log(purchaseData);
   };
 
   const handleInstallmentChange = (
@@ -95,10 +94,11 @@ const SaleForm: React.FC = () => {
       !purchaseData.shippingAddress ||
       !purchaseData.orderingDate
     ) {
-      window.electronAPI.showCustomAlert("Please fill all the fields");
+      window.electron.openDialog("Sales Error","Please fill all the fields","error");
       return;
     }
-    await window.electronAPI.addSales(purchaseData);
+    const result =  await window.electron.addSales(purchaseData);
+    console.log(result,"result");
   };
 
   React.useEffect(() => {
@@ -138,12 +138,12 @@ const SaleForm: React.FC = () => {
       setPurchaseData((prev) => ({ ...prev, pending: 0 }));
     if (purchaseData.paymentStatus !== "paid")
       setPurchaseData((prev) => ({ ...prev, pending: pendingPaymentAmount }));
-  }, [isInstallment, purchaseData]);
+  }, [isInstallment, purchaseData.installments]);
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex justify-between ">
-        <h1 className="text-3xl">Add Purchase</h1>
+        <h1 className="text-3xl">Add Sales</h1>
         <motion.div whileTap={{ scale: 0.8 }}>
           <button
             className="bg-zinc-800 p-2 font-semibold rounded-lg border border-white/20"

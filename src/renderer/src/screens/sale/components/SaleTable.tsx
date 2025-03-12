@@ -2,7 +2,7 @@ import React from "react";
 import { Table } from "../../../components/ui";
 import { usePurchaseStore } from "../../../state_manager/purchaseData";
 import { TableHeadingsTypes } from "../../../types/types";
-import { fetchPurchaseData } from "../../purchase/service";
+import { fetchPurchaseData } from "../../sale/service";
 
 type PurchasesTableProps = {
   refresh: boolean;

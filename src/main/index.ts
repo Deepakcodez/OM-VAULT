@@ -11,7 +11,7 @@ import {
 import bcrypt from 'bcryptjs'
 import icon from '../../resources/icon.png?asset'
 import { deletePurchase, getAllPurchases, getPurchaseById, insertPurchase, updatePurchase } from '../services/purchase.services'
-import { insertSales } from '../services/sales.services'
+import { getAllSales, insertSales } from '../services/sales.services'
 
 let mainWindow: BrowserWindow | null = null
 
@@ -131,8 +131,9 @@ app.whenReady().then(() => {
   ipcMain.handle('addSales', async (_, purchaseData) => {
     console.log('from main process sales data', purchaseData)
     try {
-      insertSales(purchaseData);
-      return { success: true, message: 'Purchase added successfully' };
+      const response =  insertSales(purchaseData);
+      console.log(response,"responses sales")
+      return { success: true, message: 'Sales added successfully' };
     } catch (error) {
       console.error('Error adding purchase:', error);
       return { success: false, message: 'Failed to add purchase' };
@@ -141,6 +142,9 @@ app.whenReady().then(() => {
 
   ipcMain.handle('getAllPurchases', async () => {
     return getAllPurchases();
+  });
+  ipcMain.handle('getAllSales', async () => {
+    return getAllSales();
   });
 
   ipcMain.handle('getPurchaseById', async (_, id) => {

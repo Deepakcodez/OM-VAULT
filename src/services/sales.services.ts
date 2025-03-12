@@ -25,6 +25,7 @@ const sanitizeSales = (purchase: any) => ({
 // Insert Purchase
 export const insertSales = (purchase: any) => {
   const data = sanitizeSales(purchase);
+  console.log('inside db of sales insesrt')
   const stmt = db.prepare(`
     INSERT INTO sales (
       id, productName, price, quantity, discount, tax, supplier, supplierContact,
@@ -36,11 +37,12 @@ export const insertSales = (purchase: any) => {
       @orderingDate, @isInstallment, @installments, @pending, @totalPrice
     )
   `);
+
   return stmt.run(data);
 };
 
 // Get All Purchases
-export const getAllPurchases = () => {
+export const getAllSales = () => {
   return db.prepare('SELECT * FROM sales').all();
 };
 
