@@ -144,7 +144,7 @@ const SinglePurchase: React.FC = () => {
                     return (
                       <div
                         key={item?.id}
-                        className="bg-zinc-800 border border-zinc-700/50 p-2 rounded-lg mb-1"
+                        className="bg-zinc-800/20  border border-zinc-700/50 p-2 rounded-lg mb-1"
                       >
                         <p className="text-zinc-400">
                           Date : <span className="text-white">{item?.date} </span>

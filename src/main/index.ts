@@ -8,13 +8,8 @@ import {
 } from '../services/user.services'
 import bcrypt from 'bcryptjs'
 import icon from '../../resources/icon.png?asset'
-<<<<<<< HEAD
-import { deletePurchase, getAllPurchases, getPurchaseById, getPurchaseByPaymentMethod, insertPurchase, updatePurchase } from '../services/purchase.services'
-import { insertSales } from '../services/sales.services'
-=======
-import { deletePurchase, getAllPurchases, getPurchaseById, insertPurchase, updatePurchase } from '../services/purchase.services'
+import { addInstallment, deletePurchase, getAllPurchases, getPurchaseById, getPurchaseByPaymentMethod, insertPurchase, updatePurchase } from '../services/purchase.services'
 import { getAllSales, insertSales } from '../services/sales.services'
->>>>>>> 54ab6ad3617bb848ab7eb1cbad59c4c587acf6d4
 
 let mainWindow: BrowserWindow | null = null
 
@@ -158,9 +153,20 @@ app.whenReady().then(() => {
   });
 
   ipcMain.handle("getPurchaseByPaymentMethod", async(__, paymentMethod) =>{
-    console.log("  getting installement data")
     return getPurchaseByPaymentMethod(paymentMethod);
   })
+
+  ipcMain.handle('addInstallments', async (_, purchaseId, newInstallment) => {
+    try {
+      const addedInstllment =  addInstallment(purchaseId, newInstallment);
+      console.log(addInstallment);
+
+      return ;
+    } catch (error) {
+      console.error('Error updating purchase:', error);
+      return { success: false, message: 'Failed to update purchase' };
+    }
+  });
 
   ipcMain.handle('updatePurchase', async (_, purchaseData) => {
     try {
