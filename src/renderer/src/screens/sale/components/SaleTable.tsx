@@ -1,38 +1,48 @@
-import React from "react";
-import { Table } from "../../../components/ui";
-import { usePurchaseStore } from "../../../state_manager/purchaseData";
-import { TableHeadingsTypes } from "../../../types/types";
-import { fetchPurchaseData } from "../../purchase/service";
+import React from 'react'
+import { Table } from '../../../components/ui'
+import { fetchPurchaseData } from '../service'
+import { PurchaseDataType, TableHeadingsTypes } from '../../../types/types'
+import { useSalesData } from '@renderer/state_manager/salesData'
+import { useSingleSalesStore } from '@renderer/state_manager/singleSalesData'
 
 type PurchasesTableProps = {
-  refresh: boolean;
+  refresh: boolean
 }
-const SaleTable: React.FC<PurchasesTableProps> = ({refresh}) => {
-  const tableHeadings:TableHeadingsTypes[] = [
-    { key: "productName", label: "Item" },
-    { key: "price", label: "Price" },
-    { key: "quantity", label: "Quantity" },
-    { key: "discount", label: "Discount" },
-    { key: "supplier", label: "Supplier" },
-    { key: "totalPrice", label: "Grandtotal" },
-  ];
-  const { purchaseData, setPurchaseData } = usePurchaseStore();
+const PurchasesTable: React.FC<PurchasesTableProps> = ({ refresh }) => {
+  const tableHeadings: TableHeadingsTypes[] = [
+    { key: 'productName', label: 'Item' },
+    { key: 'quantity', label: 'Quantity' },
+    { key: 'supplier', label: 'Supplier' },
+    { key: 'pending', label: 'Pending' },
+    { key: 'totalPrice', label: 'Grandtotal' },
+    { key: 'paymentStatus', label: 'Status' }
+  ]
+  const { salesData, setSalesData } = useSalesData()
+  console.log(salesData,"sales  data ")
+  const { setSingleSalesData } = useSingleSalesStore()
+
+  const setRowData = (data: PurchaseDataType) => {
+    setSingleSalesData(data)
+    console.log(data,"sdatatagfadsgasd")
+  }
 
   React.useEffect(() => {
     const loadPurchaseData = async () => {
-      const data = await fetchPurchaseData(); // Fetch data
+      const data = await fetchPurchaseData() // Fetch data
+      console.table(data)
       if (data.length > 0) {
-        setPurchaseData(data); // Update store with fetched data
+        setSalesData(data) // Update store with fetched data
       }
-    };
-    loadPurchaseData(); // Call the function to fetch and store data
-  }, [setPurchaseData,  refresh]);
+    }
+    loadPurchaseData()
+    // Call the function to fetch and store data
+  }, [setSalesData, refresh])
 
   return (
-    <div>
-      <Table tableHeadings={tableHeadings} tableBody={purchaseData}  />
+    <div className="h-[calc(100vh-137px)]  hide-scb overflow-y-scroll select-none">
+      <Table tableHeadings={tableHeadings} tableBody={salesData} setRowData={setRowData} />
     </div>
-  );
-};
+  )
+}
 
-export default SaleTable;
+export default PurchasesTable

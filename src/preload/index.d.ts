@@ -21,8 +21,13 @@ declare global {
       deleteUser: (id: number) => Promise<void>
 
       getAllPurchases: () => Promise<PurchaseDataType[]>
+<<<<<<< HEAD
       getPurchaseByPaymentMethod: (paymentMethod: string) => Promise<any>
       
+=======
+      getAllSales: () => Promise<PurchaseDataType[]>
+
+>>>>>>> 54ab6ad3617bb848ab7eb1cbad59c4c587acf6d4
 
       openDialog: (
         title: string,

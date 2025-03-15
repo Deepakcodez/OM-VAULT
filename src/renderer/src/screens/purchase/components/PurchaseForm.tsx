@@ -104,7 +104,6 @@ const PurchaseForm: React.FC = () => {
       !purchaseData.shippingAddress ||
       !purchaseData.orderingDate
     ) {
-      // window.electronAPI.showCustomAlert("Please fill all the fields");
       await window.electron.openDialog('Operation failed', 'Please fill all the fields', 'info')
       return
     }

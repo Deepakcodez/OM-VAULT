@@ -9,6 +9,7 @@ contextBridge.exposeInMainWorld('electron', {
   addPurchase: (purchaseData:any) => ipcRenderer.invoke('addPurchase', purchaseData),
   addSales: (purchaseData:any) => ipcRenderer.invoke('addSales', purchaseData),
   getAllPurchases: () => ipcRenderer.invoke('getAllPurchases'),
+  getAllSales: () => ipcRenderer.invoke('getAllSales'),
   getPurchaseById: (id:string) => ipcRenderer.invoke('getPurchaseById', id),
   updatePurchase: (purchaseData:any) => ipcRenderer.invoke('updatePurchase', purchaseData),
   deletePurchase: (id:any) => ipcRenderer.invoke('deletePurchase', id),
