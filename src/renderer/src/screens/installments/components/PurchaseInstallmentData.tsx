@@ -19,7 +19,7 @@ const PurchaseInstallmentData: React.FC = () => {
     fetchPurchaseInstallmentData()
   }, [])
   return (
-    <div>
+    <div className='overflow-y-auto h-[calc(100vh-265px)] hide-scb'>
       <Installmentcard installment={installments}/>
     </div>
   )

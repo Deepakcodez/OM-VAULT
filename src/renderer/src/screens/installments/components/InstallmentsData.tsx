@@ -6,7 +6,7 @@ import PurchaseInstallmentData from './PurchaseInstallmentData'
 const InstallmentsData: React.FC = () => {
   const { activeSection } = useInstallmentStore()
   return (
-    <div className="select-none flex flex-col gap-10">
+    <div className="select-none flex flex-col gap-10 pt-10">
       <PageSwitcher />
       {activeSection === 'purchase' && <PurchaseInstallmentData />}
       {activeSection === 'sale' && <div>sale</div>}
