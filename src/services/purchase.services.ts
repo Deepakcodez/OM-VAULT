@@ -76,6 +76,34 @@ export const updatePurchase = (purchase: any) => {
   return stmt.run(data);
 };
 
+
+// Add Installment to Purchase
+export const addInstallment = (purchaseId: string, newInstallment: any) => {
+  try {
+    // Fetch the existing purchase
+    const purchase = db.prepare('SELECT * FROM purchases WHERE id = ?').get(purchaseId);
+    console.log(purchase, "from services page");
+    if (!purchase) {
+      throw new Error('Purchase not found');
+    }
+
+    // Parse the existing installments
+    const installments = purchase.installments ? JSON.parse(purchase.installments) : [];
+
+    // Add the new installment
+    installments.push(newInstallment);
+
+    // Update the purchase with the new installments
+    const stmt = db.prepare('UPDATE purchases SET installments = ? WHERE id = ?');
+    stmt.run(JSON.stringify(installments), purchaseId);
+
+    return { success: true, message: 'Installment added successfully' };
+  } catch (error) {
+    console.error('Error adding installment:', error);
+    return { success: false, message: 'Failed to add installment' };
+  }
+};
+
 // Delete Purchase
 export const deletePurchase = (id: string) => {
   const stmt = db.prepare('DELETE FROM purchases WHERE id = ?');

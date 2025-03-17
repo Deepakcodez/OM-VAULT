@@ -1,6 +1,6 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
 import { UserDetailType } from '@renderer/types/auth.types'
-import { PurchaseDataType } from '@renderer/types/types'
+import { InstallmentType, PurchaseDataType } from '@renderer/types/types'
 
 declare global {
   interface Window {
@@ -21,13 +21,10 @@ declare global {
       deleteUser: (id: number) => Promise<void>
 
       getAllPurchases: () => Promise<PurchaseDataType[]>
-<<<<<<< HEAD
-      getPurchaseByPaymentMethod: (paymentMethod: string) => Promise<any>
-      
-=======
+      getPurchaseByPaymentMethod: (paymentMethod : string)=> Promise<any>
+      addInstallment:(installmentId: string, newInstallment: InstallmentType)=> Promise<void>
       getAllSales: () => Promise<PurchaseDataType[]>
 
->>>>>>> 54ab6ad3617bb848ab7eb1cbad59c4c587acf6d4
 
       openDialog: (
         title: string,

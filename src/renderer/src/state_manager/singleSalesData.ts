@@ -7,8 +7,8 @@ type Store = {
 };
 
 const useSingleSalesStore = create<Store>((set) => ({
-  singleSalesData:null , // Initial state
-  setSingleSalesData: (data) => set(() => ({ singleSalesData: data })), // Correctly updating the state
+  singleSalesData:null , 
+  setSingleSalesData: (data) => set(() => ({ singleSalesData: data })),
 }));
 
 export {

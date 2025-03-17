@@ -4,6 +4,7 @@ import React from 'react'
 
 const PurchaseInstallmentData: React.FC = () => {
   const[installments,setInstallments]=React.useState<PurchaseDataType[]>([])
+  const[isRefetch, setIsRefetch] = React.useState<boolean>(false);
   const fetchPurchaseInstallmentData = async () => {
     console.log('data by paytment method')
     try {
@@ -17,10 +18,10 @@ const PurchaseInstallmentData: React.FC = () => {
   }
   React.useEffect(() => {
     fetchPurchaseInstallmentData()
-  }, [])
+  }, [isRefetch])
   return (
     <div className='overflow-y-auto h-[calc(100vh-265px)] hide-scb'>
-      <Installmentcard installment={installments}/>
+      <Installmentcard installment={installments} refetch={setIsRefetch} />
     </div>
   )
 }

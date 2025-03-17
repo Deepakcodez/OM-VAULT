@@ -4,9 +4,9 @@ import { Sidebar } from "../components";
 
 const UserLayout: React.FC = () => {
   return (
-    <div className="h-screen  w-full flex ">
+    <div className="h-screen  overflow-hidden w-full flex ">
       <Sidebar />
-      <div className=" p-6 md:p-12 w-full h-full relative ">
+      <div className=" p-6 md:p-12 w-full h-full relative  ">
         <Outlet />
       </div>
     </div>
