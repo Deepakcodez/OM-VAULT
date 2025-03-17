@@ -19,7 +19,6 @@ function createWindow(): void {
     width: 900,
     height: 670,
     show: false,
-    autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
@@ -30,9 +29,9 @@ function createWindow(): void {
 
   mainWindow.on('ready-to-show', () => {
     if (mainWindow){
-      mainWindow.setMenuBarVisibility(true)
-      mainWindow.menuBarVisible = true
-      mainWindow.show()}
+      mainWindow.show()
+      mainWindow.setMenu(null)
+    }
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {

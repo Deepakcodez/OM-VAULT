@@ -3,7 +3,7 @@ import { FaPlus } from "react-icons/fa6";
 import { motion } from "motion/react";
 import { useFormStore } from "../../state_manager/FormState";
 import SaleForm from "./components/SaleForm";
-import Searchbar from "../purchase/components/Searchbar";
+// import Searchbar from "../purchase/components/Searchbar";
 import SingleSale from "./components/SingleSale";
 import SaleTable from "./components/SaleTable";
 import { useSingleSalesStore } from "@renderer/state_manager/singleSalesData";
@@ -14,7 +14,7 @@ const Sale: React.FC = () => {
 
   return (
     <div className="text-white ">
-      <Searchbar  />
+      {/* <Searchbar  /> */}
       <div className="flex justify-between items-center w-full ">
         <h1 className="heading-text select-none text-white">Sale</h1>
         <motion.div
