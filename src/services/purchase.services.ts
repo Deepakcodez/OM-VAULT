@@ -1,9 +1,9 @@
-import db from "./database.table";
-import { randomUUID } from 'crypto';
+import db from './database.table'
+import { randomUUID } from 'crypto'
 // Helper function to sanitize purchase data
 const sanitizePurchase = (purchase: any) => ({
   id: purchase.id ?? randomUUID(), // Generate UUID if missing
-  productName: String(purchase.productName || ""),
+  productName: String(purchase.productName || ''),
   price: purchase.price ?? null,
   quantity: purchase.quantity ?? null,
   discount: purchase.discount ?? null,
@@ -20,11 +20,11 @@ const sanitizePurchase = (purchase: any) => ({
   installments: purchase.installments ? JSON.stringify(purchase.installments) : null, // Store JSON string
   pending: purchase.pending ?? null,
   totalPrice: purchase.totalPrice ?? null
-});
+})
 
 // Insert Purchase
 export const insertPurchase = (purchase: any) => {
-  const data = sanitizePurchase(purchase);
+  const data = sanitizePurchase(purchase)
   const stmt = db.prepare(`
     INSERT INTO purchases (
       id, productName, price, quantity, discount, tax, supplier, supplierContact,
@@ -35,34 +35,48 @@ export const insertPurchase = (purchase: any) => {
       @supplierEmail, @supplierAddress, @shippingAddress, @paymentStatus, @paymentMethod,
       @orderingDate, @isInstallment, @installments, @pending, @totalPrice
     )
-  `);
-  return stmt.run(data);
-};
+  `)
+  return stmt.run(data)
+}
 
 // Get All Purchases
 export const getAllPurchases = () => {
-  return db.prepare('SELECT * FROM purchases').all();
-};
+  return db.prepare('SELECT * FROM purchases').all()
+}
+export const getFilterPurchases = (searchQuery: string) => {
+  try {
+    // Prepare the SQL query with a parameterized search term
+    const stmt = db.prepare('SELECT * FROM purchases WHERE productName LIKE ?')
+
+    // Execute the query with the search term wrapped in wildcards
+    const results = stmt.all(`%${searchQuery}%`)
+
+    return results
+  } catch (error) {
+    console.error('Error fetching filtered purchases:', error)
+    return [] // Return an empty array in case of an error
+  }
+}
 
 // Get Purchase by ID
 export const getPurchaseById = (id: string) => {
-  return db.prepare('SELECT * FROM purchases WHERE id = ?').get(id);
-};
+  return db.prepare('SELECT * FROM purchases WHERE id = ?').get(id)
+}
 
 export const getPurchaseByPaymentMethod = (paymentMethod: string) => {
   try {
-    const stmt = db.prepare("SELECT * FROM purchases WHERE paymentMethod = ?");
-    const data = stmt.all(paymentMethod);
-    return data;
+    const stmt = db.prepare('SELECT * FROM purchases WHERE paymentMethod = ?')
+    const data = stmt.all(paymentMethod)
+    return data
   } catch (error) {
-    console.error("Error fetching purchases by payment method:", error);
-    return [];
+    console.error('Error fetching purchases by payment method:', error)
+    return []
   }
-};
+}
 
 // Update Purchase
 export const updatePurchase = (purchase: any) => {
-  const data = sanitizePurchase(purchase);
+  const data = sanitizePurchase(purchase)
   const stmt = db.prepare(`
     UPDATE purchases SET
       productName = @productName, price = @price, quantity = @quantity, discount = @discount,
@@ -72,40 +86,39 @@ export const updatePurchase = (purchase: any) => {
       orderingDate = @orderingDate, isInstallment = @isInstallment,
       installments = @installments, pending = @pending, totalPrice = @totalPrice
     WHERE id = @id
-  `);
-  return stmt.run(data);
-};
-
+  `)
+  return stmt.run(data)
+}
 
 // Add Installment to Purchase
 export const addInstallment = (purchaseId: string, newInstallment: any) => {
   try {
     // Fetch the existing purchase
-    const purchase = db.prepare('SELECT * FROM purchases WHERE id = ?').get(purchaseId);
-    console.log(purchase, "from services page");
+    const purchase = db.prepare('SELECT * FROM purchases WHERE id = ?').get(purchaseId)
+    console.log(purchase, 'from services page')
     if (!purchase) {
-      throw new Error('Purchase not found');
+      throw new Error('Purchase not found')
     }
 
     // Parse the existing installments
-    const installments = purchase.installments ? JSON.parse(purchase.installments) : [];
+    const installments = purchase.installments ? JSON.parse(purchase.installments) : []
 
     // Add the new installment
-    installments.push(newInstallment);
+    installments.push(newInstallment)
 
     // Update the purchase with the new installments
-    const stmt = db.prepare('UPDATE purchases SET installments = ? WHERE id = ?');
-    stmt.run(JSON.stringify(installments), purchaseId);
+    const stmt = db.prepare('UPDATE purchases SET installments = ? WHERE id = ?')
+    stmt.run(JSON.stringify(installments), purchaseId)
 
-    return { success: true, message: 'Installment added successfully' };
+    return { success: true, message: 'Installment added successfully' }
   } catch (error) {
-    console.error('Error adding installment:', error);
-    return { success: false, message: 'Failed to add installment' };
+    console.error('Error adding installment:', error)
+    return { success: false, message: 'Failed to add installment' }
   }
-};
+}
 
 // Delete Purchase
 export const deletePurchase = (id: string) => {
-  const stmt = db.prepare('DELETE FROM purchases WHERE id = ?');
-  return stmt.run(id);
-};
+  const stmt = db.prepare('DELETE FROM purchases WHERE id = ?')
+  return stmt.run(id)
+}
