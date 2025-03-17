@@ -4,16 +4,17 @@ import { RxCross2 } from 'react-icons/rx'
 import { motion } from 'motion/react'
 import { MdEditSquare } from 'react-icons/md'
 import { MdCircle } from 'react-icons/md'
+import { calculateInstallments, calculatePendingAmount } from '@renderer/utils/Helper'
 
 const SinglePurchase: React.FC = () => {
-  const { singlePurchaseData, setSinglePurchaseData } = useSinglePurchaseStore();
+  const { singlePurchaseData, setSinglePurchaseData } = useSinglePurchaseStore()
 
   return (
     <div className="absolute z-10 select-none hide-scb w-full h-screen overflow-y-scroll p-12 top-0  mx-auto bg-zinc-800/50 backdrop-blur-lg left-0">
       <div className="lg:w-8/12 md:w-11/12  mx-auto"></div>
       <div className="w-full h-auto bg-zinc-800/20 border border-zinc-700 backdrop-blur-md p-4  px-12 rounded-lg ">
         <div className="w-full  mt-12 flex  items-center justify-between ">
-          <h1 className="text-3xl  truncate">{singlePurchaseData?.productName}</h1>
+          <h1 className="text-3xl   truncate">{singlePurchaseData?.productName}</h1>
           <div className="flex items-center gap-2">
             <MdEditSquare />
 
@@ -166,7 +167,13 @@ const SinglePurchase: React.FC = () => {
               <p>Payment Pending</p>
             </div>
             <div className="w-full">
-              <p>{singlePurchaseData?.pending}</p>
+              <p>
+                {' '}
+                {calculatePendingAmount(
+                  calculateInstallments(singlePurchaseData?.installments),
+                  singlePurchaseData?.totalPrice!
+                )}
+              </p>
             </div>
           </div>
           <div className="flex gap-12 py-4">
@@ -174,7 +181,7 @@ const SinglePurchase: React.FC = () => {
               <p className="text-lg ">Total Price</p>
             </div>
             <div className="w-full">
-              <p className="text-lg font-semibold">{singlePurchaseData?.totalPrice} </p>
+              <p className="text-lg font-semibold">{singlePurchaseData?.totalPrice}</p>
             </div>
           </div>
         </div>
