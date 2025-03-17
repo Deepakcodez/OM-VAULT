@@ -30,12 +30,10 @@ const Installmentcard: React.FC<InstallmentcardProps> = ({ installment, refetch 
         return (
           <div
             key={item.id}
-            className={`border border-white/10 mb-2 rounded-md p-4 transition-all duration-300 grid grid-cols-2 gap-2
-            `}
-          >
+            className={`border border-white/10 mb-2 rounded-md p-4 transition-all duration-300 grid grid-cols-2 gap-2`}>
             <div>
               <div className="flex gap-2">
-                <p className="text-white/80 text-2xl">{item.productName}</p>
+                <p className="text-white text-2xl">{item.productName}</p>
                 <p className="text-violet-300"> ₹{item.totalPrice}</p>
               </div>
               <p className="text-white/80 text-xs">
