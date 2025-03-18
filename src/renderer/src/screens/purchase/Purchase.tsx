@@ -7,19 +7,38 @@ import SinglePurchase from './components/SinglePurchase'
 import Searchbar from './components/Searchbar'
 import { AddButton, Heading } from '@renderer/components/ui'
 import { usePurchaseStore } from '@renderer/state_manager/purchaseData'
+import { fetchPurchaseData } from './service'
 
 const Purchase: React.FC = () => {
   const { showForm, setShowForm } = useFormStore()
   const { singlePurchaseData } = useSinglePurchaseStore()
   const [searchQuery, setSearchQuery] = React.useState<string>('')
   const { setPurchaseData } = usePurchaseStore()
-  const addButtonHandler=()=>{
+  const addButtonHandler = () => {
     setShowForm()
   }
 
+  React.useEffect(() => {
+    const fetchPurchase = async () => {
+      if (!searchQuery || searchQuery === '') {
+        const data = await fetchPurchaseData() // Fetch data
+        if (data.length > 0) {
+          setPurchaseData(data)
+        }
+      } else {
+        return
+      }
+    }
+    fetchPurchase()
+  }, [searchQuery])
+
   return (
     <div className="text-white ">
-      <Searchbar searchQuery={searchQuery} setSearchQuery={setSearchQuery} setFilteredData={setPurchaseData}/>
+      <Searchbar
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        setFilteredData={setPurchaseData}
+      />
       <div className="flex justify-between items-center w-full">
         <Heading title="Purchase" />
         <AddButton onClickHandler={addButtonHandler} />

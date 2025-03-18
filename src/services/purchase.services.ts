@@ -1,7 +1,35 @@
 import db from './database.table'
 import { randomUUID } from 'crypto'
+
+type Installment = {
+  amount: number;
+  dueDate: string;
+  status: string;
+};
+
+type Purchase = {
+  id: string;
+  productName: string;
+  price: number | null;
+  quantity: number | null;
+  discount: number | null;
+  tax: number | null;
+  supplier: string | null;
+  supplierContact: string | null;
+  supplierEmail: string | null;
+  supplierAddress: string | null;
+  shippingAddress: string | null;
+  paymentStatus: string | null;
+  paymentMethod: string | null;
+  orderingDate: string | null;
+  isInstallment: number; // 1 or 0
+  installments: string | null; // JSON string
+  pending: number | null;
+  totalPrice: number | null;
+};
+
 // Helper function to sanitize purchase data
-const sanitizePurchase = (purchase: any) => ({
+const sanitizePurchase = (purchase:Partial<Purchase>):Purchase => ({
   id: purchase.id ?? randomUUID(), // Generate UUID if missing
   productName: String(purchase.productName || ''),
   price: purchase.price ?? null,
@@ -91,17 +119,17 @@ export const updatePurchase = (purchase: any) => {
 }
 
 // Add Installment to Purchase
-export const addInstallment = (purchaseId: string, newInstallment: any) => {
+export const addInstallment = (purchaseId: string, newInstallment: Installment) => {
   try {
     // Fetch the existing purchase
-    const purchase = db.prepare('SELECT * FROM purchases WHERE id = ?').get(purchaseId)
+    const purchase = db.prepare('SELECT * FROM purchases WHERE id = ?').get(purchaseId) as Purchase
     console.log(purchase, 'from services page')
-    if (!purchase) {
+    if (!purchase || !purchase) {
       throw new Error('Purchase not found')
     }
 
     // Parse the existing installments
-    const installments = purchase.installments ? JSON.parse(purchase.installments) : []
+    const installments = purchase.installments  ? JSON.parse(purchase.installments) : []
 
     // Add the new installment
     installments.push(newInstallment)
