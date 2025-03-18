@@ -9,7 +9,7 @@ contextBridge.exposeInMainWorld('electron', {
   addPurchase: (purchaseData: any) => ipcRenderer.invoke('addPurchase', purchaseData),
   addSales: (purchaseData: any) => ipcRenderer.invoke('addSales', purchaseData),
   getAllPurchases: () => ipcRenderer.invoke('getAllPurchases'),
-  getFilterSales: () => ipcRenderer.invoke('getAllSales'),
+  getAllSales: () => ipcRenderer.invoke('getAllSales'),
   getFilterPurchases: (searchQuery:string) => ipcRenderer.invoke('getFilterPurchases', searchQuery),
   getPurchaseById: (id: string) => ipcRenderer.invoke('getPurchaseById', id),
   updatePurchase: (purchaseData: any) => ipcRenderer.invoke('updatePurchase', purchaseData),
@@ -18,6 +18,14 @@ contextBridge.exposeInMainWorld('electron', {
 
   getPurchaseByPaymentMethod: (paymentMethod: string) =>
     ipcRenderer.invoke('getPurchaseByPaymentMethod', paymentMethod),
+
+
+
+  getSalesByPaymentMethod: (paymentMethod: string) =>
+    ipcRenderer.invoke('getSalesByPaymentMethod', paymentMethod),
+
+
+  
   addInstallment: (installmentId: string, newInstallment: string) =>
     ipcRenderer.invoke('addInstallments', installmentId, newInstallment),
 
