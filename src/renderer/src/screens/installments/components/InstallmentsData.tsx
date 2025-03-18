@@ -2,6 +2,7 @@ import { useInstallmentStore } from '@renderer/state_manager/installmentPageStor
 import React from 'react'
 import PageSwitcher from './PageSwitcher'
 import PurchaseInstallmentData from './PurchaseInstallmentData'
+import SalesInstallmentData from './SalesInstallementData'
 
 const InstallmentsData: React.FC = () => {
   const { activeSection } = useInstallmentStore()
@@ -9,7 +10,7 @@ const InstallmentsData: React.FC = () => {
     <div className="select-none flex flex-col gap-10 pt-10">
       <PageSwitcher />
       {activeSection === 'purchase' && <PurchaseInstallmentData />}
-      {activeSection === 'sale' && <div>sale</div>}
+      {activeSection === 'sale' && <SalesInstallmentData/>}
     </div>
   )
 }

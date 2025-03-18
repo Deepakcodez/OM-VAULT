@@ -9,7 +9,7 @@ import {
 import bcrypt from 'bcryptjs'
 import icon from '../../resources/icon.png?asset'
 import { addInstallment, deletePurchase, getAllPurchases, getFilterPurchases, getPurchaseById, getPurchaseByPaymentMethod, insertPurchase, updatePurchase } from '../services/purchase.services'
-import { getAllSales, insertSales } from '../services/sales.services'
+import { getAllSales, getSalesByPaymentMethod, insertSales } from '../services/sales.services'
 
 let mainWindow: BrowserWindow | null = null
 
@@ -157,6 +157,10 @@ app.whenReady().then(() => {
 
   ipcMain.handle("getPurchaseByPaymentMethod", async(__, paymentMethod) =>{
     return getPurchaseByPaymentMethod(paymentMethod);
+  })
+  ipcMain.handle("getSalesByPaymentMethod", async(__, paymentMethod) =>{
+    console.log(paymentMethod,"paymentMethod")
+    return getSalesByPaymentMethod(paymentMethod);
   })
 
   ipcMain.handle('addInstallments', async (_, purchaseId, newInstallment) => {

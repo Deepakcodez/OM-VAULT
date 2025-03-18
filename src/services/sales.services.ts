@@ -1,9 +1,9 @@
-import db from "./database.table";
-import { randomUUID } from 'crypto';
+import db from './database.table'
+import { randomUUID } from 'crypto'
 // Helper function to sanitize purchase data
 const sanitizeSales = (purchase: any) => ({
   id: purchase.id ?? randomUUID(), // Generate UUID if missing
-  productName: String(purchase.productName || ""),
+  productName: String(purchase.productName || ''),
   price: purchase.price ?? null,
   quantity: purchase.quantity ?? null,
   discount: purchase.discount ?? null,
@@ -20,11 +20,11 @@ const sanitizeSales = (purchase: any) => ({
   installments: purchase.installments ? JSON.stringify(purchase.installments) : null, // Store JSON string
   pending: purchase.pending ?? null,
   totalPrice: purchase.totalPrice ?? null
-});
+})
 
 // Insert Purchase
 export const insertSales = (purchase: any) => {
-  const data = sanitizeSales(purchase);
+  const data = sanitizeSales(purchase)
   console.log('inside db of sales insesrt')
   const stmt = db.prepare(`
     INSERT INTO sales (
@@ -36,24 +36,38 @@ export const insertSales = (purchase: any) => {
       @supplierEmail, @supplierAddress, @shippingAddress, @paymentStatus, @paymentMethod,
       @orderingDate, @isInstallment, @installments, @pending, @totalPrice
     )
-  `);
+  `)
 
-  return stmt.run(data);
-};
+  return stmt.run(data)
+}
 
 // Get All Purchases
 export const getAllSales = () => {
-  return db.prepare('SELECT * FROM sales').all();
-};
+  return db.prepare('SELECT * FROM sales').all()
+}
 
 // Get Purchase by ID
 export const getPurchaseById = (id: string) => {
-  return db.prepare('SELECT * FROM sales WHERE id = ?').get(id);
-};
+  return db.prepare('SELECT * FROM sales WHERE id = ?').get(id)
+}
+
+export const getSalesByPaymentMethod = (paymentMethod: string) => {
+  console.log('inside db of sales by payment method')
+  console.log(paymentMethod)
+  try {
+    const stmt = db.prepare('SELECT * FROM sales WHERE paymentMethod = ?')
+    const data = stmt.all(paymentMethod)
+    console.log(data)
+    return data
+  } catch (error) {
+    console.error('Error fetching purchases by payment method:', error)
+    return []
+  }
+}
 
 // Update Purchase
 export const updatePurchase = (purchase: any) => {
-  const data = sanitizeSales(purchase);
+  const data = sanitizeSales(purchase)
   const stmt = db.prepare(`
     UPDATE sales SET
       productName = @productName, price = @price, quantity = @quantity, discount = @discount,
@@ -63,12 +77,12 @@ export const updatePurchase = (purchase: any) => {
       orderingDate = @orderingDate, isInstallment = @isInstallment,
       installments = @installments, pending = @pending, totalPrice = @totalPrice
     WHERE id = @id
-  `);
-  return stmt.run(data);
-};
+  `)
+  return stmt.run(data)
+}
 
 // Delete Purchase
 export const deletePurchase = (id: string) => {
-  const stmt = db.prepare('DELETE FROM sales WHERE id = ?');
-  return stmt.run(id);
-};
+  const stmt = db.prepare('DELETE FROM sales WHERE id = ?')
+  return stmt.run(id)
+}
