@@ -2,6 +2,7 @@ import React from 'react'
 import { Input } from '@renderer/components/ui'
 import { InstallmentType } from '@renderer/types/types'
 import Button from '@renderer/components/ui/Button'
+import { number } from 'zod'
 
 type InstallmentAdderProps = {
   purchaseId: string
@@ -29,7 +30,11 @@ const InstallmentAdder: React.FC<InstallmentAdderProps> = ({ purchaseId, refetch
 
   // Handle form submission
   const handleSubmit = async () => {
-    console.log('Submitted Installment:', installment)
+    if (
+      installment.date === '' ||
+      (typeof installment.rate !== 'number' || installment.rate <= 0)
+    ) return;
+
     try {
       await window.electron.addInstallment(purchaseId, installment)
       refetch((prev) => !prev)

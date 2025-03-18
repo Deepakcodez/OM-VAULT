@@ -24,25 +24,14 @@ const Sidebar: React.FC = () => {
       screen: "/transactions",
     },
     {
-      name: "Credit",
-      screen: "/credit",
-    },
-    {
       name: "Installments",
       screen: "/installments",
-    },
-    {
-      name: "Debit",
-      screen: "/debit",
     },
     {
       name: "Purchase",
       screen: "/purchase",
     },
-    {
-      name: "GST",
-      screen: "/gst",
-    },
+
   ];
   return (
     <motion.div className="md:w-[12rem] w-[8rem] h-full text-sm text-white bg-neutral-800 p-4 border-r border-r-zinc-800 overflow-hidden select-none">
@@ -55,7 +44,7 @@ const Sidebar: React.FC = () => {
           <Link
             to={option.screen}
             key={option.name}
-            className={`p-2 hover:bg-zinc-800 cursor-pointer mt-2 rounded-md flex select-none ${
+            className={`p-2 hover:bg-neutral-600/20 cursor-pointer mt-2 rounded-md flex select-none ${
               location.pathname === option.screen ? "bg-neutral-700 " : ""
             }`}
           >

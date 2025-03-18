@@ -28,7 +28,7 @@ const YearDropdown = () => {
       {isOpen && (
         <ul
           ref={YearDropDownRef}
-          className="absolute left-0 top-12 w-full bg-white/10 backdrop-blur-sm border border-zinc-700 rounded-lg shadow-md max-h-60 overflow-y-auto z-10 hide-scb divide-y divide-zinc-700 "
+          className="absolute left-0 top-12 w-full bg-white/10 backdrop-blur-sm border border-zinc-700 rounded-lg shadow-md max-h-60 overflow-y-auto z-10 hide-scb divide-y divide-zinc-500/50 "
         >
           {years.map((year) => (
             <li
