@@ -1,38 +1,49 @@
-import React from "react";
-import Logo from "../assets/images/omvault_logo.webp";
-import { motion } from "motion/react";
-import { Link, useLocation } from "react-router-dom";
-import { YearDropdown } from "./ui";
+import React from 'react'
+import Logo from '../assets/images/omvault_logo.webp'
+import { motion } from 'motion/react'
+import { Link, useLocation } from 'react-router-dom'
+import { YearDropdown } from './ui'
+import { TbLayoutDashboard } from 'react-icons/tb'
+import { GiReceiveMoney } from 'react-icons/gi'
+import { GiPayMoney } from 'react-icons/gi'
+import { FaMoneyBillTransfer } from 'react-icons/fa6'
+import { GrMoney } from 'react-icons/gr'
+import { IconType } from 'react-icons/lib'
 
 type sidebarOptionsTypes = {
-  name: string;
-  screen: string;
-};
+  name: string
+  screen: string
+  icon: IconType
+}
 const Sidebar: React.FC = () => {
-  const location = useLocation();
+  const location = useLocation()
   const sidebarOptions: sidebarOptionsTypes[] = [
     {
-      name: "Dashboard",
-      screen: "/dashboard",
+      name: 'Dashboard',
+      screen: '/dashboard',
+      icon: TbLayoutDashboard
     },
     {
-      name: "Sale ",
-      screen: "/sale",
+      name: 'Sale ',
+      screen: '/sale',
+      icon: GiReceiveMoney
     },
     {
-      name: "Transactions",
-      screen: "/transactions",
+      name: 'Transactions',
+      screen: '/transactions',
+      icon: FaMoneyBillTransfer
     },
     {
-      name: "Installments",
-      screen: "/installments",
+      name: 'Installments',
+      screen: '/installments',
+      icon: GrMoney
     },
     {
-      name: "Purchase",
-      screen: "/purchase",
-    },
-
-  ];
+      name: 'Purchase',
+      screen: '/purchase',
+      icon: GiPayMoney
+    }
+  ]
   return (
     <motion.div className="md:w-[12rem] w-[8rem] h-full text-sm text-white bg-neutral-800 p-4 border-r border-r-zinc-800 overflow-hidden select-none">
       <img src={Logo} alt="OM VAULT" className=" mx-auto opacity-80" />
@@ -45,15 +56,18 @@ const Sidebar: React.FC = () => {
             to={option.screen}
             key={option.name}
             className={`p-2 hover:bg-neutral-600/20 cursor-pointer mt-2 rounded-md flex select-none ${
-              location.pathname === option.screen ? "bg-neutral-700 " : ""
+              location.pathname === option.screen ? 'bg-neutral-700 ' : ''
             }`}
           >
-            {option.name}
+            <option.icon
+              className={` text-lg mr-2 ${location.pathname === option.screen ? 'text-violet-200' : 'text-neutral-400'} `}
+            />
+           <p className=''> {option.name} </p>
           </Link>
         ))}
       </div>
     </motion.div>
-  );
-};
+  )
+}
 
-export default Sidebar;
+export default Sidebar

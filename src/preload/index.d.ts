@@ -5,7 +5,7 @@ import { InstallmentType, PurchaseDataType } from '@renderer/types/types'
 declare global {
   interface Window {
     electron: ElectronAPI & {
-      addPurchase: (purchaseData: PurchaseDataType) => Promise<void>
+      addPurchase: (purchaseData: any) => Promise<void>
       addSales: (salesData: PurchaseDataType) => Promise<void>
       addUser: (userDetail: UserDetailType) => Promise<void>
       loginUser: (

@@ -24,7 +24,7 @@ const Installmentcard: React.FC<InstallmentcardProps> = ({ installment, refetch 
 
   return (
     <>
-      {installment.map((item) => {
+      {installment.toReversed().map((item) => {
         const isExpanded = selectedInstallment === item.id
 
         return (

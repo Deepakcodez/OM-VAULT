@@ -1,7 +1,6 @@
 import React from 'react'
 import { RxCross2 } from 'react-icons/rx'
 import { motion } from 'motion/react'
-import { MdEditSquare } from 'react-icons/md'
 import { MdCircle } from 'react-icons/md'
 import { useSingleSalesStore } from '@renderer/state_manager/singleSalesData'
 
@@ -15,7 +14,6 @@ const SinglePurchase: React.FC = () => {
         <div className="w-full  mt-12 flex  items-center justify-between ">
           <h1 className="text-3xl  truncate">{singleSalesData?.productName}</h1>
           <div className="flex items-center gap-2">
-            <MdEditSquare />
 
             <motion.div
               whileTap={{ scale: 0.5 }}

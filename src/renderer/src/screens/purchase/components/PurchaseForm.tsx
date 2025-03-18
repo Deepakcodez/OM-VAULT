@@ -7,12 +7,58 @@ import { useFormStore } from '../../../state_manager/FormState'
 import { RxCross2 } from 'react-icons/rx'
 import { PurchaseDataType } from '../../../types/types'
 import { calculateTotalPrice } from '../../../libs/utilityFunc'
-import { v4 as uuid } from 'uuid'
+import { z } from 'zod'
+
+const PurchaseSchema = z.object({
+  id: z.string().optional(),
+  productName: z.string().min(1, 'Product Name is required'),
+  price: z.number().positive('Price must be greater than 0'),
+  quantity: z.number().positive('Quantity must be greater than 0'),
+  discount: z
+    .number()
+    .min(0, 'Discount cannot be negative')
+    .max(100, 'Discount cannot exceed 100%'),
+  tax: z.number().min(0, 'Tax cannot be negative').max(100, 'Tax cannot exceed 100%'),
+  supplier: z.string().min(1, 'Supplier is required'),
+  supplierContact: z
+    .string()
+    .min(10, 'Supplier Contact is required')
+    .max(15, 'Supplier Contact is too long'),
+  supplierEmail: z.string().email('Invalid email address'),
+  supplierAddress: z.string().min(1, 'Supplier Address is required'),
+  shippingAddress: z.string().min(1, 'Shipping Address is required'),
+  paymentStatus: z.enum(['paid', 'pending', 'cancelled']),
+  paymentMethod: z.enum([
+    'cash',
+    'cheque',
+    'creditCard',
+    'bankTransfer',
+    'upi',
+    'installment',
+    'other'
+  ]),
+  orderingDate: z.string().min(1, 'Ordering Date is required'),
+  isInstallment: z.boolean(),
+  installments: z
+    .array(
+      z.object({
+        date: z.string(),
+        rate: z.number().min(0, 'Installment rate cannot be negative'),
+        paymentMethod: z.enum(['cash', 'cheque', 'upi', 'credit'])
+      })
+    )
+    .optional(),
+  pending: z.number().min(0, 'Pending amount cannot be negative').optional(),
+  totalPrice: z.number().min(0, 'Total price cannot be negative').optional()
+})
+
+// type PurchaseFormData = z.infer<typeof PurchaseSchema>;
 
 const PurchaseForm: React.FC = () => {
   const { setShowForm } = useFormStore()
   const [isInstallment, setIsInstallment] = useState<boolean>(false)
   const [pendingPaymentAmount, setPendingPaymentAmount] = useState<number>(0)
+
   const [purchaseData, setPurchaseData] = useState<PurchaseDataType>({
     id: '',
     productName: '',
@@ -39,12 +85,31 @@ const PurchaseForm: React.FC = () => {
     pending: 0,
     totalPrice: 0
   })
+  const [errors, setErrors] = useState<Record<string, string>>({})
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target
-    setPurchaseData((prev) => ({ ...prev, id: uuid(), [name]: value }))
+
+    // Convert numeric fields to numbers
+    const parsedValue = ['price', 'quantity', 'discount', 'tax'].includes(name)
+      ? Number(value)
+      : value
+
+    // Update the purchase data
+    setPurchaseData((prev) => ({ ...prev, [name]: parsedValue }))
+
+    // Validate the field using Zod
+    try {
+      const fieldSchema = PurchaseSchema.shape[name] // Get the specific field's schema
+  fieldSchema.parse(parsedValue) // Validate the value
+  setErrors((prev) => ({ ...prev, [name]: '' })) // Clear error if valid
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        setErrors((prev) => ({ ...prev, [name]: error.errors[0].message }))
+      }
+    }
   }
 
   const handleInstallmentChange = (
@@ -64,19 +129,19 @@ const PurchaseForm: React.FC = () => {
   }
 
   const addInstallment = () => {
-    const lastInstallment = purchaseData.installments.at(-1);
+    const lastInstallment = purchaseData.installments.at(-1)
 
     // Prevent adding if the last installment rate is empty or 0
-    if (lastInstallment && lastInstallment.rate === 0) return;
+    if (lastInstallment && lastInstallment.rate === 0) return
 
     // Calculate total installments sum
     const totalInstallments = purchaseData.installments.reduce(
       (acc, installment) => acc + installment.rate!,
       0
-    );
+    )
 
     // Prevent adding a new installment if total installment sum >= total price
-    if (totalInstallments >= purchaseData.totalPrice!) return;
+    if (totalInstallments >= purchaseData.totalPrice!) return
 
     setPurchaseData((prev) => ({
       ...prev,
@@ -88,27 +153,32 @@ const PurchaseForm: React.FC = () => {
           paymentMethod: 'cash'
         }
       ]
-    }));
-  };
-
+    }))
+  }
 
   const submitHandler = async () => {
-    if (
-      !purchaseData.productName ||
-      !purchaseData.price ||
-      !purchaseData.quantity ||
-      !purchaseData.supplier ||
-      !purchaseData.supplierContact ||
-      !purchaseData.supplierEmail ||
-      !purchaseData.supplierAddress ||
-      !purchaseData.shippingAddress ||
-      !purchaseData.orderingDate
-    ) {
-      await window.electron.openDialog('Operation failed', 'Please fill all the fields', 'info')
-      return
+    try {
+      // Validate the entire form
+      const validatedData = PurchaseSchema.parse(purchaseData)
+
+      // If validation passes, proceed with submission
+      const resp = await window.electron.addPurchase(validatedData)
+      setShowForm()
+      console.log('Response on render side:', resp)
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        // Convert Zod errors to a key-value pair for easier display
+        const errorMap: Record<string, string> = {}
+        error.errors.forEach((err) => {
+          if (err.path) {
+            errorMap[err.path.join('.')] = err.message
+          }
+        })
+        setErrors(errorMap)
+      } else {
+        console.error('Unexpected error:', error)
+      }
     }
-    const resp = await window.electron.addPurchase(purchaseData)
-    console.log('res on render side', resp)
   }
 
   React.useEffect(() => {
@@ -126,7 +196,7 @@ const PurchaseForm: React.FC = () => {
       0
     )
 
-    const pendingAmount = calculatedTotalPrice - totalInstallments;
+    const pendingAmount = calculatedTotalPrice - totalInstallments
 
     // Update purchase data with pending amount and total price
     setPendingPaymentAmount(pendingAmount)
@@ -134,7 +204,7 @@ const PurchaseForm: React.FC = () => {
       ...prev,
       totalPrice: calculatedTotalPrice,
       pending: pendingAmount > 0 ? pendingAmount : 0,
-      paymentStatus:pendingAmount==0 ? "paid":prev.paymentStatus
+      paymentStatus: pendingAmount == 0 ? 'paid' : prev.paymentStatus
     }))
   }, [
     purchaseData.price,
@@ -156,228 +226,263 @@ const PurchaseForm: React.FC = () => {
 
   return (
     <div className="absolute z-10  hide-scb w-full h-screen overflow-y-scroll p-12 top-0  mx-auto bg-zinc-800/50 backdrop-blur-xl left-0">
-          <div className="lg:w-8/12 md:w-11/12  mx-auto">
-    <div className="flex flex-col gap-4">
-      <div className="flex justify-between ">
-        <h1 className="text-3xl">Add Purchase</h1>
-        <motion.div whileTap={{ scale: 0.8 }}>
-          <button
-            className="bg-zinc-800 p-2 font-semibold rounded-lg border border-white/20"
-            onClick={() => setShowForm()}
-          >
-            <RxCross2 color="white" />
-          </button>
-        </motion.div>
-      </div>
-      <Input
-        name="productName"
-        value={purchaseData.productName}
-        onChange={handleChange}
-        label="Product Name"
-        type="text"
-      />
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-        <Input
-          name="price"
-          value={purchaseData.price || ''}
-          onChange={handleChange}
-          label="Price"
-          type="number"
-        />
-        <Input
-          name="quantity"
-          value={purchaseData.quantity || ''}
-          onChange={handleChange}
-          label="Quantity"
-          type="number"
-        />
-        <Input
-          name="discount"
-          value={purchaseData.discount || ''}
-          onChange={handleChange}
-          label="Discount%"
-          type="number"
-        />
-        <Input
-          name="tax"
-          value={purchaseData.tax || ''}
-          onChange={handleChange}
-          label="Tax"
-          type="number"
-        />
-      </div>
-      <div className="flex gap-2">
-        <Input
-          name="supplier"
-          value={purchaseData.supplier}
-          onChange={handleChange}
-          label="Supplier"
-          type="text"
-        />
-        <Input
-          name="orderingDate"
-          value={purchaseData.orderingDate}
-          onChange={handleChange}
-          label="Ordering Date"
-          type="date"
-          style=""
-        />
-      </div>
-      <div className="flex gap-2 w-full">
-        <Input
-          name="supplierContact"
-          value={purchaseData.supplierContact}
-          onChange={handleChange}
-          label="Supplier Ph. Number"
-          type="text"
-          placeholder="Enter Phone Number"
-          style="w-full"
-        />
-        <Input
-          name="supplierEmail"
-          value={purchaseData.supplierEmail}
-          onChange={handleChange}
-          label="Supplier Contact Email"
-          type="text"
-          placeholder="Enter Email"
-          style="w-full"
-        />
-      </div>
-      <div className="flex gap-2">
-        <div className="w-full">
-          <p>Supplier Address</p>
-          <textarea
-            className="max-h-24 min-h-24 focus:outline-none w-full pe-4 bg-zinc-800 border-b border-gray-300 py-2 px-2 rounded-sm resize-none"
-            name="supplierAddress"
-            value={purchaseData.supplierAddress}
-            onChange={handleChange}
-          />
-        </div>
-        <div className="w-full">
-          <p>Shipping Address</p>
-          <textarea
-            className="max-h-24 min-h-24 focus:outline-none w-full pe-4 bg-zinc-800 border-b border-gray-300 py-2 px-2 rounded-sm resize-none"
-            name="shippingAddress"
-            value={purchaseData.shippingAddress}
-            onChange={handleChange}
-          />
-        </div>
-      </div>
-
-      <div className="flex gap-2 items-center">
-        <div className="w-full">
-          <label htmlFor="paymentMethod">Payment Status</label>
-          <div className="w-full pe-4 bg-zinc-800 border-b border-gray-300 py-2 px-2 rounded-sm">
-            <select
-              name="paymentStatus"
-              value={purchaseData.paymentStatus}
-              onChange={handleChange}
-              className="w-full bg-zinc-800 focus:outline-none"
-            >
-              <option value="paid">Paid</option>
-              <option value="pending">Pending</option>
-              <option value="cancelled">Cancelled</option>
-            </select>
-          </div>
-        </div>
-        <div className={`w-full`}>
-          <label htmlFor="paymentMethod">Payment Mode</label>
-          <div className="w-full pe-4 bg-zinc-800 border-b border-gray-300 py-2 px-2 rounded-sm">
-            <select
-              disabled={isInstallment}
-              name="paymentMethod"
-              value={purchaseData.paymentMethod}
-              onChange={handleChange}
-              className="w-full bg-zinc-800 focus:outline-none"
-            >
-              <option value="cash">Cash</option>
-              <option value="cheque">Cheque</option>
-              <option value="creditCard">Credit Card</option>
-              <option value="bankTransfer">Bank Transfer</option>
-              <option value="upi">UPI</option>
-              <option value="installment">Installment</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <div className="">
-        <label htmlFor="paymentMethod">Is Installments</label>
-        <Input
-          type="checkbox"
-          onChange={() => {
-            setIsInstallment(!isInstallment)
-          }}
-          style="w-fit scale-[1.8] ms-1 mt-2 accent-violet-500  "
-        />
-      </div>
-
-      {isInstallment && (
-        <div className="flex flex-col items-end mb-4">
-          <div className="w-full flex justify-between items-center">
-            <div />
+      <div className="lg:w-8/12 md:w-11/12  mx-auto">
+        <div className="flex flex-col gap-4">
+          <div className="flex justify-between ">
+            <h1 className="text-3xl">Add Purchase</h1>
             <motion.div whileTap={{ scale: 0.8 }}>
               <button
                 className="bg-zinc-800 p-2 font-semibold rounded-lg border border-white/20"
-                onClick={addInstallment}
+                onClick={() => setShowForm()}
               >
-                <FaPlus color="white" />
+                <RxCross2 color="white" />
               </button>
             </motion.div>
           </div>
-          {purchaseData.installments.map((inst, index) => (
-            <div className="w-full my-2" key={index}>
-              <div className="flex gap-2">
-                <Input
-                  value={inst.rate || ''}
-                  type="number"
-                  onChange={(e) => handleInstallmentChange(index, Number(e.target.value), 'rate')}
-                  label={`Installment ${index + 1} Amount`}
-                />
-                <div className="w-1/4  px-2  flex justify-center items-end">
-                  <select
-                    value={inst.paymentMethod}
-                    onChange={(e) =>
-                      handleInstallmentChange(index, e.target.value, 'paymentMethod')
-                    }
-                    className=" h-fit  bg-zinc-800 focus:border-none p-2 rounded-sm focus:outline-none w-full"
-                  >
-                    <option value="null">Credit</option>
-                    <option value="cash">Cash</option>
-                    <option value="cheque">Cheque</option>
-                    <option value="upi">UPI</option>
-                  </select>
-                </div>
+          <Input
+            name="productName"
+            value={purchaseData.productName}
+            onChange={handleChange}
+            label="Product Name"
+            type="text"
+          />
+          {errors.productName && <p className="text-red-500 text-sm">{errors.productName}</p>}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+            <Input
+              name="price"
+              value={purchaseData.price || ''}
+              onChange={handleChange}
+              label="Price"
+              type="number"
+            />
+            <Input
+              name="quantity"
+              value={purchaseData.quantity || ''}
+              onChange={handleChange}
+              label="Quantity"
+              type="number"
+            />
+            <Input
+              name="discount"
+              value={purchaseData.discount || ''}
+              onChange={handleChange}
+              label="Discount%"
+              type="number"
+            />
+            <Input
+              name="tax"
+              value={purchaseData.tax || ''}
+              onChange={handleChange}
+              label="Tax"
+              type="number"
+            />
+            <div>
+              {errors.price && <p className="text-red-500 text-sm">{errors.price}</p>}
+
+              {errors.quantity && <p className="text-red-500 text-sm">{errors.quantity}</p>}
+
+              {errors.discount && <p className="text-red-500 text-sm">{errors.discount}</p>}
+
+              {errors.tax && <p className="text-red-500 text-sm">{errors.tax}</p>}
+            </div>
+          </div>
+          <div className="flex flex-col gap-2">
+            <div className="flex gap-2 w-full">
+              <Input
+                name="supplier"
+                value={purchaseData.supplier}
+                onChange={handleChange}
+                label="Supplier"
+                type="text"
+              />
+              <Input
+                name="orderingDate"
+                value={purchaseData.orderingDate}
+                onChange={handleChange}
+                label="Ordering Date"
+                type="date"
+                style=""
+              />
+            </div>
+            <div>
+              {errors.supplier && <p className="text-red-500 text-sm">{errors.supplier}</p>}
+
+              {errors.orderingDate && <p className="text-red-500 text-sm">{errors.orderingDate}</p>}
+            </div>
+          </div>
+          <div className="flex-col gap-2 w-full">
+            <div className='flex w-full gap-2'>
+              <Input
+                name="supplierContact"
+                value={purchaseData.supplierContact}
+                onChange={handleChange}
+                label="Supplier Ph. Number"
+                type="text"
+                placeholder="Enter Phone Number"
+                style="w-full"
+              />
+              <Input
+                name="supplierEmail"
+                value={purchaseData.supplierEmail}
+                onChange={handleChange}
+                label="Supplier Contact Email"
+                type="text"
+                placeholder="Enter Email"
+                style="w-full"
+              />
+            </div>
+            <div>
+                {errors.supplierContact && (
+                  <p className="text-red-500 text-sm">{errors.supplierContact}</p>
+                )}
+              {errors.supplierEmail && (
+                <p className="text-red-500 text-sm">{errors.supplierEmail}</p>
+              )}
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <div className="w-full">
+              <p>Supplier Address</p>
+              <textarea
+                className="max-h-24 min-h-24 focus:outline-none w-full pe-4 bg-zinc-800 border-b border-gray-300 py-2 px-2 rounded-sm resize-none"
+                name="supplierAddress"
+                value={purchaseData.supplierAddress}
+                onChange={handleChange}
+              />
+              {errors.supplierAddress && (
+                <p className="text-red-500 text-sm">{errors.supplierAddress}</p>
+              )}
+            </div>
+            <div className="w-full">
+              <p>Shipping Address</p>
+              <textarea
+                className="max-h-24 min-h-24 focus:outline-none w-full pe-4 bg-zinc-800 border-b border-gray-300 py-2 px-2 rounded-sm resize-none"
+                name="shippingAddress"
+                value={purchaseData.shippingAddress}
+                onChange={handleChange}
+              />
+              {errors.shippingAddress && (
+                <p className="text-red-500 text-sm">{errors.shippingAddress}</p>
+              )}
+            </div>
+          </div>
+
+          <div className="flex gap-2 items-center">
+            <div className="w-full">
+              <label htmlFor="paymentMethod">Payment Status</label>
+              <div className="w-full pe-4 bg-zinc-800 border-b border-gray-300 py-2 px-2 rounded-sm">
+                <select
+                  name="paymentStatus"
+                  value={purchaseData.paymentStatus}
+                  onChange={handleChange}
+                  className="w-full bg-zinc-800 focus:outline-none"
+                >
+                  <option value="paid">Paid</option>
+                  <option value="pending">Pending</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
               </div>
             </div>
-          ))}
-        </div>
-      )}
-      <Input
-        name="totalPrice"
-        value={purchaseData.totalPrice || ''}
-        onChange={handleChange}
-        label="Total Price"
-        type="number"
-        placeholder="Total Price will be calculated here"
-        style="w-full"
-      />
-      {purchaseData.paymentStatus !== 'paid' && (
-        <Input
-          name="pending"
-          value={purchaseData.pending || ''}
-          onChange={handleChange}
-          label="Pending Amount"
-          type="number"
-          placeholder="Pending amount"
-          style="w-full"
-        />
-      )}
+            <div className={`w-full`}>
+              <label htmlFor="paymentMethod">Payment Mode</label>
+              <div className="w-full pe-4 bg-zinc-800 border-b border-gray-300 py-2 px-2 rounded-sm">
+                <select
+                  disabled={isInstallment}
+                  name="paymentMethod"
+                  value={purchaseData.paymentMethod}
+                  onChange={handleChange}
+                  className="w-full bg-zinc-800 focus:outline-none"
+                >
+                  <option value="cash">Cash</option>
+                  <option value="cheque">Cheque</option>
+                  <option value="creditCard">Credit Card</option>
+                  <option value="bankTransfer">Bank Transfer</option>
+                  <option value="upi">UPI</option>
+                  <option value="installment">Installment</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+            </div>
+          </div>
 
-      <Button onPress={submitHandler} label="Create" />
-    </div>
-    </div>
+          <div className="">
+            <label htmlFor="paymentMethod">Is Installments</label>
+            <Input
+              type="checkbox"
+              onChange={() => {
+                setIsInstallment(!isInstallment)
+              }}
+              style="w-fit scale-[1.8] ms-1 mt-2 accent-violet-500  "
+            />
+          </div>
+
+          {isInstallment && (
+            <div className="flex flex-col items-end mb-4">
+              <div className="w-full flex justify-between items-center">
+                <div />
+                <motion.div whileTap={{ scale: 0.8 }}>
+                  <button
+                    className="bg-zinc-800 p-2 font-semibold rounded-lg border border-white/20"
+                    onClick={addInstallment}
+                  >
+                    <FaPlus color="white" />
+                  </button>
+                </motion.div>
+              </div>
+              {purchaseData.installments.map((inst, index) => (
+                <div className="w-full my-2" key={index}>
+                  <div className="flex gap-2">
+                    <Input
+                      value={inst.rate || ''}
+                      type="number"
+                      onChange={(e) =>
+                        handleInstallmentChange(index, Number(e.target.value), 'rate')
+                      }
+                      label={`Installment ${index + 1} Amount`}
+                    />
+                    <div className="w-1/4  px-2  flex justify-center items-end">
+                      <select
+                        value={inst.paymentMethod}
+                        onChange={(e) =>
+                          handleInstallmentChange(index, e.target.value, 'paymentMethod')
+                        }
+                        className=" h-fit  bg-zinc-800 focus:border-none p-2 rounded-sm focus:outline-none w-full"
+                      >
+                        <option value="null">Credit</option>
+                        <option value="cash">Cash</option>
+                        <option value="cheque">Cheque</option>
+                        <option value="upi">UPI</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          <Input
+            name="totalPrice"
+            value={purchaseData.totalPrice || ''}
+            onChange={handleChange}
+            label="Total Price"
+            type="number"
+            placeholder="Total Price will be calculated here"
+            style="w-full"
+          />
+          {purchaseData.paymentStatus !== 'paid' && (
+            <Input
+              name="pending"
+              value={purchaseData.pending || ''}
+              onChange={handleChange}
+              label="Pending Amount"
+              type="number"
+              placeholder="Pending amount"
+              style="w-full"
+            />
+          )}
+
+          <Button onPress={submitHandler} label="Create" />
+        </div>
+      </div>
     </div>
   )
 }

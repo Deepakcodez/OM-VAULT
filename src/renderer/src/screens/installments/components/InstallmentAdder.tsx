@@ -2,8 +2,6 @@ import React from 'react'
 import { Input } from '@renderer/components/ui'
 import { InstallmentType } from '@renderer/types/types'
 import Button from '@renderer/components/ui/Button'
-import { number } from 'zod'
-
 type InstallmentAdderProps = {
   purchaseId: string
   refetch: React.Dispatch<React.SetStateAction<boolean>>
