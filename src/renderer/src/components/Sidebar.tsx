@@ -29,9 +29,9 @@ const Sidebar: React.FC = () => {
       icon: GiReceiveMoney
     },
     {
-      name: 'Transactions',
-      screen: '/transactions',
-      icon: FaMoneyBillTransfer
+      name: 'Purchase',
+      screen: '/purchase',
+      icon: GiPayMoney
     },
     {
       name: 'Installments',
@@ -39,10 +39,10 @@ const Sidebar: React.FC = () => {
       icon: GrMoney
     },
     {
-      name: 'Purchase',
-      screen: '/purchase',
-      icon: GiPayMoney
-    }
+      name: 'Transactions',
+      screen: '/transactions',
+      icon: FaMoneyBillTransfer
+    },
   ]
   return (
     <motion.div className="md:w-[12rem] w-[8rem] h-full text-sm text-white bg-neutral-800 p-4 border-r border-r-zinc-800 overflow-hidden select-none">
