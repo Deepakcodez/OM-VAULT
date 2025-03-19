@@ -8,7 +8,7 @@ const SinglePurchase: React.FC = () => {
   const { singleSalesData, setSingleSalesData } = useSingleSalesStore();
 
   return (
-    <div className="absolute z-10 select-none hide-scb w-full h-screen overflow-y-scroll p-12 top-0  mx-auto bg-zinc-800/50 backdrop-blur-lg left-0">
+    <div className="absolute z-10 select-none hide-scb w-full h-screen overflow-y-scroll p-12 top-0  mx-auto bg-neutral-800/10 backdrop-blur-2xl left-0">
       <div className="lg:w-8/12 md:w-11/12  mx-auto"></div>
       <div className="w-full h-auto bg-zinc-800/20 border border-zinc-700 backdrop-blur-md p-4  px-12 rounded-lg ">
         <div className="w-full  mt-12 flex  items-center justify-between ">

@@ -13,7 +13,7 @@ type TableProps = {
 }
 const Table: React.FC<TableProps> = ({ tableHeadings, tableBody, setRowData }) => {
   return (
-    <div className="relative">
+    <div className="relative select-none">
       <table className="table-fixed  rounded-t-lg border-spacing-x text-white w-full border-separate">
         <thead className="border bg-zinc-600 sticky top-0">
           <tr>

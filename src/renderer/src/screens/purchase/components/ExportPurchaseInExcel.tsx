@@ -1,7 +1,8 @@
+import { InstallmentType, PurchaseDataType } from '@renderer/types/types'
 import * as XLSX from 'xlsx'
 
 // Function to export purchase data to an Excel file
-export const exportPurchasesToExcel = (data) => {
+export const exportPurchasesToExcel = (data:PurchaseDataType[]) => {
   // Map the purchase data to a format suitable for Excel
   const dataToExport = data.map((purchase) => {
     const installments = JSON.parse(purchase.installments || '[]') // Parse installments
@@ -18,7 +19,7 @@ export const exportPurchasesToExcel = (data) => {
       'Payment Status': purchase.paymentStatus,
       'Payment Method': purchase.paymentMethod,
       Installments: installments
-        .map((inst) => `${inst.date}: ${inst.rate} (${inst.paymentMethod})`)
+        .map((inst:InstallmentType) => `${inst.date}: ${inst.rate} (${inst.paymentMethod})`)
         .join(' | '),
       'Ordering Date': purchase.orderingDate,
       Supplier: purchase.supplier,

@@ -34,7 +34,7 @@ const Searchbar: React.FC<SearchbarProps> = ({ searchQuery, setSearchQuery, setF
   }, [debouncedValue])
 
   return (
-    <div className='flex items-center gap-2 bg-zinc-700/20 rounded-full p-1 ps-5 '>
+    <div className='flex items-center gap-2 bg-zinc-700/20 rounded-full  ps-2 select-none'>
       <CiSearch size={25} className='text-zinc-600' />
       <Input
         style="bg-transparent  border-b border-transparent text-white"

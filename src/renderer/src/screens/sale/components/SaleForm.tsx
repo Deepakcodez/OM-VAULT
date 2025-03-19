@@ -1,86 +1,84 @@
-import React, { useState } from "react";
-import { Input } from "../../../components/ui";
-import { motion } from "framer-motion";
-import { FaPlus } from "react-icons/fa6";
-import Button from "../../../components/ui/Button";
-import { useFormStore } from "../../../state_manager/FormState";
-import { RxCross2 } from "react-icons/rx";
-import { PurchaseDataType } from "../../../types/types";
-import { calculateTotalPrice } from "../../../libs/utilityFunc";
-import { v4 as uuid } from "uuid";
+import React, { useState } from 'react'
+import { Input } from '../../../components/ui'
+import { motion } from 'framer-motion'
+import { FaPlus } from 'react-icons/fa6'
+import Button from '../../../components/ui/Button'
+import { useFormStore } from '../../../state_manager/FormState'
+import { RxCross2 } from 'react-icons/rx'
+import { PurchaseDataType } from '../../../types/types'
+import { calculateTotalPrice } from '../../../libs/utilityFunc'
+import { v4 as uuid } from 'uuid'
 
 const SaleForm: React.FC = () => {
-  const { setShowForm } = useFormStore();
-  const [isInstallment, setIsInstallment] = useState<boolean>(false);
-  const [pendingPaymentAmount, setPendingPaymentAmount] = useState<number>(0);
+  const { setShowForm } = useFormStore()
+  const [isInstallment, setIsInstallment] = useState<boolean>(false)
+  const [pendingPaymentAmount, setPendingPaymentAmount] = useState<number>(0)
   const [purchaseData, setPurchaseData] = useState<PurchaseDataType>({
-    id: "",
-    productName: "",
+    id: '',
+    productName: '',
     price: 0,
     quantity: 0,
     discount: 0,
     tax: 0,
-    supplier: "",
-    supplierContact: "",
-    supplierEmail: "",
-    supplierAddress: "",
-    shippingAddress: "",
-    paymentStatus: "pending",
-    paymentMethod: "other",
-    orderingDate: "",
+    supplier: '',
+    supplierContact: '',
+    supplierEmail: '',
+    supplierAddress: '',
+    shippingAddress: '',
+    paymentStatus: 'pending',
+    paymentMethod: 'other',
+    orderingDate: '',
     isInstallment: isInstallment,
     installments: [
       {
-        date: new Date().toISOString().split("T")[0],
+        date: new Date().toISOString().split('T')[0],
         rate: 0,
-        paymentMethod: "cash"
+        paymentMethod: 'cash'
       }
     ],
     pending: 0,
     totalPrice: 0
-  });
+  })
 
   const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
-    const { name, value } = e.target;
-    setPurchaseData((prev) => ({ ...prev, id: uuid(), [name]: value }));
-  };
+    const { name, value } = e.target
+    setPurchaseData((prev) => ({ ...prev, id: uuid(), [name]: value }))
+  }
 
   const handleInstallmentChange = (
     index: number,
     value: number | string,
-    field: "rate" | "paymentMethod"
+    field: 'rate' | 'paymentMethod'
   ) => {
     setPurchaseData((prev) => {
-      const newInstallments = [...prev.installments];
-      if (field === "rate") {
-        newInstallments[index].rate = value as number;
+      const newInstallments = [...prev.installments]
+      if (field === 'rate') {
+        newInstallments[index].rate = value as number
       } else {
-        newInstallments[index].paymentMethod = value as string;
+        newInstallments[index].paymentMethod = value as string
       }
-      return { ...prev, installments: newInstallments };
-    });
-  };
+      return { ...prev, installments: newInstallments }
+    })
+  }
 
   const addInstallment = () => {
-    const lastInstallment = purchaseData.installments.at(-1);
-    if (lastInstallment && lastInstallment.rate === 0) return; // Prevent adding if last installment rate is empty or 0
+    const lastInstallment = purchaseData.installments.at(-1)
+    if (lastInstallment && lastInstallment.rate === 0) return // Prevent adding if last installment rate is empty or 0
 
     setPurchaseData((prev) => ({
       ...prev,
       installments: [
         ...prev.installments,
         {
-          date: new Date().toISOString().split("T")[0],
+          date: new Date().toISOString().split('T')[0],
           rate: 0,
-          paymentMethod: "cash"
+          paymentMethod: 'cash'
         }
       ]
-    }));
-  };
+    }))
+  }
 
   const submitHandler = async () => {
     if (
@@ -94,12 +92,12 @@ const SaleForm: React.FC = () => {
       !purchaseData.shippingAddress ||
       !purchaseData.orderingDate
     ) {
-      window.electron.openDialog("Sales Error","Please fill all the fields","error");
-      return;
+      window.electron.openDialog('Sales Error', 'Please fill all the fields', 'error')
+      return
     }
-    const result =  await window.electron.addSales(purchaseData);
-    console.log(result,"result");
-  };
+    const result = await window.electron.addSales(purchaseData)
+    console.log(result, 'result')
+  }
 
   React.useEffect(() => {
     // Calculate the total price based on the price, tax, discount, and quantity
@@ -108,40 +106,38 @@ const SaleForm: React.FC = () => {
       purchaseData.tax,
       purchaseData.discount,
       purchaseData.quantity
-    );
+    )
 
     // Calculate the total installments
     const totalInstallments = purchaseData.installments.reduce(
       (acc, installment) => acc + installment.rate!,
       0
-    );
+    )
 
-    const pendingAmount = calculatedTotalPrice - totalInstallments;
-    setPendingPaymentAmount(pendingAmount);
+    const pendingAmount = calculatedTotalPrice - totalInstallments
+    setPendingPaymentAmount(pendingAmount)
     setPurchaseData((prev) => ({
       ...prev,
       totalPrice: calculatedTotalPrice,
       pending: pendingAmount > 0 ? pendingAmount : 0
-    }));
+    }))
   }, [
     purchaseData.price,
     purchaseData.quantity,
     purchaseData.tax,
     purchaseData.discount,
     purchaseData.installments
-  ]);
+  ])
 
   React.useEffect(() => {
-    if (!isInstallment)
-      setPurchaseData((prev) => ({ ...prev, paymentMethod: "cash" }));
-    if (purchaseData.paymentStatus == "paid")
-      setPurchaseData((prev) => ({ ...prev, pending: 0 }));
-    if (purchaseData.paymentStatus !== "paid")
-      setPurchaseData((prev) => ({ ...prev, pending: pendingPaymentAmount }));
-  }, [isInstallment, purchaseData.installments]);
+    if (!isInstallment) setPurchaseData((prev) => ({ ...prev, paymentMethod: 'cash' }))
+    if (purchaseData.paymentStatus == 'paid') setPurchaseData((prev) => ({ ...prev, pending: 0 }))
+    if (purchaseData.paymentStatus !== 'paid')
+      setPurchaseData((prev) => ({ ...prev, pending: pendingPaymentAmount }))
+  }, [isInstallment, purchaseData.installments])
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 select-none">
       <div className="flex justify-between ">
         <h1 className="text-3xl">Add Sales</h1>
         <motion.div whileTap={{ scale: 0.8 }}>
@@ -163,28 +159,28 @@ const SaleForm: React.FC = () => {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
         <Input
           name="price"
-          value={purchaseData.price || ""}
+          value={purchaseData.price || ''}
           onChange={handleChange}
           label="Price"
           type="number"
         />
         <Input
           name="quantity"
-          value={purchaseData.quantity || ""}
+          value={purchaseData.quantity || ''}
           onChange={handleChange}
           label="Quantity"
           type="number"
         />
         <Input
           name="discount"
-          value={purchaseData.discount || ""}
+          value={purchaseData.discount || ''}
           onChange={handleChange}
           label="Discount%"
           type="number"
         />
         <Input
           name="tax"
-          value={purchaseData.tax || ""}
+          value={purchaseData.tax || ''}
           onChange={handleChange}
           label="Tax"
           type="number"
@@ -291,8 +287,8 @@ const SaleForm: React.FC = () => {
         <Input
           type="checkbox"
           onChange={() => {
-            setIsInstallment(!isInstallment);
-            setPurchaseData({ ...purchaseData, paymentMethod: "installment" });
+            setIsInstallment(!isInstallment)
+            setPurchaseData({ ...purchaseData, paymentMethod: 'installment' })
           }}
           style="w-fit scale-[1.8] ms-1 mt-2 accent-violet-500  "
         />
@@ -315,26 +311,16 @@ const SaleForm: React.FC = () => {
             <div className="w-full my-2" key={index}>
               <div className="flex gap-2">
                 <Input
-                  value={inst.rate || ""}
+                  value={inst.rate || ''}
                   type="number"
-                  onChange={(e) =>
-                    handleInstallmentChange(
-                      index,
-                      Number(e.target.value),
-                      "rate"
-                    )
-                  }
+                  onChange={(e) => handleInstallmentChange(index, Number(e.target.value), 'rate')}
                   label={`Installment ${index + 1} Amount`}
                 />
                 <div className="w-1/4  px-2  flex justify-center items-end">
                   <select
                     value={inst.paymentMethod}
                     onChange={(e) =>
-                      handleInstallmentChange(
-                        index,
-                        e.target.value,
-                        "paymentMethod"
-                      )
+                      handleInstallmentChange(index, e.target.value, 'paymentMethod')
                     }
                     className=" h-fit  bg-zinc-800 focus:border-none p-2 rounded-sm focus:outline-none w-full"
                   >
@@ -351,7 +337,7 @@ const SaleForm: React.FC = () => {
       )}
       <Input
         name="totalPrice"
-        value={purchaseData.totalPrice || ""}
+        value={purchaseData.totalPrice || ''}
         onChange={handleChange}
         label="Total Price"
         type="number"
@@ -360,7 +346,7 @@ const SaleForm: React.FC = () => {
       />
       <Input
         name="pending"
-        value={purchaseData.pending || ""}
+        value={purchaseData.pending || ''}
         onChange={handleChange}
         label="Pending Amount"
         type="number"
@@ -370,7 +356,7 @@ const SaleForm: React.FC = () => {
 
       <Button onPress={submitHandler} label="Create" />
     </div>
-  );
-};
+  )
+}
 
-export default SaleForm;
+export default SaleForm

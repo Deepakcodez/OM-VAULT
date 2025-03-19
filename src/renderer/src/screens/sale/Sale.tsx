@@ -10,6 +10,10 @@ import { useSingleSalesStore } from "@renderer/state_manager/singleSalesData";
 import Searchbar from "../purchase/components/Searchbar";
 import { useSalesData } from "@renderer/state_manager/salesData";
 import { fetchSaleData } from "./service";
+import { exportPurchasesToExcel } from "../purchase/components/ExportPurchaseInExcel";
+import { FiPrinter } from "react-icons/fi";
+import { AddButton } from "@renderer/components/ui";
+import { exportSaleToExcel } from "./components/exportSaleInExcel";
 
 const Sale: React.FC = () => {
   const { showForm, setShowForm } = useFormStore();
@@ -21,7 +25,7 @@ const Sale: React.FC = () => {
    React.useEffect(() => {
     const fetchSale = async () => {
       if (!searchQuery || searchQuery === '') {
-        const data = await fetchSaleData() 
+        const data = await fetchSaleData()
         if (data.length > 0) {
           setSalesData(data)
         }
@@ -32,6 +36,10 @@ const Sale: React.FC = () => {
     fetchSale()
   }, [searchQuery])
 
+
+  const addButtonHandler=()=>{
+    setShowForm()
+  }
   return (
     <div className="text-white ">
        <Searchbar
@@ -42,12 +50,15 @@ const Sale: React.FC = () => {
       />
       <div className="flex justify-between items-center w-full ">
         <h1 className="heading-text select-none text-white">Sale</h1>
-        <motion.div
-          whileTap={{ scale: 0.9 }}
-          className="hover:bg-zinc-800 p-2 rounded-full"
-        >
-          <FaPlus color="white" onClick={() => setShowForm()} />
-        </motion.div>
+
+        <div className='flex gap-2 items-center'>
+                <motion.div whileTap={{ scale: 0.9 }}
+                onClick={()=>exportSaleToExcel(salesData)}
+                className="hover:bg-zinc-800 p-2 rounded-full">
+                <FiPrinter/>
+              </motion.div>
+                <AddButton onClickHandler={addButtonHandler} />
+                </div>
       </div>
 
       {showForm && (
