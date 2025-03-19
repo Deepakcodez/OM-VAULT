@@ -24,6 +24,7 @@ function createWindow(): void {
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
+      devTools: true,
       sandbox: false,
       contextIsolation: true
     }
@@ -36,6 +37,7 @@ function createWindow(): void {
     }
   })
 
+  mainWindow.webContents.openDevTools()
   mainWindow.webContents.setWindowOpenHandler((details) => {
     shell.openExternal(details.url)
     return { action: 'deny' }

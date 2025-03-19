@@ -1,13 +1,14 @@
-import React, { useState } from 'react'
-import { Input } from '../../../components/ui'
-import { motion } from 'framer-motion'
-import { FaPlus } from 'react-icons/fa6'
-import Button from '../../../components/ui/Button'
-import { useFormStore } from '../../../state_manager/FormState'
-import { RxCross2 } from 'react-icons/rx'
-import { PurchaseDataType } from '../../../types/types'
-import { calculateTotalPrice } from '../../../libs/utilityFunc'
-import { z } from 'zod'
+import React, { useState } from 'react';
+import { Input } from '../../../components/ui';
+import { motion } from 'framer-motion';
+import { FaPlus } from 'react-icons/fa6';
+import Button from '../../../components/ui/Button';
+import { useFormStore } from '../../../state_manager/FormState';
+import { RxCross2 } from 'react-icons/rx';
+import { PurchaseDataType } from '../../../types/types';
+import { calculateTotalPrice } from '../../../libs/utilityFunc';
+import { z } from 'zod';
+import { v4 as uuid } from 'uuid';
 
 const PurchaseSchema = z.object({
   id: z.string().optional(),
@@ -35,7 +36,7 @@ const PurchaseSchema = z.object({
     'bankTransfer',
     'upi',
     'installment',
-    'other'
+    'other',
   ]),
   orderingDate: z.string().min(1, 'Ordering Date is required'),
   isInstallment: z.boolean(),
@@ -44,21 +45,18 @@ const PurchaseSchema = z.object({
       z.object({
         date: z.string(),
         rate: z.number().min(0, 'Installment rate cannot be negative'),
-        paymentMethod: z.enum(['cash', 'cheque', 'upi', 'credit'])
+        paymentMethod: z.enum(['cash', 'cheque', 'upi', 'credit']),
       })
     )
     .optional(),
   pending: z.number().min(0, 'Pending amount cannot be negative').optional(),
-  totalPrice: z.number().min(0, 'Total price cannot be negative').optional()
-})
-
-// type PurchaseFormData = z.infer<typeof PurchaseSchema>;
+  totalPrice: z.number().min(0, 'Total price cannot be negative').optional(),
+});
 
 const PurchaseForm: React.FC = () => {
-  const { setShowForm } = useFormStore()
-  const [isInstallment, setIsInstallment] = useState<boolean>(false)
-  const [pendingPaymentAmount, setPendingPaymentAmount] = useState<number>(0)
-
+  const { setShowForm } = useFormStore();
+  const [isInstallment, setIsInstallment] = useState<boolean>(false);
+  const [pendingPaymentAmount, setPendingPaymentAmount] = useState<number>(0);
   const [purchaseData, setPurchaseData] = useState<PurchaseDataType>({
     id: '',
     productName: '',
@@ -79,38 +77,38 @@ const PurchaseForm: React.FC = () => {
       {
         date: new Date().toISOString().split('T')[0],
         rate: 0,
-        paymentMethod: 'cash'
-      }
+        paymentMethod: 'cash',
+      },
     ],
     pending: 0,
-    totalPrice: 0
-  })
-  const [errors, setErrors] = useState<Record<string, string>>({})
+    totalPrice: 0,
+  });
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
 
     // Convert numeric fields to numbers
     const parsedValue = ['price', 'quantity', 'discount', 'tax'].includes(name)
       ? Number(value)
-      : value
+      : value;
 
     // Update the purchase data
-    setPurchaseData((prev) => ({ ...prev, [name]: parsedValue }))
+    setPurchaseData((prev) => ({ ...prev, [name]: parsedValue }));
 
     // Validate the field using Zod
     try {
-      const fieldSchema = PurchaseSchema.shape[name] // Get the specific field's schema
-  fieldSchema.parse(parsedValue) // Validate the value
-  setErrors((prev) => ({ ...prev, [name]: '' })) // Clear error if valid
+      const fieldSchema = PurchaseSchema.shape[name]; // Get the specific field's schema
+      fieldSchema.parse(parsedValue); // Validate the value
+      setErrors((prev) => ({ ...prev, [name]: '' })); // Clear error if valid
     } catch (error) {
       if (error instanceof z.ZodError) {
-        setErrors((prev) => ({ ...prev, [name]: error.errors[0].message }))
+        setErrors((prev) => ({ ...prev, [name]: error.errors[0].message }));
       }
     }
-  }
+  };
 
   const handleInstallmentChange = (
     index: number,
@@ -118,30 +116,51 @@ const PurchaseForm: React.FC = () => {
     field: 'rate' | 'paymentMethod'
   ) => {
     setPurchaseData((prev) => {
-      const newInstallments = [...prev.installments]
+      const newInstallments = [...prev.installments];
       if (field === 'rate') {
-        newInstallments[index].rate = value as number
+        newInstallments[index].rate = value as number;
       } else {
-        newInstallments[index].paymentMethod = value as string
+        newInstallments[index].paymentMethod = value as string;
       }
-      return { ...prev, installments: newInstallments }
-    })
+      return { ...prev, installments: newInstallments };
+    });
+
+   // Validate the updated installment
+  const updatedInstallment = purchaseData.installments[index];
+  try {
+    // Access the schema for individual installments
+    const installmentSchema = PurchaseSchema.shape.installments.unwrap().element;
+    installmentSchema.parse(updatedInstallment); // Validate the installment
+    // Clear the error if validation passes
+    setErrors((prev) => ({
+      ...prev,
+      [`installments[${index}].${field}`]: '',
+    }));
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      // Set the error message if validation fails
+      setErrors((prev) => ({
+        ...prev,
+        [`installments[${index}].${field}`]: error.errors[0].message,
+      }));
+    }
   }
+};
 
   const addInstallment = () => {
-    const lastInstallment = purchaseData.installments.at(-1)
+    const lastInstallment = purchaseData.installments.at(-1);
 
     // Prevent adding if the last installment rate is empty or 0
-    if (lastInstallment && lastInstallment.rate === 0) return
+    if (lastInstallment && lastInstallment.rate === 0) return;
 
     // Calculate total installments sum
     const totalInstallments = purchaseData.installments.reduce(
       (acc, installment) => acc + installment.rate!,
       0
-    )
+    );
 
     // Prevent adding a new installment if total installment sum >= total price
-    if (totalInstallments >= purchaseData.totalPrice!) return
+    if (totalInstallments >= purchaseData.totalPrice!) return;
 
     setPurchaseData((prev) => ({
       ...prev,
@@ -150,36 +169,53 @@ const PurchaseForm: React.FC = () => {
         {
           date: new Date().toISOString().split('T')[0],
           rate: 0,
-          paymentMethod: 'cash'
-        }
-      ]
-    }))
-  }
+          paymentMethod: 'cash',
+        },
+      ],
+    }));
+  };
 
   const submitHandler = async () => {
     try {
+      // Generate a unique UUID for the purchase
+      const purchaseId = uuid();
+
+      // Create a new purchase object with the generated UUID
+      const purchaseWithId = {
+        ...purchaseData,
+        id: purchaseId, // Add the unique UUID
+      };
+
       // Validate the entire form
-      const validatedData = PurchaseSchema.parse(purchaseData)
+      const validatedData = PurchaseSchema.parse(purchaseWithId);
 
       // If validation passes, proceed with submission
-      const resp = await window.electron.addPurchase(validatedData)
-      setShowForm()
-      console.log('Response on render side:', resp)
+      const resp = await window.electron.addPurchase(validatedData);
+      setShowForm();
+      console.log('Response on render side:', resp);
     } catch (error) {
       if (error instanceof z.ZodError) {
         // Convert Zod errors to a key-value pair for easier display
-        const errorMap: Record<string, string> = {}
+        const errorMap: Record<string, string> = {};
         error.errors.forEach((err) => {
           if (err.path) {
-            errorMap[err.path.join('.')] = err.message
+            // Handle errors for the `installments` array
+            if (err.path[0] === 'installments') {
+              const installmentIndex = err.path[1]; // Index of the installment
+              const fieldName = err.path[2]; // Field name (e.g., 'rate', 'paymentMethod')
+              errorMap[`installments[${installmentIndex}].${fieldName}`] = err.message;
+            } else {
+              // Handle errors for other fields
+              errorMap[err.path.join('.')] = err.message;
+            }
           }
-        })
-        setErrors(errorMap)
+        });
+        setErrors(errorMap);
       } else {
-        console.error('Unexpected error:', error)
+        console.error('Unexpected error:', error);
       }
     }
-  }
+  };
 
   React.useEffect(() => {
     // Calculate the total price based on the price, tax, discount, and quantity
@@ -188,41 +224,45 @@ const PurchaseForm: React.FC = () => {
       purchaseData.tax,
       purchaseData.discount,
       purchaseData.quantity
-    )
+    );
 
     // Calculate the total installments
     const totalInstallments = purchaseData.installments.reduce(
       (acc, installment) => acc + installment.rate!,
       0
-    )
+    );
 
-    const pendingAmount = calculatedTotalPrice - totalInstallments
+    const pendingAmount = calculatedTotalPrice - totalInstallments;
 
     // Update purchase data with pending amount and total price
-    setPendingPaymentAmount(pendingAmount)
+    setPendingPaymentAmount(pendingAmount);
     setPurchaseData((prev) => ({
       ...prev,
       totalPrice: calculatedTotalPrice,
       pending: pendingAmount > 0 ? pendingAmount : 0,
-      paymentStatus: pendingAmount == 0 ? 'paid' : prev.paymentStatus
-    }))
+      paymentStatus: pendingAmount == 0 ? 'paid' : prev.paymentStatus,
+    }));
   }, [
     purchaseData.price,
     purchaseData.quantity,
     purchaseData.tax,
     purchaseData.discount,
     purchaseData.installments,
-    pendingPaymentAmount
-  ])
+    pendingPaymentAmount,
+  ]);
 
   React.useEffect(() => {
     if (isInstallment) {
-      setPurchaseData((prev) => ({ ...prev, paymentMethod: 'installment' }))
+      setPurchaseData((prev) => ({
+        ...prev,
+        paymentMethod: 'installment',
+        paymentStatus: 'pending',
+      }));
     }
-    if (purchaseData.paymentStatus == 'paid') setPurchaseData((prev) => ({ ...prev, pending: 0 }))
+    if (purchaseData.paymentStatus == 'paid') setPurchaseData((prev) => ({ ...prev, pending: 0 }));
     if (purchaseData.paymentStatus !== 'paid')
-      setPurchaseData((prev) => ({ ...prev, pending: pendingPaymentAmount }))
-  }, [isInstallment, pendingPaymentAmount])
+      setPurchaseData((prev) => ({ ...prev, pending: pendingPaymentAmount }));
+  }, [isInstallment, pendingPaymentAmount]);
 
   return (
     <div className="absolute z-10  hide-scb w-full h-screen overflow-y-scroll p-12 top-0  mx-auto bg-zinc-800/50 backdrop-blur-xl left-0">
@@ -311,7 +351,7 @@ const PurchaseForm: React.FC = () => {
             </div>
           </div>
           <div className="flex-col gap-2 w-full">
-            <div className='flex w-full gap-2'>
+            <div className="flex w-full gap-2">
               <Input
                 name="supplierContact"
                 value={purchaseData.supplierContact}
@@ -332,9 +372,9 @@ const PurchaseForm: React.FC = () => {
               />
             </div>
             <div>
-                {errors.supplierContact && (
-                  <p className="text-red-500 text-sm">{errors.supplierContact}</p>
-                )}
+              {errors.supplierContact && (
+                <p className="text-red-500 text-sm">{errors.supplierContact}</p>
+              )}
               {errors.supplierEmail && (
                 <p className="text-red-500 text-sm">{errors.supplierEmail}</p>
               )}
@@ -410,7 +450,7 @@ const PurchaseForm: React.FC = () => {
             <Input
               type="checkbox"
               onChange={() => {
-                setIsInstallment(!isInstallment)
+                setIsInstallment(!isInstallment);
               }}
               style="w-fit scale-[1.8] ms-1 mt-2 accent-violet-500  "
             />
@@ -440,7 +480,8 @@ const PurchaseForm: React.FC = () => {
                       }
                       label={`Installment ${index + 1} Amount`}
                     />
-                    <div className="w-1/4  px-2  flex justify-center items-end">
+
+                    <div className="w-1/4  px-2  flex justify-center items-end ">
                       <select
                         value={inst.paymentMethod}
                         onChange={(e) =>
@@ -455,10 +496,16 @@ const PurchaseForm: React.FC = () => {
                       </select>
                     </div>
                   </div>
+                  {errors[`installments[${index}].rate`] && (
+                      <p className="text-red-500 text-sm">
+                        {errors[`installments[${index}].rate`]}
+                      </p>
+                    )}
                 </div>
               ))}
             </div>
           )}
+
           <Input
             name="totalPrice"
             value={purchaseData.totalPrice || ''}
@@ -484,7 +531,7 @@ const PurchaseForm: React.FC = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default PurchaseForm
+export default PurchaseForm;
