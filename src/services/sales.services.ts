@@ -22,6 +22,35 @@ const sanitizeSales = (purchase: any) => ({
   totalPrice: purchase.totalPrice ?? null
 })
 
+
+
+type Installment = {
+  amount: number;
+  dueDate: string;
+  status: string;
+};
+
+type Purchase = {
+  id: string;
+  productName: string;
+  price: number | null;
+  quantity: number | null;
+  discount: number | null;
+  tax: number | null;
+  supplier: string | null;
+  supplierContact: string | null;
+  supplierEmail: string | null;
+  supplierAddress: string | null;
+  shippingAddress: string | null;
+  paymentStatus: string | null;
+  paymentMethod: string | null;
+  orderingDate: string | null;
+  isInstallment: number; // 1 or 0
+  installments: string | null; // JSON string
+  pending: number | null;
+  totalPrice: number | null;
+};
+
 // Insert Purchase
 export const insertSales = (purchase: any) => {
   const data = sanitizeSales(purchase)
@@ -79,6 +108,34 @@ export const updatePurchase = (purchase: any) => {
     WHERE id = @id
   `)
   return stmt.run(data)
+}
+
+
+export const addInstallmentSales = (purchaseId: string, newInstallment: Installment) => {
+  try {
+
+    // Fetch the existing purchase
+    const purchase = db.prepare('SELECT * FROM sales WHERE id = ?').get(purchaseId) as Purchase
+    console.log(purchase, 'from services page inside sales ')
+    if (!purchase || !purchase) {
+      throw new Error('Purchase not found')
+    }
+
+    // Parse the existing installments
+    const installments = purchase.installments  ? JSON.parse(purchase.installments) : []
+
+    // Add the new installment
+    installments.push(newInstallment)
+
+    // Update the purchase with the new installments
+    const stmt = db.prepare('UPDATE sales SET installments = ? WHERE id = ?')
+    stmt.run(JSON.stringify(installments), purchaseId)
+
+    return { success: true, message: 'Installment added successfully' }
+  } catch (error) {
+    console.error('Error adding installment:', error)
+    return { success: false, message: 'Failed to add installment' }
+  }
 }
 
 // Delete Purchase

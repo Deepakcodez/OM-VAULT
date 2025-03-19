@@ -3,10 +3,11 @@ import { Input } from '@renderer/components/ui'
 import { InstallmentType } from '@renderer/types/types'
 import Button from '@renderer/components/ui/Button'
 type InstallmentAdderProps = {
-  purchaseId: string
+  purchaseId: string,
+  type : string,
   refetch: React.Dispatch<React.SetStateAction<boolean>>
 }
-const InstallmentAdder: React.FC<InstallmentAdderProps> = ({ purchaseId, refetch }) => {
+const InstallmentAdder: React.FC<InstallmentAdderProps> = ({ purchaseId, refetch ,type}) => {
   const [installment, setInstallment] = React.useState<InstallmentType>({
     rate: 0,
     date: '',
@@ -34,7 +35,7 @@ const InstallmentAdder: React.FC<InstallmentAdderProps> = ({ purchaseId, refetch
     ) return;
 
     try {
-      await window.electron.addInstallment(purchaseId, installment)
+      await window.electron.addInstallment(purchaseId, installment,type)
       refetch((prev) => !prev)
     } catch (error) {
       console.warn(error)

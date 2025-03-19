@@ -8,7 +8,7 @@ type TableProps = {
   setRowData: (data: PurchaseDataType) => void
 }
 const Table: React.FC<TableProps> = ({ tableHeadings, tableBody, setRowData }) => {
-
+  
 
   return (
     <div className="relative">
