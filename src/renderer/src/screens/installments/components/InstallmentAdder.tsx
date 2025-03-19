@@ -2,12 +2,20 @@ import React from 'react'
 import { Input } from '@renderer/components/ui'
 import { InstallmentType } from '@renderer/types/types'
 import Button from '@renderer/components/ui/Button'
+import { z } from 'zod'
+
+const InstallmentSchema = z.object({
+  date: z.string().min(1, 'Date is required'),
+  rate: z.number().positive('Rate must be greater than 0'),
+  paymentMethod: z.enum(['cash', 'cheque', 'upi', 'credit'])
+})
+
 type InstallmentAdderProps = {
-  purchaseId: string,
-  type : string,
+  purchaseId: string
+  type: string
   refetch: React.Dispatch<React.SetStateAction<boolean>>
 }
-const InstallmentAdder: React.FC<InstallmentAdderProps> = ({ purchaseId, refetch ,type}) => {
+const InstallmentAdder: React.FC<InstallmentAdderProps> = ({ purchaseId, refetch, type }) => {
   const [installment, setInstallment] = React.useState<InstallmentType>({
     rate: 0,
     date: '',
@@ -29,13 +37,9 @@ const InstallmentAdder: React.FC<InstallmentAdderProps> = ({ purchaseId, refetch
 
   // Handle form submission
   const handleSubmit = async () => {
-    if (
-      installment.date === '' ||
-      (typeof installment.rate !== 'number' || installment.rate <= 0)
-    ) return;
-
+    const validatedInstallment = InstallmentSchema.parse(installment)
     try {
-      await window.electron.addInstallment(purchaseId, installment,type)
+      await window.electron.addInstallment(purchaseId, validatedInstallment, type)
       refetch((prev) => !prev)
     } catch (error) {
       console.warn(error)

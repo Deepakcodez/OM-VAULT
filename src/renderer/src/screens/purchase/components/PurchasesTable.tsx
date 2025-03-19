@@ -29,6 +29,7 @@ const PurchasesTable: React.FC<PurchasesTableProps> = ({ refresh }) => {
       const data = await fetchPurchaseData()
       if (data.length > 0) {
         setPurchaseData(data)
+        console.log('Purchase data loaded',data[0])
       }
     }
     loadPurchaseData()

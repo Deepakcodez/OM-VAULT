@@ -1,6 +1,6 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
 import { UserDetailType } from '@renderer/types/auth.types'
-import { InstallmentType, PurchaseDataType } from '@renderer/types/types'
+import { InstallmentType, PurchaseDataType, SalesDataType } from '@renderer/types/types'
 
 declare global {
   interface Window {
@@ -26,6 +26,7 @@ declare global {
       addInstallment:(installmentId: string, newInstallment: InstallmentType,type : string)=> Promise<void>
       getAllSales: () => Promise<PurchaseDataType[]>
       getFilterPurchases: (searchQuery: string) => Promise<PurchaseDataType[]>
+      getFilterSale: (searchQuery: string) => Promise<SalesDataType[]>
 
 
       openDialog: (

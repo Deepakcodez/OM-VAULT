@@ -4,6 +4,8 @@ import { RxCross2 } from 'react-icons/rx'
 import { motion } from 'motion/react'
 import { MdCircle } from 'react-icons/md'
 import { calculateInstallments, calculatePendingAmount } from '@renderer/utils/Helper'
+import { FiPrinter } from "react-icons/fi";
+
 
 const SinglePurchase: React.FC = () => {
   const { singlePurchaseData, setSinglePurchaseData } = useSinglePurchaseStore()
@@ -16,7 +18,13 @@ const SinglePurchase: React.FC = () => {
           <h1 className="text-3xl   truncate">{singlePurchaseData?.productName}</h1>
           <div className="flex items-center gap-2">
 
-
+            <motion.div
+              whileTap={{ scale: 0.5 }}
+              className="cursor-pointer hover:bg-zinc-700 p-2 hover:rounded-full duration-300"
+              onClick={() => {}}
+            >
+              <FiPrinter   size={20} />
+            </motion.div>
             <motion.div
               whileTap={{ scale: 0.5 }}
               className="cursor-pointer hover:bg-zinc-700 p-2 hover:rounded-full duration-300"

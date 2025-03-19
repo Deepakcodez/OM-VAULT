@@ -1,9 +1,9 @@
 import React from 'react'
 import { Table } from '../../../components/ui'
-import { fetchPurchaseData } from '../service'
 import { PurchaseDataType, TableHeadingsTypes } from '../../../types/types'
 import { useSalesData } from '@renderer/state_manager/salesData'
 import { useSingleSalesStore } from '@renderer/state_manager/singleSalesData'
+import { fetchPurchaseData } from '@renderer/screens/purchase/service'
 
 type PurchasesTableProps = {
   refresh: boolean

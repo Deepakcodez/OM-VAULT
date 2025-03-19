@@ -119,8 +119,6 @@ export const updatePurchase = (purchase: any) => {
 }
 
 // Add Installment to Purchase
-// 导出一个函数，用于添加分期付款
-// 导出一个函数，用于添加分期付款
 export const addInstallment = (purchaseId: string, newInstallment: Installment) => {
   try {
     // Fetch the existing purchase

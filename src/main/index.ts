@@ -9,7 +9,7 @@ import {
 import bcrypt from 'bcryptjs'
 import icon from '../../resources/icon.png?asset'
 import { addInstallment, deletePurchase, getAllPurchases, getFilterPurchases, getPurchaseById, getPurchaseByPaymentMethod, insertPurchase, updatePurchase } from '../services/purchase.services'
-import { addInstallmentSales, getAllSales, getSalesByPaymentMethod, insertSales } from '../services/sales.services'
+import { addInstallmentSales, getAllSales, getFiltersale, getSalesByPaymentMethod, insertSales } from '../services/sales.services'
 
 let mainWindow: BrowserWindow | null = null
 
@@ -152,6 +152,10 @@ app.whenReady().then(() => {
     console.log(searchQuery,"searchQuery")
     return getFilterPurchases(searchQuery);
   });
+  ipcMain.handle('getFilterSale', async (_,searchQuery) => {
+    console.log(searchQuery,"searchQuery")
+    return getFiltersale(searchQuery);
+  })
   ipcMain.handle('getAllSales', async () => {
     return getAllSales();
   });

@@ -11,6 +11,7 @@ contextBridge.exposeInMainWorld('electron', {
   getAllPurchases: () => ipcRenderer.invoke('getAllPurchases'),
   getAllSales: () => ipcRenderer.invoke('getAllSales'),
   getFilterPurchases: (searchQuery:string) => ipcRenderer.invoke('getFilterPurchases', searchQuery),
+  getFilterSale: (searchQuery:string) => ipcRenderer.invoke('getFilterSale', searchQuery),
   getPurchaseById: (id: string) => ipcRenderer.invoke('getPurchaseById', id),
   updatePurchase: (purchaseData: any) => ipcRenderer.invoke('updatePurchase', purchaseData),
   deletePurchase: (id: any) => ipcRenderer.invoke('deletePurchase', id),

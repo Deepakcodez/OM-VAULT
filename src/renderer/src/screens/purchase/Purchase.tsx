@@ -8,12 +8,16 @@ import Searchbar from './components/Searchbar'
 import { AddButton, Heading } from '@renderer/components/ui'
 import { usePurchaseStore } from '@renderer/state_manager/purchaseData'
 import { fetchPurchaseData } from './service'
+import { FiPrinter } from 'react-icons/fi'
+import {motion} from 'motion/react'
+import { exportPurchasesToExcel } from './components/ExportPurchaseInExcel'
+
 
 const Purchase: React.FC = () => {
   const { showForm, setShowForm } = useFormStore()
   const { singlePurchaseData } = useSinglePurchaseStore()
   const [searchQuery, setSearchQuery] = React.useState<string>('')
-  const { setPurchaseData } = usePurchaseStore()
+  const { setPurchaseData, purchaseData } = usePurchaseStore()
   const addButtonHandler = () => {
     setShowForm()
   }
@@ -38,10 +42,18 @@ const Purchase: React.FC = () => {
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
         setFilteredData={setPurchaseData}
+        type='purchase'
       />
       <div className="flex justify-between items-center w-full">
         <Heading title="Purchase" />
+        <div className='flex gap-2 items-center'>
+        <motion.div whileTap={{ scale: 0.9 }}
+        onClick={()=>exportPurchasesToExcel(purchaseData)}
+        className="hover:bg-zinc-800 p-2 rounded-full">
+        <FiPrinter/>
+      </motion.div>
         <AddButton onClickHandler={addButtonHandler} />
+        </div>
       </div>
 
       {showForm && <PurchaseForm />}

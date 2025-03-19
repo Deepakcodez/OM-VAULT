@@ -7,14 +7,39 @@ import SaleForm from "./components/SaleForm";
 import SingleSale from "./components/SingleSale";
 import SaleTable from "./components/SaleTable";
 import { useSingleSalesStore } from "@renderer/state_manager/singleSalesData";
+import Searchbar from "../purchase/components/Searchbar";
+import { useSalesData } from "@renderer/state_manager/salesData";
+import { fetchSaleData } from "./service";
 
 const Sale: React.FC = () => {
   const { showForm, setShowForm } = useFormStore();
   const { singleSalesData } = useSingleSalesStore();
+   const [searchQuery, setSearchQuery] = React.useState<string>('');
+   const { salesData, setSalesData } = useSalesData();
+
+
+   React.useEffect(() => {
+    const fetchSale = async () => {
+      if (!searchQuery || searchQuery === '') {
+        const data = await fetchSaleData() 
+        if (data.length > 0) {
+          setSalesData(data)
+        }
+      } else {
+        return
+      }
+    }
+    fetchSale()
+  }, [searchQuery])
 
   return (
     <div className="text-white ">
-      {/* <Searchbar  /> */}
+       <Searchbar
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        setFilteredData={setSalesData}
+        type="sales"
+      />
       <div className="flex justify-between items-center w-full ">
         <h1 className="heading-text select-none text-white">Sale</h1>
         <motion.div

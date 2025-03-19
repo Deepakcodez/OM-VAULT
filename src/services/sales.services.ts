@@ -1,25 +1,25 @@
 import db from './database.table'
 import { randomUUID } from 'crypto'
-// Helper function to sanitize purchase data
-const sanitizeSales = (purchase: any) => ({
-  id: purchase.id ?? randomUUID(), // Generate UUID if missing
-  productName: String(purchase.productName || ''),
-  price: purchase.price ?? null,
-  quantity: purchase.quantity ?? null,
-  discount: purchase.discount ?? null,
-  tax: purchase.tax ?? null,
-  supplier: purchase.supplier ? String(purchase.supplier) : null,
-  supplierContact: purchase.supplierContact ? String(purchase.supplierContact) : null,
-  supplierEmail: purchase.supplierEmail ? String(purchase.supplierEmail) : null,
-  supplierAddress: purchase.supplierAddress ? String(purchase.supplierAddress) : null,
-  shippingAddress: purchase.shippingAddress ? String(purchase.shippingAddress) : null,
-  paymentStatus: purchase.paymentStatus ? String(purchase.paymentStatus) : null,
-  paymentMethod: purchase.paymentMethod ? String(purchase.paymentMethod) : null,
-  orderingDate: purchase.orderingDate ? String(purchase.orderingDate) : null,
-  isInstallment: purchase.isInstallment ? 1 : 0, // Convert boolean to 1/0
-  installments: purchase.installments ? JSON.stringify(purchase.installments) : null, // Store JSON string
-  pending: purchase.pending ?? null,
-  totalPrice: purchase.totalPrice ?? null
+// Helper function to sanitize sale data
+const sanitizeSales = (sale: any) => ({
+  id: sale.id ?? randomUUID(), // Generate UUID if missing
+  productName: String(sale.productName || ''),
+  price: sale.price ?? null,
+  quantity: sale.quantity ?? null,
+  discount: sale.discount ?? null,
+  tax: sale.tax ?? null,
+  supplier: sale.supplier ? String(sale.supplier) : null,
+  supplierContact: sale.supplierContact ? String(sale.supplierContact) : null,
+  supplierEmail: sale.supplierEmail ? String(sale.supplierEmail) : null,
+  supplierAddress: sale.supplierAddress ? String(sale.supplierAddress) : null,
+  shippingAddress: sale.shippingAddress ? String(sale.shippingAddress) : null,
+  paymentStatus: sale.paymentStatus ? String(sale.paymentStatus) : null,
+  paymentMethod: sale.paymentMethod ? String(sale.paymentMethod) : null,
+  orderingDate: sale.orderingDate ? String(sale.orderingDate) : null,
+  isInstallment: sale.isInstallment ? 1 : 0, // Convert boolean to 1/0
+  installments: sale.installments ? JSON.stringify(sale.installments) : null, // Store JSON string
+  pending: sale.pending ?? null,
+  totalPrice: sale.totalPrice ?? null
 })
 
 
@@ -30,7 +30,7 @@ type Installment = {
   status: string;
 };
 
-type Purchase = {
+type sale = {
   id: string;
   productName: string;
   price: number | null;
@@ -51,9 +51,9 @@ type Purchase = {
   totalPrice: number | null;
 };
 
-// Insert Purchase
-export const insertSales = (purchase: any) => {
-  const data = sanitizeSales(purchase)
+// Insert sale
+export const insertSales = (sale: any) => {
+  const data = sanitizeSales(sale)
   console.log('inside db of sales insesrt')
   const stmt = db.prepare(`
     INSERT INTO sales (
@@ -70,15 +70,31 @@ export const insertSales = (purchase: any) => {
   return stmt.run(data)
 }
 
-// Get All Purchases
+// Get All sales
 export const getAllSales = () => {
   return db.prepare('SELECT * FROM sales').all()
 }
 
-// Get Purchase by ID
-export const getPurchaseById = (id: string) => {
+// Get sale by ID
+export const getsaleById = (id: string) => {
   return db.prepare('SELECT * FROM sales WHERE id = ?').get(id)
 }
+
+export const getFiltersale = (searchQuery: string) => {
+  try {
+    // Prepare the SQL query with a parameterized search term
+    const stmt = db.prepare('SELECT * FROM sales WHERE productName LIKE ?')
+
+    // Execute the query with the search term wrapped in wildcards
+    const results = stmt.all(`%${searchQuery}%`)
+
+    return results
+  } catch (error) {
+    console.error('Error fetching filtered sales:', error)
+    return [] // Return an empty array in case of an error
+  }
+}
+
 
 export const getSalesByPaymentMethod = (paymentMethod: string) => {
   console.log('inside db of sales by payment method')
@@ -89,14 +105,14 @@ export const getSalesByPaymentMethod = (paymentMethod: string) => {
     console.log(data)
     return data
   } catch (error) {
-    console.error('Error fetching purchases by payment method:', error)
+    console.error('Error fetching sales by payment method:', error)
     return []
   }
 }
 
-// Update Purchase
-export const updatePurchase = (purchase: any) => {
-  const data = sanitizeSales(purchase)
+// Update sale
+export const updatesale = (sale: any) => {
+  const data = sanitizeSales(sale)
   const stmt = db.prepare(`
     UPDATE sales SET
       productName = @productName, price = @price, quantity = @quantity, discount = @discount,
@@ -111,25 +127,25 @@ export const updatePurchase = (purchase: any) => {
 }
 
 
-export const addInstallmentSales = (purchaseId: string, newInstallment: Installment) => {
+export const addInstallmentSales = (saleId: string, newInstallment: Installment) => {
   try {
 
-    // Fetch the existing purchase
-    const purchase = db.prepare('SELECT * FROM sales WHERE id = ?').get(purchaseId) as Purchase
-    console.log(purchase, 'from services page inside sales ')
-    if (!purchase || !purchase) {
-      throw new Error('Purchase not found')
+    // Fetch the existing sale
+    const sale = db.prepare('SELECT * FROM sales WHERE id = ?').get(saleId) as sale
+    console.log(sale, 'from services page inside sales ')
+    if (!sale || !sale) {
+      throw new Error('sale not found')
     }
 
     // Parse the existing installments
-    const installments = purchase.installments  ? JSON.parse(purchase.installments) : []
+    const installments = sale.installments  ? JSON.parse(sale.installments) : []
 
     // Add the new installment
     installments.push(newInstallment)
 
-    // Update the purchase with the new installments
+    // Update the sale with the new installments
     const stmt = db.prepare('UPDATE sales SET installments = ? WHERE id = ?')
-    stmt.run(JSON.stringify(installments), purchaseId)
+    stmt.run(JSON.stringify(installments), saleId)
 
     return { success: true, message: 'Installment added successfully' }
   } catch (error) {
@@ -138,8 +154,8 @@ export const addInstallmentSales = (purchaseId: string, newInstallment: Installm
   }
 }
 
-// Delete Purchase
-export const deletePurchase = (id: string) => {
+// Delete sale
+export const deletesale = (id: string) => {
   const stmt = db.prepare('DELETE FROM sales WHERE id = ?')
   return stmt.run(id)
 }
