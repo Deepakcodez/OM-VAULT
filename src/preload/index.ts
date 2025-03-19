@@ -25,9 +25,9 @@ contextBridge.exposeInMainWorld('electron', {
     ipcRenderer.invoke('getSalesByPaymentMethod', paymentMethod),
 
 
-  
-  addInstallment: (installmentId: string, newInstallment: string) =>
-    ipcRenderer.invoke('addInstallments', installmentId, newInstallment),
+
+  addInstallment: (installmentId: string, newInstallment: string, type :string) =>
+    ipcRenderer.invoke('addInstallments', installmentId, newInstallment, type),
 
   openDialog: (title: string, message: string, type: 'info' | 'error' | 'warning' | 'question') =>
     ipcRenderer.invoke('open-dialog', { title, message, type })

@@ -9,18 +9,19 @@ import InstallmentAdder from '@renderer/screens/installments/components/Installm
 import { calculatePendingAmount } from '@renderer/utils/Helper'
 
 type InstallmentcardProps = {
-  installment: PurchaseDataType[]
+  installment: PurchaseDataType[],
+  type : string,
   refetch: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-const Installmentcard: React.FC<InstallmentcardProps> = ({ installment, refetch }) => {
+const Installmentcard: React.FC<InstallmentcardProps> = ({ installment, refetch ,type}) => {
   const [selectedInstallment, setSelectedInstallment] = useState<string | null>(null)
   const [isShowInstallmentAdder, setIsShowInstallmentAdder] = useState<boolean>(false)
 
   const toggleExpand = (id: string) => {
     setSelectedInstallment(selectedInstallment === id ? null : id)
+
   }
-  console.log(installment)
 
   return (
     <>
@@ -32,6 +33,7 @@ const Installmentcard: React.FC<InstallmentcardProps> = ({ installment, refetch 
             key={item.id}
             className={`border border-white/10 mb-2 rounded-md p-4 transition-all duration-300 grid grid-cols-2 gap-2`}>
             <div>
+
               <div className="flex gap-2">
                 <p className="text-white text-2xl">{item.productName}</p>
                 <p className="text-violet-300"> ₹{item.totalPrice}</p>
@@ -148,7 +150,8 @@ const Installmentcard: React.FC<InstallmentcardProps> = ({ installment, refetch 
                       {/* START ------ Installment add button ----------START */}
                       <div className="w-full flex justify-between items-center flex-wrap">
                         {isShowInstallmentAdder && selectedInstallment === item.id && (
-                          <InstallmentAdder purchaseId={selectedInstallment} refetch={refetch} />
+
+                          <InstallmentAdder purchaseId={selectedInstallment} type={type}  refetch={refetch} />
                         )}
                       </div>
                       {/* END ------- Installment add button -------- END */}

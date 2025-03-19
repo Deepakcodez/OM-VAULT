@@ -6,10 +6,10 @@ const PurchaseInstallmentData: React.FC = () => {
   const[installments,setInstallments]=React.useState<PurchaseDataType[]>([])
   const[isRefetch, setIsRefetch] = React.useState<boolean>(false);
   const fetchPurchaseInstallmentData = async () => {
-    console.log('data by paytment method')
     try {
       const data = await window.electron.getPurchaseByPaymentMethod('installment')
       console.log(data, 'data by paytment method')
+      console.log('data by paytment method',installments)
       setInstallments(data)
     } catch (error) {
       console.log(error)
@@ -18,10 +18,12 @@ const PurchaseInstallmentData: React.FC = () => {
   }
   React.useEffect(() => {
     fetchPurchaseInstallmentData()
+    console.log(isRefetch,"isrefetcgh")
   }, [isRefetch])
   return (
     <div className='overflow-y-auto h-[calc(100vh-265px)] hide-scb'>
-      <Installmentcard installment={installments} refetch={setIsRefetch} />
+
+      <Installmentcard installment={installments} type='purchases' refetch={setIsRefetch} />
     </div>
   )
 }

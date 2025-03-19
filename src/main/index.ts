@@ -9,7 +9,7 @@ import {
 import bcrypt from 'bcryptjs'
 import icon from '../../resources/icon.png?asset'
 import { addInstallment, deletePurchase, getAllPurchases, getFilterPurchases, getPurchaseById, getPurchaseByPaymentMethod, insertPurchase, updatePurchase } from '../services/purchase.services'
-import { getAllSales, getSalesByPaymentMethod, insertSales } from '../services/sales.services'
+import { addInstallmentSales, getAllSales, getSalesByPaymentMethod, insertSales } from '../services/sales.services'
 
 let mainWindow: BrowserWindow | null = null
 
@@ -33,6 +33,7 @@ function createWindow(): void {
     if (mainWindow){
       mainWindow.show()
       mainWindow.setMenu(null)
+      mainWindow.webContents.openDevTools()
     }
   })
 
@@ -165,12 +166,15 @@ app.whenReady().then(() => {
     return getSalesByPaymentMethod(paymentMethod);
   })
 
-  ipcMain.handle('addInstallments', async (_, purchaseId, newInstallment) => {
+  ipcMain.handle('addInstallments', async (_, purchaseId, newInstallment,type) => {
     try {
-      const addedInstllment =  addInstallment(purchaseId, newInstallment);
-      console.log(addedInstllment,"addedInstllment");
+      if(type === "purchases"){
+        const addedInstllment =  addInstallment(purchaseId, newInstallment);
+      }else{
+        const addedInstllment =  addInstallmentSales(purchaseId, newInstallment);
+        console.log(addedInstllment)
+      }
 
-      return ;
     } catch (error) {
       console.error('Error updating purchase:', error);
       return { success: false, message: 'Failed to update purchase' };
