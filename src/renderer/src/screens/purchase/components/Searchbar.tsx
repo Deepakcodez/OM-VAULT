@@ -20,10 +20,10 @@ const Searchbar: React.FC<SearchbarProps> = ({ searchQuery, setSearchQuery, setF
       let response
       switch (type) {
         case "sales":
-           response = await fetchFilterSaleData(debouncedValue) // Pass the string directly
+           response = await fetchFilterSaleData(debouncedValue) 
           break;
         case "purchase":
-           response = await fetchFilterPurchaseData(debouncedValue) // Pass the string directly
+           response = await fetchFilterPurchaseData(debouncedValue, "2025-02-15") 
         default:
           break;
       }

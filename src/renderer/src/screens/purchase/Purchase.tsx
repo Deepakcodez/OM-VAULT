@@ -25,7 +25,7 @@ const Purchase: React.FC = () => {
   React.useEffect(() => {
     const fetchPurchase = async () => {
       if (!searchQuery || searchQuery === '') {
-        const data = await fetchPurchaseData() // Fetch data
+        const data = await fetchPurchaseData() 
         if (data.length > 0) {
           setPurchaseData(data)
         }

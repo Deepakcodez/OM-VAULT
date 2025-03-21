@@ -1,16 +1,13 @@
 import React from "react";
-import { FaPlus } from "react-icons/fa6";
 import { motion } from "motion/react";
 import { useFormStore } from "../../state_manager/FormState";
 import SaleForm from "./components/SaleForm";
-// import Searchbar from "../purchase/components/Searchbar";
 import SingleSale from "./components/SingleSale";
 import SaleTable from "./components/SaleTable";
 import { useSingleSalesStore } from "@renderer/state_manager/singleSalesData";
 import Searchbar from "../purchase/components/Searchbar";
 import { useSalesData } from "@renderer/state_manager/salesData";
 import { fetchSaleData } from "./service";
-import { exportPurchasesToExcel } from "../purchase/components/ExportPurchaseInExcel";
 import { FiPrinter } from "react-icons/fi";
 import { AddButton } from "@renderer/components/ui";
 import { exportSaleToExcel } from "./components/exportSaleInExcel";

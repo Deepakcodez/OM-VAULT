@@ -4,8 +4,10 @@ const fetchPurchaseData = async () => {
   return fetchData
 }
 
-const fetchFilterPurchaseData = async (searchQuery: string) => {
-  return window.electron.getFilterPurchases(searchQuery)
+const fetchFilterPurchaseData = async (searchQuery: string, year:string) => {
+  console.log(searchQuery, year)
+  return window.electron.getFilterPurchases(searchQuery,  year)
 }
 
 export { fetchPurchaseData, fetchFilterPurchaseData }
+

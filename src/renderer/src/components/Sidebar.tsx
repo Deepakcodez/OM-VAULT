@@ -45,10 +45,10 @@ const Sidebar: React.FC = () => {
     },
   ]
   return (
-    <motion.div className="md:w-[12rem] w-[8rem] h-full text-sm text-white bg-neutral-800 p-4 border-r border-r-zinc-700/50 overflow-hidden select-none ">
+    <motion.div className="md:w-[12rem] w-[8rem] h-full text-sm text-white bg-neutral-800 p-4 border-r border-r-zinc-700/50 overflow-hidden select-none">
       <img src={Logo} alt="OM VAULT" className=" mx-auto opacity-80" />
-      <div className="mt-12 h-[80%] w-full  overflow-y-scroll hide-scb  ">
-        <div className="w-full bg-zinc-800 pe-2 rounded">
+      <div className="mt-12 h-[80%] w-full  overflow-y-scroll hide-scb">
+        <div className="w-full bg-neutral-700 pe-2 rounded">
           <YearDropdown />
         </div>
         {sidebarOptions.map((option) => (
@@ -60,7 +60,7 @@ const Sidebar: React.FC = () => {
             }`}
           >
             <option.icon
-              className={` text-lg mr-2 ${location.pathname === option.screen ? 'text-violet-200' : 'text-neutral-400'} `}
+              className={` text-lg mr-2 ${location.pathname === option.screen ? 'text-violet-200' : 'text-neutral-400'}`}
             />
            <p className=''> {option.name} </p>
           </Link>

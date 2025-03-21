@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, dialog  } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import {
@@ -26,9 +26,13 @@ function createWindow(): void {
       preload: join(__dirname, '../preload/index.js'),
       devTools: true,
       sandbox: false,
+      nodeIntegration:false,
       contextIsolation: true
     }
   })
+
+
+
 
   mainWindow.on('ready-to-show', () => {
     if (mainWindow){
@@ -148,9 +152,9 @@ app.whenReady().then(() => {
   ipcMain.handle('getAllPurchases', async () => {
     return getAllPurchases();
   });
-  ipcMain.handle('getFilterPurchases', async (_,searchQuery) => {
-    console.log(searchQuery,"searchQuery")
-    return getFilterPurchases(searchQuery);
+  ipcMain.handle('getFilterPurchases', async (_,searchQuery, year?:string) => {
+    console.log(searchQuery,year, "searchQuery main")
+    return getFilterPurchases(searchQuery, year);
   });
   ipcMain.handle('getFilterSale', async (_,searchQuery) => {
     console.log(searchQuery,"searchQuery")

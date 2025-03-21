@@ -71,22 +71,53 @@ export const insertPurchase = (purchase: any) => {
 export const getAllPurchases = () => {
   return db.prepare('SELECT * FROM purchases').all()
 }
-export const getFilterPurchases = (searchQuery: string) => {
-  try {
-    // Prepare the SQL query with a parameterized search term
-    const stmt = db.prepare('SELECT * FROM purchases WHERE productName LIKE ?')
+// export const getFilterPurchases = (searchQuery: string) => {
+//   try {
+//     // Prepare the SQL query with a parameterized search term
+//     const stmt = db.prepare('SELECT * FROM purchases WHERE productName LIKE ?')
 
-    // Execute the query with the search term wrapped in wildcards
-    const results = stmt.all(`%${searchQuery}%`)
+//     // Execute the query with the search term wrapped in wildcards
+//     const results = stmt.all(`%${searchQuery}%`)
 
-    return results
-  } catch (error) {
-    console.error('Error fetching filtered purchases:', error)
-    return [] // Return an empty array in case of an error
-  }
-}
+//     return results
+//   } catch (error) {
+//     console.error('Error fetching filtered purchases:', error)
+//     return [] // Return an empty array in case of an error
+//   }
+// }
 
 // Get Purchase by ID
+
+
+export const getFilterPurchases = (searchQuery: string, year?: string) => {
+  console.log("sear query",searchQuery,"year",year)
+  try {
+    // Base query to filter by product name
+    let query = 'SELECT * FROM purchases WHERE productName LIKE ?';
+    const params: any[] = [`%${searchQuery}%`];
+
+    // Add year filter if provided
+    if (year) {
+      query += ' AND strftime(\'%Y\', orderingDate) = ?';
+      params.push(year.toString());
+    }
+
+    // Log the query and parameters for debugging
+    console.log('Executing query:', query);
+    console.log('Query parameters:', params);
+
+    // Prepare and execute the query
+    const stmt = db.prepare(query);
+    const results = stmt.all(...params);
+
+    return results;
+  } catch (error) {
+    console.error('Error fetching filtered purchases:', error);
+    return []; // Return an empty array in case of an error
+  }
+};   
+
+
 export const getPurchaseById = (id: string) => {
   return db.prepare('SELECT * FROM purchases WHERE id = ?').get(id)
 }

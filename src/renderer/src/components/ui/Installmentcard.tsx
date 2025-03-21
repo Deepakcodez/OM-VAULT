@@ -124,7 +124,7 @@ const Installmentcard: React.FC<InstallmentcardProps> = ({ installment, refetch 
                       {/* START -------------- Installments  ----------- START */}
                       {isExpanded &&
                         parsedInstallments.map((installment, index) => (
-                          <AnimatePresence>
+                          <AnimatePresence key={index}>
                             <motion.div
                               initial={{ opacity: 0 }}
                               animate={{ opacity: 1 }}
