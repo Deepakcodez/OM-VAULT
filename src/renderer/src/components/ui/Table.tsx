@@ -26,9 +26,9 @@ const Table: React.FC<TableProps> = ({ tableHeadings, tableBody, setRowData }) =
           </tr>
         </thead>
         {tableBody.length <= 0 ? (
-          <div className='absolute h-[70vh]  w-full select-none flex justify-center items-center'>
+          <ul className='absolute h-[70vh]  w-full select-none flex justify-center items-center'>
           <img src={noDataIcon} className='h-[22rem]'/>
-          </div>
+          </ul>
         ) : (
           <tbody className="bg-zinc-800/50">
             {tableBody.map((row, rowIndex) => (

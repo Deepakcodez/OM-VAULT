@@ -2,34 +2,34 @@ import db from './database.table'
 import { randomUUID } from 'crypto'
 
 type Installment = {
-  amount: number;
-  dueDate: string;
-  status: string;
-};
+  amount: number
+  dueDate: string
+  status: string
+}
 
 type Purchase = {
-  id: string;
-  productName: string;
-  price: number | null;
-  quantity: number | null;
-  discount: number | null;
-  tax: number | null;
-  supplier: string | null;
-  supplierContact: string | null;
-  supplierEmail: string | null;
-  supplierAddress: string | null;
-  shippingAddress: string | null;
-  paymentStatus: string | null;
-  paymentMethod: string | null;
-  orderingDate: string | null;
-  isInstallment: number; // 1 or 0
-  installments: string | null; // JSON string
-  pending: number | null;
-  totalPrice: number | null;
-};
+  id: string
+  productName: string
+  price: number | null
+  quantity: number | null
+  discount: number | null
+  tax: number | null
+  supplier: string | null
+  supplierContact: string | null
+  supplierEmail: string | null
+  supplierAddress: string | null
+  shippingAddress: string | null
+  paymentStatus: string | null
+  paymentMethod: string | null
+  orderingDate: string | null
+  isInstallment: number // 1 or 0
+  installments: string | null // JSON string
+  pending: number | null
+  totalPrice: number | null
+}
 
 // Helper function to sanitize purchase data
-const sanitizePurchase = (purchase:Partial<Purchase>):Purchase => ({
+const sanitizePurchase = (purchase: Partial<Purchase>): Purchase => ({
   id: purchase.id ?? randomUUID(), // Generate UUID if missing
   productName: String(purchase.productName || ''),
   price: purchase.price ?? null,
@@ -88,35 +88,26 @@ export const getAllPurchases = () => {
 
 // Get Purchase by ID
 
-
 export const getFilterPurchases = (searchQuery: string, year?: string) => {
-  console.log("sear query",searchQuery,"year",year)
+  console.log('Search query:', searchQuery, 'Year:', year)
+
   try {
-    // Base query to filter by product name
-    let query = 'SELECT * FROM purchases WHERE productName LIKE ?';
-    const params: any[] = [`%${searchQuery}%`];
+    const stmt = db.prepare('SELECT * FROM purchases WHERE productName LIKE ?')
 
-    // Add year filter if provided
+    const results = stmt.all(`%${searchQuery}%`)
+    console.log('Results:', results)
     if (year) {
-      query += ' AND strftime(\'%Y\', orderingDate) = ?';
-      params.push(year.toString());
+      return results.filter((purchase: any) =>
+         purchase.orderingDate.includes(new Date(year).getFullYear())
+      )
+    } else {
+      return results
     }
-
-    // Log the query and parameters for debugging
-    console.log('Executing query:', query);
-    console.log('Query parameters:', params);
-
-    // Prepare and execute the query
-    const stmt = db.prepare(query);
-    const results = stmt.all(...params);
-
-    return results;
   } catch (error) {
-    console.error('Error fetching filtered purchases:', error);
-    return []; // Return an empty array in case of an error
+    console.error('Error fetching filtered purchases:', error)
+    return [] // Return an empty array in case of an error
   }
-};   
-
+}
 
 export const getPurchaseById = (id: string) => {
   return db.prepare('SELECT * FROM purchases WHERE id = ?').get(id)
@@ -160,7 +151,7 @@ export const addInstallment = (purchaseId: string, newInstallment: Installment) 
     }
 
     // Parse the existing installments
-    const installments = purchase.installments  ? JSON.parse(purchase.installments) : []
+    const installments = purchase.installments ? JSON.parse(purchase.installments) : []
 
     // Add the new installment
     installments.push(newInstallment)
