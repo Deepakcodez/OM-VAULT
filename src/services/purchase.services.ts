@@ -152,7 +152,7 @@ export const getFilterPurchases = (searchQuery: string, year?: string) => {
 
     const results = stmt.all(`%${searchQuery}%`)
     console.log('Results:', results)
-    if (year) {
+    if (year  && year!=JSON.stringify(0)) {
       return results.filter((purchase: any) =>
         purchase.orderingDate.includes(new Date(year).getFullYear())
       )

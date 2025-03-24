@@ -9,7 +9,7 @@ import {
 import bcrypt from 'bcryptjs'
 import icon from '../../resources/icon.png?asset'
 import { addInstallment, deletePurchase, getAllPurchases, getAllPurchasesByYear, getFilterPurchases, getPurchaseById, getPurchaseByPaymentMethod, insertPurchase, updatePurchase } from '../services/purchase.services'
-import { addInstallmentSales, getAllSales, getFiltersale, getSalesByPaymentMethod, insertSales } from '../services/sales.services'
+import { addInstallmentSales, getAllSaleByYear, getAllSales, getFiltersale, getSalesByPaymentMethod, insertSales } from '../services/sales.services'
 
 let mainWindow: BrowserWindow | null = null
 
@@ -132,7 +132,7 @@ app.whenReady().then(() => {
       return { success: true, message: 'Purchase added successfully' };
     } catch (error) {
       console.error('Error adding purchase:', error);
-      return { success: false, message: 'Failed to add purchase' };
+      return { success: false, message: 'Failed to add purchase' }; 
     }
   });
 
@@ -171,12 +171,23 @@ app.whenReady().then(() => {
     console.log(searchQuery,year, "searchQuery main")
     return getFilterPurchases(searchQuery, year);
   });
-  ipcMain.handle('getFilterSale', async (_,searchQuery) => {
-    console.log(searchQuery,"searchQuery")
-    return getFiltersale(searchQuery);
+  ipcMain.handle('getFilterSale', async (_,searchQuery, year?:string) => {
+    return getFiltersale(searchQuery, year);
   })
-  ipcMain.handle('getAllSales', async () => {
-    return getAllSales();
+  ipcMain.handle('getAllSales', async (_, year) => {
+    try {
+      // Trim and normalize the year parameter
+      const normalizedYear = String(year).trim();
+  
+      // Check if year is 'all' (case-insensitive)
+      if (+year=== 0) {
+        return await getAllSales(); // Ensure this function is awaited
+      }
+      return  getAllSaleByYear(normalizedYear); // Ensure this function is awaited
+    } catch (error) {
+      console.error('Error in getAllPurchases IPC handler:', error);
+      return []; 
+    }
   });
 
   ipcMain.handle('getPurchaseById', async (_, id) => {

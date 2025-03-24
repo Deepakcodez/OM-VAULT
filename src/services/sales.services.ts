@@ -70,30 +70,69 @@ export const insertSales = (sale: any) => {
   return stmt.run(data)
 }
 
+
+
 // Get All sales
 export const getAllSales = () => {
   return db.prepare('SELECT * FROM sales').all()
 }
+export const getAllSaleByYear = (year: string) => {
+  try {
+    // Fetch all purchases from the database
+    const result = db.prepare('SELECT * FROM sales').all();
+    // Filter results where orderingDate includes the specified year
+    const filteredResult = result.filter((sale: any) => {
+      // Ensure orderingDate is a string and includes the year
+      return sale.orderingDate && sale.orderingDate.includes(year);
+    });
+    return filteredResult;
 
+  } catch (error) {
+    console.error('Error fetching purchases:', error);
+    return []; // Return an empty array in case of an error
+  }
+};
 // Get sale by ID
 export const getsaleById = (id: string) => {
   return db.prepare('SELECT * FROM sales WHERE id = ?').get(id)
 }
 
-export const getFiltersale = (searchQuery: string) => {
+
+
+export const getFiltersale = (searchQuery: string, year?: string) => {
+  console.log('Search query:', searchQuery, 'Year:', year)
+
   try {
-    // Prepare the SQL query with a parameterized search term
     const stmt = db.prepare('SELECT * FROM sales WHERE productName LIKE ?')
 
-    // Execute the query with the search term wrapped in wildcards
     const results = stmt.all(`%${searchQuery}%`)
-
-    return results
+    if (year && year!=JSON.stringify(0)) {
+      return results.filter((sale: any) =>
+        sale.orderingDate.includes(new Date(year).getFullYear())
+      )
+    } else {
+      return results
+    }
   } catch (error) {
-    console.error('Error fetching filtered sales:', error)
+    console.error('Error fetching filtered purchases:', error)
     return [] // Return an empty array in case of an error
   }
 }
+
+// export const getFiltersale = (searchQuery: string) => {
+//   try {
+//     // Prepare the SQL query with a parameterized search term
+//     const stmt = db.prepare('SELECT * FROM sales WHERE productName LIKE ?')
+
+//     // Execute the query with the search term wrapped in wildcards
+//     const results = stmt.all(`%${searchQuery}%`)
+
+//     return results
+//   } catch (error) {
+//     console.error('Error fetching filtered sales:', error)
+//     return [] // Return an empty array in case of an error
+//   }
+// }
 
 
 export const getSalesByPaymentMethod = (paymentMethod: string) => {

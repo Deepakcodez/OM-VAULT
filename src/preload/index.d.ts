@@ -24,9 +24,9 @@ declare global {
       getPurchaseByPaymentMethod: (paymentMethod : string)=> Promise<any>
       getSalesByPaymentMethod: (paymentMethod : string)=> Promise<any>
       addInstallment:(installmentId: string, newInstallment: InstallmentType,type : string)=> Promise<void>
-      getAllSales: () => Promise<PurchaseDataType[]>
+      getAllSales: (year:string) => Promise<PurchaseDataType[]>
       getFilterPurchases: (searchQuery: string, year:string) => Promise<PurchaseDataType[]>
-      getFilterSale: (searchQuery: string) => Promise<SalesDataType[]>
+      getFilterSale: (searchQuery: string, year:string) => Promise<SalesDataType[]>
 
 
       openDialog: (

@@ -20,7 +20,7 @@ const PurchasesTable: React.FC<PurchasesTableProps> = ({ refresh }) => {
   ]
   const { purchaseData, setPurchaseData } = usePurchaseStore()
   const { setSinglePurchaseData } = useSinglePurchaseStore()
-  const{year} = useYearFilterStore()
+  const { year } = useYearFilterStore()
 
   const setRowData = (data: PurchaseDataType) => {
     setSinglePurchaseData(data)
@@ -29,16 +29,17 @@ const PurchasesTable: React.FC<PurchasesTableProps> = ({ refresh }) => {
   React.useEffect(() => {
     const loadPurchaseData = async () => {
       const data = await fetchPurchaseData(JSON.stringify(year))
-  
-        setPurchaseData(data)
-       
+      setPurchaseData(data)
     }
     loadPurchaseData()
   }, [setPurchaseData, refresh, year])
 
   return (
     <div className="h-[calc(100vh-137px)]  hide-scb overflow-y-scroll select-none">
-      <Table tableHeadings={tableHeadings} tableBody={purchaseData} setRowData={setRowData} />
+      <Table
+        tableHeadings={tableHeadings}
+        tableBody={purchaseData}
+        setRowData={setRowData} />
     </div>
   )
 }

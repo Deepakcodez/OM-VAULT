@@ -20,9 +20,7 @@ const Purchase: React.FC = () => {
   const [searchQuery, setSearchQuery] = React.useState<string>('')
   const { setPurchaseData, purchaseData } = usePurchaseStore()
   const{year} = useYearFilterStore()
-  const addButtonHandler = () => {
-    setShowForm()
-  }
+
 
   React.useEffect(() => {
     const fetchPurchase = async () => {
@@ -54,7 +52,7 @@ const Purchase: React.FC = () => {
         className="hover:bg-zinc-800 p-2 rounded-full">
         <FiPrinter/>
       </motion.div>
-        <AddButton onClickHandler={addButtonHandler} />
+        <AddButton onClickHandler={()=> setShowForm()} />
         </div>
       </div>
 

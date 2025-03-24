@@ -23,11 +23,11 @@ const Searchbar: React.FC<SearchbarProps> = ({
   const { year } = useYearFilterStore()
   useEffect(() => {
     const ftnFetchFilterPurchaseData = async () => {
-      if (!debouncedValue) return // Prevent unnecessary calls
+      if (!debouncedValue) return ;
       let response
       switch (type) {
         case 'sales':
-          response = await fetchFilterSaleData(debouncedValue)
+          response = await fetchFilterSaleData(debouncedValue, JSON.stringify(year))
           break
         case 'purchase':
           response = await fetchFilterPurchaseData(debouncedValue, JSON.stringify(year))
@@ -35,13 +35,12 @@ const Searchbar: React.FC<SearchbarProps> = ({
           break
       }
       setFilteredData(response)
-      console.log(response)
     }
     ftnFetchFilterPurchaseData()
   }, [debouncedValue])
 
   return (
-    <div className="flex items-center gap-2 bg-zinc-700/20 rounded-full  ps-2 select-none">
+    <div className="flex items-center gap-2 bg-zinc-700/20 rounded-full ps-2 select-none">
       <CiSearch size={25} className="text-zinc-600" />
       <Input
         style="bg-transparent  border-b border-transparent text-white"

@@ -1,35 +1,43 @@
 import { contextBridge, ipcRenderer } from 'electron'
 
 contextBridge.exposeInMainWorld('electron', {
+
+  // ---------------------Auth preloads----------------------
   loginUser: (email: string, password: string) =>
     ipcRenderer.invoke('loginUser', { email, password }),
-  addUser: (name, email) => ipcRenderer.invoke('addUser', name, email),
+
+  //-----------------get preloads---------------------
+    //uses preloads
   getAllUsers: () => ipcRenderer.invoke('getAllUsers'),
 
-  addPurchase: (purchaseData: any) => ipcRenderer.invoke('addPurchase', purchaseData),
-  addSales: (purchaseData: any) => ipcRenderer.invoke('addSales', purchaseData),
+  //purchase preloada
   getAllPurchases: (year:string) => ipcRenderer.invoke('getAllPurchases', year),
-  getAllSales: () => ipcRenderer.invoke('getAllSales'),
   getFilterPurchases: (searchQuery:string, year:string) => ipcRenderer.invoke('getFilterPurchases', searchQuery, year),
-  getFilterSale: (searchQuery:string) => ipcRenderer.invoke('getFilterSale', searchQuery),
   getPurchaseById: (id: string) => ipcRenderer.invoke('getPurchaseById', id),
-  updatePurchase: (purchaseData: any) => ipcRenderer.invoke('updatePurchase', purchaseData),
-  deletePurchase: (id: any) => ipcRenderer.invoke('deletePurchase', id),
-
-
   getPurchaseByPaymentMethod: (paymentMethod: string) =>
     ipcRenderer.invoke('getPurchaseByPaymentMethod', paymentMethod),
 
 
-
+  //sales preloads
+  getAllSales: (year:string) => ipcRenderer.invoke('getAllSales',year),
+  getFilterSale: (searchQuery:string, year:string) => ipcRenderer.invoke('getFilterSale', searchQuery,year),
   getSalesByPaymentMethod: (paymentMethod: string) =>
     ipcRenderer.invoke('getSalesByPaymentMethod', paymentMethod),
 
+  // --------------------------create preloads---------------------------
+  addUser: (name, email) => ipcRenderer.invoke('addUser', name, email),
+  addPurchase: (purchaseData: any) => ipcRenderer.invoke('addPurchase', purchaseData),
+  addSales: (purchaseData: any) => ipcRenderer.invoke('addSales', purchaseData),
 
-
+  // -----------------------installment preloads-------------------------------------
   addInstallment: (installmentId: string, newInstallment: string, type :string) =>
     ipcRenderer.invoke('addInstallments', installmentId, newInstallment, type),
-
+  
+  // update preloads
+  updatePurchase: (purchaseData: any) => ipcRenderer.invoke('updatePurchase', purchaseData),
+  deletePurchase: (id: any) => ipcRenderer.invoke('deletePurchase', id),
+  
+// other utils preloads
   openDialog: (title: string, message: string, type: 'info' | 'error' | 'warning' | 'question') =>
     ipcRenderer.invoke('open-dialog', { title, message, type })
 })

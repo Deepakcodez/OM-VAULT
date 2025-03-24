@@ -3,7 +3,9 @@ import { Table } from '../../../components/ui'
 import { PurchaseDataType, TableHeadingsTypes } from '../../../types/types'
 import { useSalesData } from '@renderer/state_manager/salesData'
 import { useSingleSalesStore } from '@renderer/state_manager/singleSalesData'
-import { fetchPurchaseData } from '@renderer/screens/purchase/service'
+import { fetchSaleData } from '../service'
+import useYearFilterStore from '@renderer/state_manager/yearFilter'
+
 
 type PurchasesTableProps = {
   refresh: boolean
@@ -18,29 +20,31 @@ const PurchasesTable: React.FC<PurchasesTableProps> = ({ refresh }) => {
     { key: 'paymentStatus', label: 'Status' }
   ]
   const { salesData, setSalesData } = useSalesData()
-  console.log(salesData,"sales  data ")
   const { setSingleSalesData } = useSingleSalesStore()
+  const{year} = useYearFilterStore()
 
   const setRowData = (data: PurchaseDataType) => {
     setSingleSalesData(data)
-    console.log(data,"sdatatagfadsgasd")
   }
 
   React.useEffect(() => {
     const loadPurchaseData = async () => {
-      const data = await fetchPurchaseData() // Fetch data
-      console.table(data)
+      const data = await fetchSaleData(JSON.stringify(year)) // Fetch data
+      console.log("from sale table ln 33",data)
       if (data.length > 0) {
         setSalesData(data) // Update store with fetched data
       }
     }
     loadPurchaseData()
     // Call the function to fetch and store data
-  }, [setSalesData, refresh])
+  }, [setSalesData, refresh,year])
 
   return (
     <div className="h-[calc(100vh-137px)]  hide-scb overflow-y-scroll select-none">
-      <Table tableHeadings={tableHeadings} tableBody={salesData} setRowData={setRowData} />
+      <Table 
+      tableHeadings={tableHeadings} 
+      tableBody={salesData} 
+      setRowData={setRowData} />
     </div>
   )
 }

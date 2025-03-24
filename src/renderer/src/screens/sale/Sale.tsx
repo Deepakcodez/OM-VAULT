@@ -11,18 +11,19 @@ import { fetchSaleData } from "./service";
 import { FiPrinter } from "react-icons/fi";
 import { AddButton } from "@renderer/components/ui";
 import { exportSaleToExcel } from "./components/exportSaleInExcel";
+import useYearFilterStore from '@renderer/state_manager/yearFilter'
 
 const Sale: React.FC = () => {
   const { showForm, setShowForm } = useFormStore();
   const { singleSalesData } = useSingleSalesStore();
    const [searchQuery, setSearchQuery] = React.useState<string>('');
    const { salesData, setSalesData } = useSalesData();
-
+   const{year} = useYearFilterStore()
 
    React.useEffect(() => {
     const fetchSale = async () => {
       if (!searchQuery || searchQuery === '') {
-        const data = await fetchSaleData()
+        const data = await fetchSaleData(JSON.stringify(year))
         if (data.length > 0) {
           setSalesData(data)
         }
@@ -31,12 +32,10 @@ const Sale: React.FC = () => {
       }
     }
     fetchSale()
-  }, [searchQuery])
+  }, [searchQuery,year])
 
 
-  const addButtonHandler=()=>{
-    setShowForm()
-  }
+
   return (
     <div className="text-white ">
        <Searchbar
@@ -54,7 +53,7 @@ const Sale: React.FC = () => {
                 className="hover:bg-zinc-800 p-2 rounded-full">
                 <FiPrinter/>
               </motion.div>
-                <AddButton onClickHandler={addButtonHandler} />
+                <AddButton onClickHandler={()=>setShowForm()} />
                 </div>
       </div>
 
