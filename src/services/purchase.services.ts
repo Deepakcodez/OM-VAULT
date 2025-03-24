@@ -67,10 +67,66 @@ export const insertPurchase = (purchase: any) => {
   return stmt.run(data)
 }
 
-// Get All Purchases
+
 export const getAllPurchases = () => {
-  return db.prepare('SELECT * FROM purchases').all()
-}
+  
+
+  try {
+    // Fetch all purchases from the database
+   return db.prepare('SELECT * FROM purchases').all();
+
+  } catch (error) {
+    console.error('Error fetching purchases:', error);
+    return []; // Return an empty array in case of an error
+  }
+};
+
+// Get All Purchases
+export const getAllPurchasesByYear = (year: string) => {
+  try {
+    // Fetch all purchases from the database
+    const result = db.prepare('SELECT * FROM purchases').all();
+    // Filter results where orderingDate includes the specified year
+    const filteredResult = result.filter((purchase: any) => {
+      // Ensure orderingDate is a string and includes the year
+      return purchase.orderingDate && purchase.orderingDate.includes(year);
+    });
+    return filteredResult;
+
+  } catch (error) {
+    console.error('Error fetching purchases:', error);
+    return []; // Return an empty array in case of an error
+  }
+};
+
+// export const getAllPurchases = (year: string) => {
+//   console.log('Year:', year); // Debugging log
+
+//   try {
+//     let query = 'SELECT * FROM purchases';
+//     const params: any[] = [];
+
+//     // Add year filter only if year is provided and not "all"
+//     if (year && year !== "all") {
+//       query += ' WHERE strftime(\'%Y\', orderingDate) = ?';
+//       params.push(year);
+//     }
+
+//     // Log the query and parameters for debugging
+//     console.log('Executing query:', query);
+//     console.log('Query parameters:', params);
+
+//     // Prepare and execute the query
+//     const stmt = db.prepare(query);
+//     const result = stmt.all(...params);
+
+//     return result;
+//   } catch (error) {
+//     console.error('Error fetching purchases:', error);
+//     return []; // Return an empty array in case of an error
+//   }
+// };
+
 // export const getFilterPurchases = (searchQuery: string) => {
 //   try {
 //     // Prepare the SQL query with a parameterized search term
@@ -98,7 +154,7 @@ export const getFilterPurchases = (searchQuery: string, year?: string) => {
     console.log('Results:', results)
     if (year) {
       return results.filter((purchase: any) =>
-         purchase.orderingDate.includes(new Date(year).getFullYear())
+        purchase.orderingDate.includes(new Date(year).getFullYear())
       )
     } else {
       return results

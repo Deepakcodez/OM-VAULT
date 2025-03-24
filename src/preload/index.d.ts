@@ -20,7 +20,7 @@ declare global {
       updateUser: (id: number, name: string, email: string) => Promise<void>
       deleteUser: (id: number) => Promise<void>
 
-      getAllPurchases: () => Promise<PurchaseDataType[]>
+      getAllPurchases: (year:string) => Promise<PurchaseDataType[]>
       getPurchaseByPaymentMethod: (paymentMethod : string)=> Promise<any>
       getSalesByPaymentMethod: (paymentMethod : string)=> Promise<any>
       addInstallment:(installmentId: string, newInstallment: InstallmentType,type : string)=> Promise<void>

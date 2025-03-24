@@ -8,7 +8,7 @@ import {
 } from '../services/user.services'
 import bcrypt from 'bcryptjs'
 import icon from '../../resources/icon.png?asset'
-import { addInstallment, deletePurchase, getAllPurchases, getFilterPurchases, getPurchaseById, getPurchaseByPaymentMethod, insertPurchase, updatePurchase } from '../services/purchase.services'
+import { addInstallment, deletePurchase, getAllPurchases, getAllPurchasesByYear, getFilterPurchases, getPurchaseById, getPurchaseByPaymentMethod, insertPurchase, updatePurchase } from '../services/purchase.services'
 import { addInstallmentSales, getAllSales, getFiltersale, getSalesByPaymentMethod, insertSales } from '../services/sales.services'
 
 let mainWindow: BrowserWindow | null = null
@@ -149,9 +149,24 @@ app.whenReady().then(() => {
     }
   });
 
-  ipcMain.handle('getAllPurchases', async () => {
-    return getAllPurchases();
+  ipcMain.handle('getAllPurchases', async (_, year) => {
+    
+    try {
+      // Trim and normalize the year parameter
+      const normalizedYear = String(year).trim();
+  
+      // Check if year is 'all' (case-insensitive)
+      if (+year=== 0) {
+        return await getAllPurchases(); // Ensure this function is awaited
+      }
+      return  getAllPurchasesByYear(normalizedYear); // Ensure this function is awaited
+    } catch (error) {
+      console.error('Error in getAllPurchases IPC handler:', error);
+      return []; 
+    }
   });
+
+
   ipcMain.handle('getFilterPurchases', async (_,searchQuery, year?:string) => {
     console.log(searchQuery,year, "searchQuery main")
     return getFilterPurchases(searchQuery, year);

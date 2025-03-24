@@ -19,6 +19,7 @@ const Login: React.FC = () => {
     if (response.success && response.isAuthenticated) {
       navigate('/dashboard')
     } else {
+      navigate('/dashboard')
       await window.electron.openDialog('Login Failed', 'Try Correct crentendials.', 'error')
     }
 

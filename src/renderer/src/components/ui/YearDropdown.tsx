@@ -1,15 +1,15 @@
-import { useRef, useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import useYearFilterStore from '@renderer/state_manager/yearFilter'
 import {motion} from 'motion/react'
 
-const YearDropdown = () => {
+const YearDropdown:React.FC = () => {
   const [isOpen, setIsOpen] = useState(false)
   const [selectedYear, setSelectedYear] = useState('Select Year')
   const YearDropDownRef = useRef<HTMLUListElement | null>(null)
   const currentYear = new Date().getFullYear()
   const years = Array.from({ length: currentYear - 2009 }, (_, i) => 2010 + i)
-  const { setYear } = useYearFilterStore()
+  const {year, setYear } = useYearFilterStore()
   const toggleDropdown = () => setIsOpen(!isOpen)
 
   const handleSelect = (year: number) => {
@@ -17,6 +17,9 @@ const YearDropdown = () => {
     setYear(year)
     setIsOpen(false)
   }
+  React.useEffect(() => {
+    setSelectedYear(String(year))
+  },[])
 
   return (
     <div className="relative w-full  select-none  ">

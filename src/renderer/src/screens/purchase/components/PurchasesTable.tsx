@@ -4,6 +4,7 @@ import { usePurchaseStore } from '../../../state_manager/purchaseData'
 import { fetchPurchaseData } from '../service'
 import { PurchaseDataType, TableHeadingsTypes } from '../../../types/types'
 import { useSinglePurchaseStore } from '@renderer/state_manager/singlePurchaseData'
+import useYearFilterStore from '@renderer/state_manager/yearFilter'
 
 type PurchasesTableProps = {
   refresh: boolean
@@ -19,6 +20,7 @@ const PurchasesTable: React.FC<PurchasesTableProps> = ({ refresh }) => {
   ]
   const { purchaseData, setPurchaseData } = usePurchaseStore()
   const { setSinglePurchaseData } = useSinglePurchaseStore()
+  const{year} = useYearFilterStore()
 
   const setRowData = (data: PurchaseDataType) => {
     setSinglePurchaseData(data)
@@ -26,14 +28,13 @@ const PurchasesTable: React.FC<PurchasesTableProps> = ({ refresh }) => {
 
   React.useEffect(() => {
     const loadPurchaseData = async () => {
-      const data = await fetchPurchaseData()
-      if (data.length > 0) {
+      const data = await fetchPurchaseData(JSON.stringify(year))
+  
         setPurchaseData(data)
-        console.log('Purchase data loaded',data[0])
-      }
+       
     }
     loadPurchaseData()
-  }, [setPurchaseData, refresh])
+  }, [setPurchaseData, refresh, year])
 
   return (
     <div className="h-[calc(100vh-137px)]  hide-scb overflow-y-scroll select-none">

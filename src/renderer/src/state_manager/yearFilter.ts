@@ -1,8 +1,8 @@
 import { create } from 'zustand'
 
 type YearFilterState = {
-  year: number
-  setYear: (year: number) => void
+  year: number | string | null
+  setYear: (year: number | string | null) => void
 }
 
 const useYearFilterStore = create<YearFilterState>((set) => ({

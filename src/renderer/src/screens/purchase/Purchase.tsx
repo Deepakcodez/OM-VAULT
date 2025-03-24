@@ -11,6 +11,7 @@ import { fetchPurchaseData } from './service'
 import { FiPrinter } from 'react-icons/fi'
 import {motion} from 'motion/react'
 import { exportPurchasesToExcel } from './components/ExportPurchaseInExcel'
+import useYearFilterStore from '@renderer/state_manager/yearFilter'
 
 
 const Purchase: React.FC = () => {
@@ -18,6 +19,7 @@ const Purchase: React.FC = () => {
   const { singlePurchaseData } = useSinglePurchaseStore()
   const [searchQuery, setSearchQuery] = React.useState<string>('')
   const { setPurchaseData, purchaseData } = usePurchaseStore()
+  const{year} = useYearFilterStore()
   const addButtonHandler = () => {
     setShowForm()
   }
@@ -25,7 +27,7 @@ const Purchase: React.FC = () => {
   React.useEffect(() => {
     const fetchPurchase = async () => {
       if (!searchQuery || searchQuery === '') {
-        const data = await fetchPurchaseData() 
+        const data = await fetchPurchaseData(JSON.stringify(year)) 
         if (data.length > 0) {
           setPurchaseData(data)
         }
@@ -34,7 +36,7 @@ const Purchase: React.FC = () => {
       }
     }
     fetchPurchase()
-  }, [searchQuery])
+  }, [searchQuery, year])
 
   return (
     <div className="text-white ">

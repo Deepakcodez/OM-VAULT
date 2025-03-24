@@ -148,10 +148,10 @@ const SinglePurchase: React.FC = () => {
                   <p>Installments</p>
                 </div>
                 <div className="w-full">
-                  {JSON.parse(singlePurchaseData?.installments)?.map((item) => {
+                  {JSON.parse(singlePurchaseData?.installments)?.map((item, i) => {
                     return (
                       <div
-                        key={item?.id}
+                        key={item?.id+i}
                         className="bg-zinc-800/20  border border-zinc-700/50 p-2 rounded-lg mb-1"
                       >
                         <p className="text-zinc-400">

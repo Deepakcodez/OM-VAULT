@@ -1,5 +1,5 @@
-const fetchPurchaseData = async () => {
-  const fetchData = await window.electron.getAllPurchases()
+const fetchPurchaseData = async (year:string) => {
+  const fetchData = await window.electron.getAllPurchases(year)
   if (!fetchData) return []
   return fetchData
 }
