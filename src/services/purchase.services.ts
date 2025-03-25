@@ -22,15 +22,15 @@ type Purchase = {
   paymentStatus: string | null
   paymentMethod: string | null
   orderingDate: string | null
-  isInstallment: number // 1 or 0
-  installments: string | null // JSON string
+  isInstallment: number 
+  installments: string | null 
   pending: number | null
   totalPrice: number | null
 }
 
 // Helper function to sanitize purchase data
 const sanitizePurchase = (purchase: Partial<Purchase>): Purchase => ({
-  id: purchase.id ?? randomUUID(), // Generate UUID if missing
+  id: purchase.id ?? randomUUID(), 
   productName: String(purchase.productName || ''),
   price: purchase.price ?? null,
   quantity: purchase.quantity ?? null,

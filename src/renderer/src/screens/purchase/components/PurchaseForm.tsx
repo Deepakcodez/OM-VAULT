@@ -100,9 +100,9 @@ const PurchaseForm: React.FC = () => {
 
     // Validate the field using Zod
     try {
-      const fieldSchema = PurchaseSchema.shape[name]; // Get the specific field's schema
-      fieldSchema.parse(parsedValue); // Validate the value
-      setErrors((prev) => ({ ...prev, [name]: '' })); // Clear error if valid
+      const fieldSchema = PurchaseSchema.shape[name];
+      fieldSchema.parse(parsedValue);
+      setErrors((prev) => ({ ...prev, [name]: '' }));
     } catch (error) {
       if (error instanceof z.ZodError) {
         setErrors((prev) => ({ ...prev, [name]: error.errors[0].message }));
@@ -125,27 +125,27 @@ const PurchaseForm: React.FC = () => {
       return { ...prev, installments: newInstallments };
     });
 
-   // Validate the updated installment
-  const updatedInstallment = purchaseData.installments[index];
-  try {
-    // Access the schema for individual installments
-    const installmentSchema = PurchaseSchema.shape.installments.unwrap().element;
-    installmentSchema.parse(updatedInstallment); // Validate the installment
-    // Clear the error if validation passes
-    setErrors((prev) => ({
-      ...prev,
-      [`installments[${index}].${field}`]: '',
-    }));
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      // Set the error message if validation fails
+    // Validate the updated installment
+    const updatedInstallment = purchaseData.installments[index];
+    try {
+      // Access the schema for individual installments
+      const installmentSchema = PurchaseSchema.shape.installments.unwrap().element;
+      installmentSchema.parse(updatedInstallment); // Validate the installment
+      // Clear the error if validation passes
       setErrors((prev) => ({
         ...prev,
-        [`installments[${index}].${field}`]: error.errors[0].message,
+        [`installments[${index}].${field}`]: '',
       }));
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        // Set the error message if validation fails
+        setErrors((prev) => ({
+          ...prev,
+          [`installments[${index}].${field}`]: error.errors[0].message,
+        }));
+      }
     }
-  }
-};
+  };
 
   const addInstallment = () => {
     const lastInstallment = purchaseData.installments.at(-1);
@@ -250,6 +250,34 @@ const PurchaseForm: React.FC = () => {
     purchaseData.installments,
     pendingPaymentAmount,
   ]);
+
+  const handleInstallmentDateChange = (index: number, value: string) => {
+    setPurchaseData(prev => {
+      const newInstallments = [...prev.installments];
+      newInstallments[index] = {
+        ...newInstallments[index],
+        date: value
+      };
+      return { ...prev, installments: newInstallments };
+    });
+  
+    // Validate the date
+    try {
+      const dateSchema = PurchaseSchema.shape.installments.unwrap().element.shape.date;
+      dateSchema.parse(value);
+      setErrors(prev => ({
+        ...prev,
+        [`installments[${index}].date`]: ''
+      }));
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        setErrors(prev => ({
+          ...prev,
+          [`installments[${index}].date`]: error.errors[0].message
+        }));
+      }
+    }
+  };
 
   React.useEffect(() => {
     if (isInstallment) {
@@ -475,11 +503,25 @@ const PurchaseForm: React.FC = () => {
                     <Input
                       value={inst.rate || ''}
                       type="number"
+                      placeholder='Enter Amount'
                       onChange={(e) =>
                         handleInstallmentChange(index, Number(e.target.value), 'rate')
                       }
                       label={`Installment ${index + 1} Amount`}
                     />
+                    <div className="flex-1">
+                      <Input
+                        value={inst.date}
+                        onChange={(e) => handleInstallmentDateChange(index, e.target.value)}
+                        label="Payment Date"
+                        type="date"
+                      />
+                      {errors[`installments[${index}].date`] && (
+                        <p className="text-red-500 text-sm">
+                          {errors[`installments[${index}].date`]}
+                        </p>
+                      )}
+                    </div>
 
                     <div className="w-1/4  px-2  flex justify-center items-end ">
                       <select
@@ -497,10 +539,10 @@ const PurchaseForm: React.FC = () => {
                     </div>
                   </div>
                   {errors[`installments[${index}].rate`] && (
-                      <p className="text-red-500 text-sm">
-                        {errors[`installments[${index}].rate`]}
-                      </p>
-                    )}
+                    <p className="text-red-500 text-sm">
+                      {errors[`installments[${index}].rate`]}
+                    </p>
+                  )}
                 </div>
               ))}
             </div>
