@@ -14,15 +14,15 @@ contextBridge.exposeInMainWorld('electron', {
   getAllPurchases: (year:string) => ipcRenderer.invoke('getAllPurchases', year),
   getFilterPurchases: (searchQuery:string, year:string) => ipcRenderer.invoke('getFilterPurchases', searchQuery, year),
   getPurchaseById: (id: string) => ipcRenderer.invoke('getPurchaseById', id),
-  getPurchaseByPaymentMethod: (paymentMethod: string) =>
-    ipcRenderer.invoke('getPurchaseByPaymentMethod', paymentMethod),
+  getPurchaseByPaymentMethod: (paymentMethod: string, year:string) =>
+    ipcRenderer.invoke('getPurchaseByPaymentMethod', paymentMethod,year),
 
 
   //sales preloads
   getAllSales: (year:string) => ipcRenderer.invoke('getAllSales',year),
   getFilterSale: (searchQuery:string, year:string) => ipcRenderer.invoke('getFilterSale', searchQuery,year),
-  getSalesByPaymentMethod: (paymentMethod: string) =>
-    ipcRenderer.invoke('getSalesByPaymentMethod', paymentMethod),
+  getSalesByPaymentMethod: (paymentMethod: string, year:string) =>
+    ipcRenderer.invoke('getSalesByPaymentMethod', paymentMethod, year),
 
   // --------------------------create preloads---------------------------
   addUser: (name, email) => ipcRenderer.invoke('addUser', name, email),

@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, ipcMain, dialog  } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import {
@@ -8,8 +8,8 @@ import {
 } from '../services/user.services'
 import bcrypt from 'bcryptjs'
 import icon from '../../resources/icon.png?asset'
-import { addInstallment, deletePurchase, getAllPurchases, getAllPurchasesByYear, getFilterPurchases, getPurchaseById, getPurchaseByPaymentMethod, insertPurchase, updatePurchase } from '../services/purchase.services'
-import { addInstallmentSales, getAllSaleByYear, getAllSales, getFiltersale, getSalesByPaymentMethod, insertSales } from '../services/sales.services'
+import { addInstallment, deletePurchase, getAllPurchases, getAllPurchasesByYear, getFilterPurchases, getPurchaseById, getPurchaseByPaymentMethod, getPurchaseByPaymentMethodAndYear, insertPurchase, updatePurchase } from '../services/purchase.services'
+import { addInstallmentSales, getAllSaleByYear, getAllSales, getFiltersale, getSalesByPaymentMethod, getSalesByPaymentMethodAndYear, insertSales } from '../services/sales.services'
 
 let mainWindow: BrowserWindow | null = null
 
@@ -26,7 +26,7 @@ function createWindow(): void {
       preload: join(__dirname, '../preload/index.js'),
       devTools: true,
       sandbox: false,
-      nodeIntegration:false,
+      nodeIntegration: false,
       contextIsolation: true
     }
   })
@@ -35,7 +35,7 @@ function createWindow(): void {
 
 
   mainWindow.on('ready-to-show', () => {
-    if (mainWindow){
+    if (mainWindow) {
       mainWindow.show()
       mainWindow.setMenu(null)
       mainWindow.webContents.openDevTools()
@@ -62,8 +62,6 @@ app.whenReady().then(() => {
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
   })
-
-
 
   ipcMain.handle('addUser', async (_, userData) => {
     console.log('from main process user data', userData)
@@ -103,7 +101,7 @@ app.whenReady().then(() => {
 
       return { success: true, message: 'Login successful', isAuthenticated: true, user }
     } catch (error) {
-        console.error('Login error:', error)
+      console.error('Login error:', error)
       return { success: false, message: 'Something went wrong', isAuthenticated: false }
     }
   })
@@ -132,7 +130,7 @@ app.whenReady().then(() => {
       return { success: true, message: 'Purchase added successfully' };
     } catch (error) {
       console.error('Error adding purchase:', error);
-      return { success: false, message: 'Failed to add purchase' }; 
+      return { success: false, message: 'Failed to add purchase' };
     }
   });
 
@@ -140,8 +138,8 @@ app.whenReady().then(() => {
   ipcMain.handle('addSales', async (_, purchaseData) => {
     console.log('from main process sales data', purchaseData)
     try {
-      const response =  insertSales(purchaseData);
-      console.log(response,"responses sales")
+      const response = insertSales(purchaseData);
+      console.log(response, "responses sales")
       return { success: true, message: 'Sales added successfully' };
     } catch (error) {
       console.error('Error adding purchase:', error);
@@ -150,43 +148,44 @@ app.whenReady().then(() => {
   });
 
   ipcMain.handle('getAllPurchases', async (_, year) => {
-    
+
     try {
       // Trim and normalize the year parameter
       const normalizedYear = String(year).trim();
-  
+
       // Check if year is 'all' (case-insensitive)
-      if (+year=== 0) {
+      if (+year === 0) {
         return await getAllPurchases(); // Ensure this function is awaited
       }
-      return  getAllPurchasesByYear(normalizedYear); // Ensure this function is awaited
+      return getAllPurchasesByYear(normalizedYear); // Ensure this function is awaited
     } catch (error) {
       console.error('Error in getAllPurchases IPC handler:', error);
-      return []; 
+      return [];
     }
   });
 
 
-  ipcMain.handle('getFilterPurchases', async (_,searchQuery, year?:string) => {
-    console.log(searchQuery,year, "searchQuery main")
+  ipcMain.handle('getFilterPurchases', async (_, searchQuery, year?: string) => {
+    console.log(searchQuery, year, "searchQuery main")
     return getFilterPurchases(searchQuery, year);
   });
-  ipcMain.handle('getFilterSale', async (_,searchQuery, year?:string) => {
+
+  ipcMain.handle('getFilterSale', async (_, searchQuery, year?: string) => {
     return getFiltersale(searchQuery, year);
   })
   ipcMain.handle('getAllSales', async (_, year) => {
     try {
       // Trim and normalize the year parameter
       const normalizedYear = String(year).trim();
-  
+
       // Check if year is 'all' (case-insensitive)
-      if (+year=== 0) {
+      if (+year === 0) {
         return await getAllSales(); // Ensure this function is awaited
       }
-      return  getAllSaleByYear(normalizedYear); // Ensure this function is awaited
+      return getAllSaleByYear(normalizedYear); // Ensure this function is awaited
     } catch (error) {
       console.error('Error in getAllPurchases IPC handler:', error);
-      return []; 
+      return [];
     }
   });
 
@@ -194,21 +193,32 @@ app.whenReady().then(() => {
     return getPurchaseById(id);
   });
 
-  ipcMain.handle("getPurchaseByPaymentMethod", async(__, paymentMethod) =>{
+  ipcMain.handle("getPurchaseByPaymentMethod", async (__, paymentMethod, year) => {
+    const normalizedYear = String(year).trim();
+    if (+year !== 0) {
+      return getPurchaseByPaymentMethodAndYear(paymentMethod, normalizedYear);
+    }
+    // If year is 'all', return all purchases without filtering by year
     return getPurchaseByPaymentMethod(paymentMethod);
   })
-  ipcMain.handle("getSalesByPaymentMethod", async(__, paymentMethod) =>{
-    console.log(paymentMethod,"paymentMethod")
+
+  ipcMain.handle("getSalesByPaymentMethod", async (__, paymentMethod, year) => {
+    const normalizedYear = String(year).trim();
+    if (+year !== 0) {
+      return getSalesByPaymentMethodAndYear(paymentMethod, normalizedYear);
+    }
+    
     return getSalesByPaymentMethod(paymentMethod);
+   
   })
 
-  ipcMain.handle('addInstallments', async (_, purchaseId, newInstallment,type) => {
+  ipcMain.handle('addInstallments', async (_, purchaseId, newInstallment, type) => {
     try {
-      if(type === "purchases"){
-        const addedInstllment =  addInstallment(purchaseId, newInstallment);
+      if (type === "purchases") {
+        const addedInstllment = addInstallment(purchaseId, newInstallment);
         console.log(addedInstllment)
-      }else{
-        const addedInstllment =  addInstallmentSales(purchaseId, newInstallment);
+      } else {
+        const addedInstllment = addInstallmentSales(purchaseId, newInstallment);
         console.log(addedInstllment)
       }
       return

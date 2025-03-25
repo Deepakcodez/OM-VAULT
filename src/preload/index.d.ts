@@ -21,8 +21,8 @@ declare global {
       deleteUser: (id: number) => Promise<void>
 
       getAllPurchases: (year:string) => Promise<PurchaseDataType[]>
-      getPurchaseByPaymentMethod: (paymentMethod : string)=> Promise<any>
-      getSalesByPaymentMethod: (paymentMethod : string)=> Promise<any>
+      getPurchaseByPaymentMethod: (paymentMethod : string, year:string)=> Promise<any>
+      getSalesByPaymentMethod: (paymentMethod : string, year:string)=> Promise<any>
       addInstallment:(installmentId: string, newInstallment: InstallmentType,type : string)=> Promise<void>
       getAllSales: (year:string) => Promise<PurchaseDataType[]>
       getFilterPurchases: (searchQuery: string, year:string) => Promise<PurchaseDataType[]>

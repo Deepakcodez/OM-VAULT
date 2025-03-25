@@ -1,13 +1,15 @@
 import Installmentcard from '@renderer/components/ui/Installmentcard'
+import useYearFilterStore from '@renderer/state_manager/yearFilter'
 import { PurchaseDataType } from '@renderer/types/types'
 import React from 'react'
 
 const PurchaseInstallmentData: React.FC = () => {
   const[installments,setInstallments]=React.useState<PurchaseDataType[]>([])
   const[isRefetch, setIsRefetch] = React.useState<boolean>(false);
+  const{year} = useYearFilterStore();
   const fetchPurchaseInstallmentData = async () => {
     try {
-      const data = await window.electron.getPurchaseByPaymentMethod('installment')
+      const data = await window.electron.getPurchaseByPaymentMethod('installment',JSON.stringify(year))
       console.log(data, 'data by paytment method')
       console.log('data by paytment method',installments)
       setInstallments(data)
@@ -19,7 +21,7 @@ const PurchaseInstallmentData: React.FC = () => {
   React.useEffect(() => {
     fetchPurchaseInstallmentData()
     console.log(isRefetch,"isrefetcgh")
-  }, [isRefetch])
+  }, [isRefetch, year])
   return (
     <div className='overflow-y-auto h-[calc(100vh-265px)] hide-scb'>
 
