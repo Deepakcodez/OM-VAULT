@@ -6,7 +6,7 @@ declare global {
   interface Window {
     electron: ElectronAPI & {
       addPurchase: (purchaseData: any) => Promise<void>
-      addSales: (salesData: PurchaseDataType) => Promise<void>
+      addSales: (salesData: any) => Promise<void>
       addUser: (userDetail: UserDetailType) => Promise<void>
       loginUser: (
         email: string,

@@ -21,30 +21,30 @@ const PurchasesTable: React.FC<PurchasesTableProps> = ({ refresh }) => {
   ]
   const { salesData, setSalesData } = useSalesData()
   const { setSingleSalesData } = useSingleSalesStore()
-  const{year} = useYearFilterStore()
+  const { year } = useYearFilterStore()
 
   const setRowData = (data: PurchaseDataType) => {
     setSingleSalesData(data)
   }
 
   React.useEffect(() => {
+    console.log("from sale table ln 28", year)
     const loadPurchaseData = async () => {
       const data = await fetchSaleData(JSON.stringify(year)) // Fetch data
-      console.log("from sale table ln 33",data)
-      if (data.length > 0) {
-        setSalesData(data) // Update store with fetched data
-      }
+      console.log("from sale table ln 33", data)  
+      setSalesData(data) // Update store with fetched data
+
     }
     loadPurchaseData()
     // Call the function to fetch and store data
-  }, [setSalesData, refresh,year])
+  }, [setSalesData, refresh, year])
 
   return (
     <div className="h-[calc(100vh-137px)]  hide-scb overflow-y-scroll select-none">
-      <Table 
-      tableHeadings={tableHeadings} 
-      tableBody={salesData} 
-      setRowData={setRowData} />
+      <Table
+        tableHeadings={tableHeadings}
+        tableBody={salesData}
+        setRowData={setRowData} />
     </div>
   )
 }
