@@ -9,6 +9,7 @@ import { GiPayMoney } from 'react-icons/gi'
 import { FaMoneyBillTransfer } from 'react-icons/fa6'
 import { GrMoney } from 'react-icons/gr'
 import { IconType } from 'react-icons/lib'
+import { FaUserAlt } from "react-icons/fa";
 
 type sidebarOptionsTypes = {
   name: string
@@ -42,6 +43,11 @@ const Sidebar: React.FC = () => {
       name: 'Transactions',
       screen: '/transactions',
       icon: FaMoneyBillTransfer
+    },
+    {
+      name: 'Profile',
+      screen: '/profile',
+      icon: FaUserAlt
     },
   ]
   return (
