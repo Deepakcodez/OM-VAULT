@@ -88,14 +88,6 @@ const Installmentcard: React.FC<InstallmentcardProps> = ({ installment, refetch 
                       <div className="flex gap-2 justify-between">
                         <h1 className="text-zinc-500">Installments</h1>
                         <div className="flex gap-2 items-center  mb-2">
-                          <motion.div
-                            onClick={() => {}}
-                            whileTap={{ scale: 0.8 }}
-                            transition={{ duration: 0.3, ease: 'easeInOut' }}
-                            className="bg-zinc-800/80 rounded-full p-2 cursor-pointer"
-                          >
-                            <MdLocalPrintshop />
-                          </motion.div>
                           {isExpanded && (
                             <motion.div
                               onClick={() => {

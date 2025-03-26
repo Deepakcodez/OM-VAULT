@@ -39,5 +39,11 @@ contextBridge.exposeInMainWorld('electron', {
   
 // other utils preloads
   openDialog: (title: string, message: string, type: 'info' | 'error' | 'warning' | 'question') =>
-    ipcRenderer.invoke('open-dialog', { title, message, type })
+    ipcRenderer.invoke('open-dialog', { title, message, type }),
+
+  //pdf preloads
+  generateStyledPDF: (html) => ipcRenderer.invoke('generate-styled-pdf', html),
+  generatePDF: (html:any) => ipcRenderer.invoke('generate-pdf', html),
+  savePDFDialog: (filename:any) => ipcRenderer.invoke('save-pdf-dialog', filename),
+  savePDFFile: (pdfData, filePath) => ipcRenderer.invoke('save-pdf-file', { pdfData, filePath })
 })

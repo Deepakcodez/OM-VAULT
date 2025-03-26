@@ -8,7 +8,7 @@ import Debit from "./debit/Debit";
 import Gst from "./gst/Gst";
 import Purchase from "./purchase/Purchase";
 import Transaction from "./transactions/Transaction";
-import Profile from "./profile/Profile";
+
 
 export {
     Login,
@@ -21,5 +21,4 @@ export {
     Gst,
     Purchase,
     Transaction,
-    Profile,
 }

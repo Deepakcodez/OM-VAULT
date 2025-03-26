@@ -1,5 +1,6 @@
 import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
 import { join } from 'path'
+import fs from 'fs'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import {
   insertUser,
@@ -30,9 +31,6 @@ function createWindow(): void {
       contextIsolation: true
     }
   })
-
-
-
 
   mainWindow.on('ready-to-show', () => {
     if (mainWindow) {
@@ -173,6 +171,7 @@ app.whenReady().then(() => {
   ipcMain.handle('getFilterSale', async (_, searchQuery, year?: string) => {
     return getFiltersale(searchQuery, year);
   })
+
   ipcMain.handle('getAllSales', async (_, year) => {
     try {
       // Trim and normalize the year parameter
@@ -247,6 +246,103 @@ app.whenReady().then(() => {
       return { success: false, message: 'Failed to delete purchase' };
     }
   });
+
+  // Add this with your other ipcMain handlers
+// ipcMain.handle('generate-pdf', async (_, htmlContent) => {
+//   try {
+//     const pdfWindow = new BrowserWindow({ 
+//       show: false,
+//       webPreferences: {
+//         nodeIntegration: false,
+//         contextIsolation: true
+//       }
+//     });
+
+//     // Load the HTML content
+//     await pdfWindow.loadURL(`data:text/html;charset=UTF-8,${encodeURIComponent(htmlContent)}`);
+    
+//     // Wait for content to load
+//     await new Promise(resolve => setTimeout(resolve, 500));
+
+//     // Generate PDF
+//     const pdfData = await pdfWindow.webContents.printToPDF({
+//       printBackground: true,
+//       landscape: false,
+//       pageSize: 'A4',
+//       marginsType: 0  // 0 = default, 1 = none, 2 = minimum
+//     });
+
+//     pdfWindow.close();
+//     return pdfData;
+//   } catch (error) {
+//     console.error('PDF generation failed:', error);
+//     throw error;
+//   }
+// });
+
+ipcMain.handle('generate-styled-pdf', async (_, htmlContent) => {
+  const win = new BrowserWindow({
+    show: false,
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true
+    }
+  });
+
+  // Load HTML with proper base URL for relative paths
+  await win.loadURL(`data:text/html;charset=UTF-8,${encodeURIComponent(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <base href="file://${__dirname}/">
+        <style>
+          @page { margin: 0; }
+          body { margin: 0; -webkit-print-color-adjust: exact !important; }
+        </style>
+      </head>
+      <body>${htmlContent}</body>
+    </html>
+  `)}`);
+
+  // Wait for resources to load
+  await new Promise(resolve => setTimeout(resolve, 500));
+
+  const pdfOptions = {
+    printBackground: true,
+    landscape: false,
+    pageSize: "A4",
+    marginsType: 0,
+    preferCSSPageSize: true
+  };
+
+  const pdfData = await win.webContents.printToPDF(pdfOptions);
+  win.close();
+  return pdfData;
+});
+
+ipcMain.handle('save-pdf-dialog', async (_, defaultFilename) => {
+  const { filePath } = await dialog.showSaveDialog({
+    title: 'Save Invoice as PDF',
+    defaultPath: defaultFilename,
+    filters: [
+      { name: 'PDF Files', extensions: ['pdf'] },
+      { name: 'All Files', extensions: ['*'] }
+    ]
+  });
+  return filePath;
+});
+
+ipcMain.handle('save-pdf-file', async (_, { pdfData, filePath }) => {
+  try {
+    fs.writeFileSync(filePath, pdfData);
+    return { success: true };
+  } catch (error) {
+    console.error('Error saving PDF:', error);
+    return { success: false, error: error };
+  }
+});
+
+
 
 
   createWindow()

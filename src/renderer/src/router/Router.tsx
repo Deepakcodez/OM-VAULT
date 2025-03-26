@@ -7,7 +7,6 @@ import {
   Gst,
   Home,
   Login,
-  Profile,
   Purchase,
   Register,
   Sale,
@@ -33,7 +32,7 @@ const Router: React.FC = () => {
           <Route path="/transactions" element={<Transaction />} />
           <Route path="/debit" element={<Debit />} />
           <Route path="/purchase" element={<Purchase />} />
-          <Route path="/profile" element={<Profile />} />
+
         </Route>
       </Routes>
     </>

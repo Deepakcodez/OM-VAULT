@@ -63,3 +63,30 @@ input[type="number"] {
 .om-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #f799ff
 }
+
+
+
+/* Ensure all elements maintain their styles when printing */
+* {
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
+
+/* Specific print adjustments */
+@media print {
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+  }
+  
+  /* Fix for Tailwind/other frameworks */
+  .bg-* {
+    -webkit-print-color-adjust: exact !important;
+  }
+  
+  /* Hide non-essential elements */
+  .no-print {
+    display: none !important;
+  }
+}

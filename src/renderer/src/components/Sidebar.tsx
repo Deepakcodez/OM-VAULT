@@ -1,15 +1,13 @@
-import React from 'react'
-import Logo from '../assets/images/omvault_logo.webp'
-import { motion } from 'motion/react'
-import { Link, useLocation } from 'react-router-dom'
-import { YearDropdown } from './ui'
-import { TbLayoutDashboard } from 'react-icons/tb'
-import { GiReceiveMoney } from 'react-icons/gi'
-import { GiPayMoney } from 'react-icons/gi'
-import { FaMoneyBillTransfer } from 'react-icons/fa6'
-import { GrMoney } from 'react-icons/gr'
-import { IconType } from 'react-icons/lib'
-import { FaUserAlt } from "react-icons/fa";
+import React from 'react';
+import Logo from '../assets/images/omvault_logo.webp';
+import { motion } from 'motion/react';
+import { Link, useLocation } from 'react-router-dom';
+import { YearDropdown } from './ui';
+import { TbLayoutDashboard } from 'react-icons/tb';
+import { GiReceiveMoney } from 'react-icons/gi';
+import { GiPayMoney } from 'react-icons/gi';
+import { GrMoney } from 'react-icons/gr';
+import { IconType } from 'react-icons/lib';
 
 type sidebarOptionsTypes = {
   name: string
@@ -38,16 +36,6 @@ const Sidebar: React.FC = () => {
       name: 'Installments',
       screen: '/installments',
       icon: GrMoney
-    },
-    {
-      name: 'Transactions',
-      screen: '/transactions',
-      icon: FaMoneyBillTransfer
-    },
-    {
-      name: 'Profile',
-      screen: '/profile',
-      icon: FaUserAlt
     },
   ]
   return (

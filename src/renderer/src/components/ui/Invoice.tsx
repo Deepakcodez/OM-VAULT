@@ -1,7 +1,50 @@
 import React from 'react';
 
+
 const Invoice = () => {
-  // Invoice data (can be passed as props or fetched from API)
+  
+  const invoiceRef = React.useRef<HTMLDivElement>(null);
+
+  const handleDownloadPDF = async () => {
+    if (!invoiceRef.current) return;
+  
+    try {
+      // Clone the node to avoid modifying the original
+      const invoiceClone = invoiceRef.current.cloneNode(true) as HTMLElement;
+      
+      // Add print-specific styles
+      const style = document.createElement('style');
+      style.textContent = `
+        @media print {
+          body { 
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+          .no-print { display: none !important; }
+        }
+      `;
+      invoiceClone.appendChild(style);
+  
+      const html = invoiceClone.outerHTML;
+      const pdfData = await window.electron.generateStyledPDF(html);
+      
+      // Download the PDF
+      const blob = new Blob([pdfData], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `invoice-${invoiceData.invoiceNumber}.pdf`;
+      a.click();
+      
+      // Clean up
+      setTimeout(() => URL.revokeObjectURL(url), 100);
+    } catch (error) {
+      console.error('PDF generation failed:', error);
+      // Show error to user
+    }
+  };
+
+
   const invoiceData = {
     invoiceNumber: '3682303',
     company: {
@@ -42,7 +85,7 @@ const Invoice = () => {
   };
 
   return (
-    <div className="max-w-[85rem] px-4 sm:px-6 lg:px-8 mx-auto my-4 sm:my-10">
+    <div ref={invoiceRef} className="max-w-[85rem] px-4 sm:px-6 lg:px-8 mx-auto my-4 sm:my-10">
       <div className="sm:w-11/12 lg:w-3/4 mx-auto">
         {/* Card */}
         <div className="flex flex-col p-4 sm:p-10 bg-white shadow-md rounded-xl">
@@ -183,7 +226,9 @@ const Invoice = () => {
 
         {/* Buttons */}
         <div className="mt-6 flex justify-end gap-x-3">
-          <button className="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-2xs hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none focus:outline-hidden focus:bg-gray-50">
+          <button 
+          onClick={handleDownloadPDF}
+          className="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-2xs hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none focus:outline-hidden focus:bg-gray-50">
             <svg className="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
               <polyline points="7 10 12 15 17 10"/>
