@@ -7,37 +7,52 @@ const Invoice = () => {
 
   const handleDownloadPDF = async () => {
     if (!invoiceRef.current) return;
-  
+
     try {
-      // Clone the node to avoid modifying the original
-      const invoiceClone = invoiceRef.current.cloneNode(true) as HTMLElement;
-      
-      // Add print-specific styles
-      const style = document.createElement('style');
-      style.textContent = `
-        @media print {
-          body { 
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-          }
-          .no-print { display: none !important; }
+      // Step 1: Convert component to canvas
+      const canvas = await html2canvas(invoiceRef.current, {
+        scale: 2, // Higher quality
+        logging: false,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        onclone: (clonedDoc) => {
+          // Ensure print styles are applied
+          const style = clonedDoc.createElement('style');
+          style.innerHTML = `
+            * {
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
+          `;
+          clonedDoc.head.appendChild(style);
         }
-      `;
-      invoiceClone.appendChild(style);
-  
-      const html = invoiceClone.outerHTML;
-      const pdfData = await window.electron.generateStyledPDF(html);
+      });
+
+      // Step 2: Convert canvas to image data
+      const imgData = canvas.toDataURL('image/png', 1.0);
+
+      // Step 3: Create PDF and add image
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
       
-      // Download the PDF
-      const blob = new Blob([pdfData], { type: 'application/pdf' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `invoice-${invoiceData.invoiceNumber}.pdf`;
-      a.click();
+      // Calculate image dimensions to fit the page
+      const imgProps = canvas;
+      const imgWidth = pageWidth;
+      const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+
+      // Add image to PDF
+      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
       
-      // Clean up
-      setTimeout(() => URL.revokeObjectURL(url), 100);
+      // Step 4: Save the PDF
+      pdf.save(`invoice-${invoiceData.invoiceNumber}.pdf`);
+
     } catch (error) {
       console.error('PDF generation failed:', error);
       // Show error to user
