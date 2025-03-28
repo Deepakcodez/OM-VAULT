@@ -32,6 +32,7 @@ const Router: React.FC = () => {
           <Route path="/transactions" element={<Transaction />} />
           <Route path="/debit" element={<Debit />} />
           <Route path="/purchase" element={<Purchase />} />
+
         </Route>
       </Routes>
     </>

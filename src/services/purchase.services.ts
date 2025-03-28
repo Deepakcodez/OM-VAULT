@@ -179,6 +179,24 @@ export const getPurchaseByPaymentMethod = (paymentMethod: string) => {
     return []
   }
 }
+export const getPurchaseByPaymentMethodAndYear = (paymentMethod: string, year?:string) => {
+  try {
+    // Fetch all purchases from the database
+    const stmt = db.prepare('SELECT * FROM purchases WHERE paymentMethod = ?')
+    const result = stmt.all(paymentMethod)
+    
+    // Filter results where orderingDate includes the specified year
+    const filteredResult = result.filter((purchase: any) => {
+      // Ensure orderingDate is a string and includes the year
+      return purchase.orderingDate && purchase.orderingDate.includes(year);
+    });
+    return filteredResult;
+
+  } catch (error) {
+    console.error('Error fetching purchases:', error);
+    return []; // Return an empty array in case of an error
+  }
+}
 
 // Update Purchase
 export const updatePurchase = (purchase: any) => {

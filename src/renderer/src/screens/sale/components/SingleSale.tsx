@@ -3,7 +3,7 @@ import { RxCross2 } from 'react-icons/rx'
 import { motion } from 'motion/react'
 import { MdCircle } from 'react-icons/md'
 import { useSingleSalesStore } from '@renderer/state_manager/singleSalesData'
-
+import { LiaFileInvoiceSolid } from "react-icons/lia";
 const SinglePurchase: React.FC = () => {
   const { singleSalesData, setSingleSalesData } = useSingleSalesStore();
 
@@ -14,13 +14,22 @@ const SinglePurchase: React.FC = () => {
         <div className="w-full  mt-12 flex  items-center justify-between ">
           <h1 className="text-3xl  truncate">{singleSalesData?.productName}</h1>
           <div className="flex items-center gap-2">
-
+          
             <motion.div
-              whileTap={{ scale: 0.5 }}
-              className="cursor-pointer hover:bg-zinc-700 p-2 hover:rounded-full duration-300"
+              whileTap={{ scale: 0.9 }}
+              className="cursor-pointer  p-2  duration-300 flex items-center bg-neutral-700/40 rounded-lg"
+              onClick={() => {}}
+            >
+              <LiaFileInvoiceSolid size={20} />
+              Invoice
+            </motion.div>
+            <motion.div
+              whileTap={{ scale: 0.8 }}
+              className="cursor-pointer hover:bg-zinc-700 p-2 hover:rounded-full duration-300 flex"
               onClick={() => setSingleSalesData(null)}
             >
               <RxCross2 size={20} />
+            
             </motion.div>
           </div>
         </div>

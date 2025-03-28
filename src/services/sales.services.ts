@@ -136,13 +136,25 @@ export const getFiltersale = (searchQuery: string, year?: string) => {
 
 
 export const getSalesByPaymentMethod = (paymentMethod: string) => {
-  console.log('inside db of sales by payment method')
-  console.log(paymentMethod)
   try {
     const stmt = db.prepare('SELECT * FROM sales WHERE paymentMethod = ?')
     const data = stmt.all(paymentMethod)
     console.log(data)
     return data
+  } catch (error) {
+    console.error('Error fetching sales by payment method:', error)
+    return []
+  }
+}
+export const getSalesByPaymentMethodAndYear = (paymentMethod: string, year:string) => {
+  try {
+    const stmt = db.prepare('SELECT * FROM sales WHERE paymentMethod = ?')
+    const result = stmt.all(paymentMethod)
+    const filteredResult = result.filter((sale: any) => {
+      // Ensure orderingDate is a string and includes the year
+      return sale.orderingDate && sale.orderingDate.includes(year);
+    });
+    return filteredResult;
   } catch (error) {
     console.error('Error fetching sales by payment method:', error)
     return []
