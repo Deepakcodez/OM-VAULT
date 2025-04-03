@@ -22,7 +22,7 @@ const Input: React.FC<InputProps> = ({
 }) => {
   return (
     <div className=" w-full flex flex-col">
-      {label && <label>{label}</label>}
+      {label && <label className='text-white'>{label}</label>}
       <input
         type={type}
         placeholder={placeholder}

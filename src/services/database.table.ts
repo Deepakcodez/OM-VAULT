@@ -67,4 +67,24 @@ CREATE TABLE IF NOT EXISTS users (
 )
 `)
 
+//compajny table
+db.exec(`
+  CREATE TABLE IF NOT EXISTS company (
+    id TEXT PRIMARY KEY,
+    companyName TEXT NOT NULL,
+    description TEXT,
+    companyLogoUrl TEXT,
+    address1 TEXT,
+    address2 TEXT,
+    address3 TEXT,
+    address4 TEXT,
+    email1 TEXT,
+    email2 TEXT,
+    phone1 TEXT,
+    phone2 TEXT,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  )
+`);
+
 export default db

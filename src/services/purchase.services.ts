@@ -99,51 +99,6 @@ export const getAllPurchasesByYear = (year: string) => {
   }
 };
 
-// export const getAllPurchases = (year: string) => {
-//   console.log('Year:', year); // Debugging log
-
-//   try {
-//     let query = 'SELECT * FROM purchases';
-//     const params: any[] = [];
-
-//     // Add year filter only if year is provided and not "all"
-//     if (year && year !== "all") {
-//       query += ' WHERE strftime(\'%Y\', orderingDate) = ?';
-//       params.push(year);
-//     }
-
-//     // Log the query and parameters for debugging
-//     console.log('Executing query:', query);
-//     console.log('Query parameters:', params);
-
-//     // Prepare and execute the query
-//     const stmt = db.prepare(query);
-//     const result = stmt.all(...params);
-
-//     return result;
-//   } catch (error) {
-//     console.error('Error fetching purchases:', error);
-//     return []; // Return an empty array in case of an error
-//   }
-// };
-
-// export const getFilterPurchases = (searchQuery: string) => {
-//   try {
-//     // Prepare the SQL query with a parameterized search term
-//     const stmt = db.prepare('SELECT * FROM purchases WHERE productName LIKE ?')
-
-//     // Execute the query with the search term wrapped in wildcards
-//     const results = stmt.all(`%${searchQuery}%`)
-
-//     return results
-//   } catch (error) {
-//     console.error('Error fetching filtered purchases:', error)
-//     return [] // Return an empty array in case of an error
-//   }
-// }
-
-// Get Purchase by ID
-
 export const getFilterPurchases = (searchQuery: string, year?: string) => {
   console.log('Search query:', searchQuery, 'Year:', year)
 

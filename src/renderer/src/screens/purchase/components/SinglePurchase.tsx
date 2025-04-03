@@ -4,12 +4,15 @@ import { RxCross2 } from 'react-icons/rx'
 import { motion } from 'motion/react'
 import { MdCircle } from 'react-icons/md'
 import { calculateInstallments, calculatePendingAmount } from '@renderer/utils/Helper'
-import { FiPrinter } from "react-icons/fi";
+import { LiaFileInvoiceSolid } from "react-icons/lia";
+import Invoice from '@renderer/components/ui/Invoice'  
+import { TfiDownload } from "react-icons/tfi";
+import { MdOutlineLocalPrintshop } from "react-icons/md";
 
 
 const SinglePurchase: React.FC = () => {
-  const { singlePurchaseData, setSinglePurchaseData } = useSinglePurchaseStore()
-
+  const { singlePurchaseData, setSinglePurchaseData } = useSinglePurchaseStore();
+  const [isShowInvoice, setIsShowInvoice] = React.useState<boolean>(false);
   return (
     <div className="absolute z-10 select-none hide-scb w-full h-screen overflow-y-scroll p-12 top-0  mx-auto bg-neutral-800/10 backdrop-blur-2xl left-0">
       <div className="lg:w-8/12 md:w-11/12  mx-auto"></div>
@@ -17,14 +20,6 @@ const SinglePurchase: React.FC = () => {
         <div className="w-full  mt-12 flex  items-center justify-between ">
           <h1 className="text-3xl   truncate">{singlePurchaseData?.productName}</h1>
           <div className="flex items-center gap-2">
-
-            <motion.div
-              whileTap={{ scale: 0.5 }}
-              className="cursor-pointer hover:bg-zinc-700 p-2 hover:rounded-full duration-300"
-              onClick={() => {}}
-            >
-              <FiPrinter   size={20} />
-            </motion.div>
             <motion.div
               whileTap={{ scale: 0.5 }}
               className="cursor-pointer hover:bg-zinc-700 p-2 hover:rounded-full duration-300"
@@ -151,7 +146,7 @@ const SinglePurchase: React.FC = () => {
                   {JSON.parse(singlePurchaseData?.installments)?.map((item, i) => {
                     return (
                       <div
-                        key={item?.id+i}
+                        key={item?.id + i}
                         className="bg-zinc-800/20  border border-zinc-700/50 p-2 rounded-lg mb-1"
                       >
                         <p className="text-zinc-400">
@@ -193,6 +188,37 @@ const SinglePurchase: React.FC = () => {
           </div>
         </div>
       </div>
+      {
+        isShowInvoice && (
+          <div className='absolute inset-0 bg-black/80         flex justify-center'>
+            <div className='absolute right-12 top-12 flex flex-col gap-2 '>
+
+              <motion.div
+                whileTap={{ scale: 0.5 }}
+                className="cursor-pointer bg-zinc-700   h-12 flex justify-center items-center aspect-square rounded-full duration-300"
+                onClick={() => setIsShowInvoice(!isShowInvoice)}
+              >
+                <RxCross2 size={20} />
+              </motion.div>
+              <motion.div
+                whileTap={{ scale: 0.5 }}
+                className=" cursor-pointer bg-zinc-700   h-12 flex justify-center items-center aspect-square rounded-full duration-300"
+                onClick={() => setIsShowInvoice(!isShowInvoice)}
+              >
+                <TfiDownload size={20} />
+              </motion.div>
+              <motion.div
+                whileTap={{ scale: 0.5 }}
+                className="cursor-pointer bg-zinc-700   h-12 flex justify-center items-center aspect-square rounded-full duration-300"
+                onClick={() => setIsShowInvoice(!isShowInvoice)}
+              >
+                <MdOutlineLocalPrintshop size={20} />
+              </motion.div>
+            </div>
+            <Invoice />
+          </div>
+        )
+      }
     </div>
   )
 }

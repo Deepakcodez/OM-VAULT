@@ -8,10 +8,10 @@ import Searchbar from './components/Searchbar'
 import { AddButton, Heading } from '@renderer/components/ui'
 import { usePurchaseStore } from '@renderer/state_manager/purchaseData'
 import { fetchPurchaseData } from './service'
-import { FiPrinter } from 'react-icons/fi'
 import {motion} from 'motion/react'
 import { exportPurchasesToExcel } from './components/ExportPurchaseInExcel'
 import useYearFilterStore from '@renderer/state_manager/yearFilter'
+import { HiFolderDownload } from "react-icons/hi";
 
 
 const Purchase: React.FC = () => {
@@ -50,7 +50,7 @@ const Purchase: React.FC = () => {
         <motion.div whileTap={{ scale: 0.9 }}
         onClick={()=>exportPurchasesToExcel(purchaseData)}
         className="hover:bg-zinc-800 p-2 rounded-full">
-        <FiPrinter/>
+        <HiFolderDownload size={25}/>
       </motion.div>
         <AddButton onClickHandler={()=> setShowForm()} />
         </div>

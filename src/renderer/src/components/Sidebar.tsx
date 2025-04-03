@@ -7,6 +7,7 @@ import { TbLayoutDashboard } from 'react-icons/tb';
 import { GiReceiveMoney } from 'react-icons/gi';
 import { GiPayMoney } from 'react-icons/gi';
 import { GrMoney } from 'react-icons/gr';
+import { LuUser } from "react-icons/lu";
 import { IconType } from 'react-icons/lib';
 
 type sidebarOptionsTypes = {
@@ -36,6 +37,11 @@ const Sidebar: React.FC = () => {
       name: 'Installments',
       screen: '/installments',
       icon: GrMoney
+    },
+    {
+      name: 'Profile',
+      screen: '/profile',
+      icon: LuUser
     },
   ]
   return (

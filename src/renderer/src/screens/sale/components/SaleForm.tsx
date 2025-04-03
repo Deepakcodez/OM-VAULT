@@ -361,7 +361,7 @@ const SaleForm: React.FC = () => {
                 name="supplier"
                 value={saleData.supplier}
                 onChange={handleChange}
-                label="Supplier"
+                label="Client Name"
                 type="text"
               />
               <Input
@@ -385,7 +385,7 @@ const SaleForm: React.FC = () => {
                 name="supplierContact"
                 value={saleData.supplierContact}
                 onChange={handleChange}
-                label="Supplier Ph. Number"
+                label="Client Ph. Number"
                 type="text"
                 placeholder="Enter Phone Number"
                 style="w-full"
@@ -394,7 +394,7 @@ const SaleForm: React.FC = () => {
                 name="supplierEmail"
                 value={saleData.supplierEmail}
                 onChange={handleChange}
-                label="Supplier Contact Email"
+                label="Client Contact Email"
                 type="text"
                 placeholder="Enter Email"
                 style="w-full"
@@ -411,7 +411,7 @@ const SaleForm: React.FC = () => {
           </div>
           <div className="flex gap-2">
             <div className="w-full">
-              <p>Supplier Address</p>
+              <p>Client Address</p>
               <textarea
                 className="max-h-24 min-h-24 focus:outline-none w-full pe-4 bg-zinc-800 border-b border-gray-300 py-2 px-2 rounded-sm resize-none"
                 name="supplierAddress"

@@ -1,5 +1,5 @@
 import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
-import { join } from 'path'
+import path, { join } from 'path'
 import fs from 'fs'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import {
@@ -11,6 +11,7 @@ import bcrypt from 'bcryptjs'
 import icon from '../../resources/icon.png?asset'
 import { addInstallment, deletePurchase, getAllPurchases, getAllPurchasesByYear, getFilterPurchases, getPurchaseById, getPurchaseByPaymentMethod, getPurchaseByPaymentMethodAndYear, insertPurchase, updatePurchase } from '../services/purchase.services'
 import { addInstallmentSales, getAllSaleByYear, getAllSales, getFiltersale, getSalesByPaymentMethod, getSalesByPaymentMethodAndYear, insertSales } from '../services/sales.services'
+import {  getCompany, setCompany } from '../services/company.service'
 
 let mainWindow: BrowserWindow | null = null
 
@@ -24,6 +25,7 @@ function createWindow(): void {
     show: false,
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
+      webSecurity: false,
       preload: join(__dirname, '../preload/index.js'),
       devTools: true,
       sandbox: false,
@@ -206,9 +208,9 @@ app.whenReady().then(() => {
     if (+year !== 0) {
       return getSalesByPaymentMethodAndYear(paymentMethod, normalizedYear);
     }
-    
+
     return getSalesByPaymentMethod(paymentMethod);
-   
+
   })
 
   ipcMain.handle('addInstallments', async (_, purchaseId, newInstallment, type) => {
@@ -247,50 +249,18 @@ app.whenReady().then(() => {
     }
   });
 
-  // Add this with your other ipcMain handlers
-// ipcMain.handle('generate-pdf', async (_, htmlContent) => {
-//   try {
-//     const pdfWindow = new BrowserWindow({ 
-//       show: false,
-//       webPreferences: {
-//         nodeIntegration: false,
-//         contextIsolation: true
-//       }
-//     });
+ 
+  ipcMain.handle('generate-styled-pdf', async (_, htmlContent) => {
+    const win = new BrowserWindow({
+      show: false,
+      webPreferences: {
+        nodeIntegration: false,
+        contextIsolation: true
+      }
+    });
 
-//     // Load the HTML content
-//     await pdfWindow.loadURL(`data:text/html;charset=UTF-8,${encodeURIComponent(htmlContent)}`);
-    
-//     // Wait for content to load
-//     await new Promise(resolve => setTimeout(resolve, 500));
-
-//     // Generate PDF
-//     const pdfData = await pdfWindow.webContents.printToPDF({
-//       printBackground: true,
-//       landscape: false,
-//       pageSize: 'A4',
-//       marginsType: 0  // 0 = default, 1 = none, 2 = minimum
-//     });
-
-//     pdfWindow.close();
-//     return pdfData;
-//   } catch (error) {
-//     console.error('PDF generation failed:', error);
-//     throw error;
-//   }
-// });
-
-ipcMain.handle('generate-styled-pdf', async (_, htmlContent) => {
-  const win = new BrowserWindow({
-    show: false,
-    webPreferences: {
-      nodeIntegration: false,
-      contextIsolation: true
-    }
-  });
-
-  // Load HTML with proper base URL for relative paths
-  await win.loadURL(`data:text/html;charset=UTF-8,${encodeURIComponent(`
+    // Load HTML with proper base URL for relative paths
+    await win.loadURL(`data:text/html;charset=UTF-8,${encodeURIComponent(`
     <!DOCTYPE html>
     <html>
       <head>
@@ -304,44 +274,79 @@ ipcMain.handle('generate-styled-pdf', async (_, htmlContent) => {
     </html>
   `)}`);
 
-  // Wait for resources to load
-  await new Promise(resolve => setTimeout(resolve, 500));
+    // Wait for resources to load
+    await new Promise(resolve => setTimeout(resolve, 500));
 
-  const pdfOptions = {
-    printBackground: true,
-    landscape: false,
-    pageSize: "A4",
-    marginsType: 0,
-    preferCSSPageSize: true
-  };
+    const pdfOptions = {
+      printBackground: true,
+      landscape: false,
+      pageSize: "A4",
+      marginsType: 0,
+      preferCSSPageSize: true
+    };
 
-  const pdfData = await win.webContents.printToPDF(pdfOptions);
-  win.close();
-  return pdfData;
-});
-
-ipcMain.handle('save-pdf-dialog', async (_, defaultFilename) => {
-  const { filePath } = await dialog.showSaveDialog({
-    title: 'Save Invoice as PDF',
-    defaultPath: defaultFilename,
-    filters: [
-      { name: 'PDF Files', extensions: ['pdf'] },
-      { name: 'All Files', extensions: ['*'] }
-    ]
+    const pdfData = await win.webContents.printToPDF(pdfOptions);
+    win.close();
+    return pdfData;
   });
-  return filePath;
-});
 
-ipcMain.handle('save-pdf-file', async (_, { pdfData, filePath }) => {
-  try {
-    fs.writeFileSync(filePath, pdfData);
-    return { success: true };
-  } catch (error) {
-    console.error('Error saving PDF:', error);
-    return { success: false, error: error };
-  }
-});
+  ipcMain.handle('save-pdf-dialog', async (_, defaultFilename) => {
+    const { filePath } = await dialog.showSaveDialog({
+      title: 'Save Invoice as PDF',
+      defaultPath: defaultFilename,
+      filters: [
+        { name: 'PDF Files', extensions: ['pdf'] },
+        { name: 'All Files', extensions: ['*'] }
+      ]
+    });
+    return filePath;
+  });
 
+  ipcMain.handle('save-pdf-file', async (_, { pdfData, filePath }) => {
+    try {
+      fs.writeFileSync(filePath, pdfData);
+      return { success: true };
+    } catch (error) {
+      console.error('Error saving PDF:', error);
+      return { success: false, error: error };
+    }
+  });
+
+  // Save company logo handler
+  ipcMain.handle('setCompanyLogo', async (_, arrayBuffer: ArrayBuffer, filename: string) => {
+
+    const buffer = Buffer.from(arrayBuffer)
+
+    const logoDir = path.join(app.getPath('userData'), 'company_logos')
+    if (!fs.existsSync(logoDir)) {
+      fs.mkdirSync(logoDir, { recursive: true })
+    }
+
+    const logoPath = path.join(logoDir, filename)
+    fs.writeFileSync(logoPath, buffer)
+    return logoPath
+  })
+
+  ipcMain.handle('getCompany', async () => {
+    try {
+      return getCompany();
+    } catch (error) {
+      console.error('Error getting company:', error);
+      return { success: false, message: 'Failed to fetch company' };
+    }
+  })
+
+
+  ipcMain.handle('setCompany', async (_, companyData) => {
+    console.log(companyData, "company data")
+    try {
+      setCompany(companyData)
+      return { success: true, message: 'Company added successfully' };
+    } catch (error) {
+      console.error('Error adding company:', error);
+      return { success: false, message: 'Failed to add company' };
+    }
+  });
 
 
 

@@ -1,18 +1,18 @@
+import useCompany from '@renderer/hooks/useCompany';
 import React from 'react';
-
-
+import CompanyLogo from '../../assets/images/logo.png'
+import { useSingleSalesStore } from '@renderer/state_manager/singleSalesData';
+import { calculateInstallments, calculatePendingAmount } from '@renderer/utils/Helper';
 const Invoice = () => {
-  
-  const invoiceRef = React.useRef<HTMLDivElement>(null);
+  const invoiceRef = React.useRef(null);
+  const { companyDetails } = useCompany()
+  const { singleSalesData } = useSingleSalesStore();
 
-  const handleDownloadPDF = async () => {
+  const handiveDownloadPDF = async () => {
     if (!invoiceRef.current) return;
-  
+
     try {
-      // Clone the node to avoid modifying the original
-      const invoiceClone = invoiceRef.current.cloneNode(true) as HTMLElement;
-      
-      // Add print-specific styles
+      const invoiceClone = invoiceRef.current?.cloneNode(true);
       const style = document.createElement('style');
       style.textContent = `
         @media print {
@@ -24,37 +24,33 @@ const Invoice = () => {
         }
       `;
       invoiceClone.appendChild(style);
-  
+
       const html = invoiceClone.outerHTML;
       const pdfData = await window.electron.generateStyledPDF(html);
-      
-      // Download the PDF
+
       const blob = new Blob([pdfData], { type: 'application/pdf' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
       a.download = `invoice-${invoiceData.invoiceNumber}.pdf`;
       a.click();
-      
-      // Clean up
+
       setTimeout(() => URL.revokeObjectURL(url), 100);
     } catch (error) {
       console.error('PDF generation failed:', error);
-      // Show error to user
     }
   };
-
 
   const invoiceData = {
     invoiceNumber: '3682303',
     company: {
-      name: 'Preline Inc.',
+      name: 'Om Enterprises Group',
       address: ['45 Roker Terrace', 'Latheronwheel', 'KW5 8NW, London', 'United Kingdom'],
       logo: (
-        <svg className="size-10" width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M1 26V13C1 6.37258 6.37258 1 13 1C19.6274 1 25 6.37258 25 13C25 19.6274 19.6274 25 13 25H12" className="stroke-blue-600" stroke="currentColor" strokeWidth="2"/>
-          <path d="M5 26V13.16C5 8.65336 8.58172 5 13 5C17.4183 5 21 8.65336 21 13.16C21 17.6666 17.4183 21.32 13 21.32H12" className="stroke-blue-600" stroke="currentColor" strokeWidth="2"/>
-          <circle cx="13" cy="13.0214" r="5" fill="currentColor" className="fill-blue-600"/>
+        <svg className="logo" width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M1 26V13C1 6.37258 6.37258 1 13 1C19.6274 1 25 6.37258 25 13C25 19.6274 19.6274 25 13 25H12" className="stroke-blue" stroke="currentColor" strokeWidth="2" />
+          <path d="M5 26V13.16C5 8.65336 8.58172 5 13 5C17.4183 5 21 8.65336 21 13.16C21 17.6666 17.4183 21.32 13 21.32H12" className="stroke-blue" stroke="currentColor" strokeWidth="2" />
+          <circle cx="13" cy="13.0214" r="5" fill="currentColor" className="fill-blue" />
         </svg>
       )
     },
@@ -68,8 +64,7 @@ const Invoice = () => {
     },
     items: [
       { name: 'Design UX and UI', quantity: 1, rate: 500, amount: 500 },
-      { name: 'Web project', quantity: 1, rate: 1250, amount: 1250 },
-      { name: 'SEO', quantity: 1, rate: 2000, amount: 2000 }
+
     ],
     totals: {
       subtotal: 2750,
@@ -79,173 +74,513 @@ const Invoice = () => {
       dueBalance: 0
     },
     contact: {
-      email: 'example@site.com',
-      phone: '+1 (062) 109-9222'
+      email: 'info@omenterprisesgroup.in',
+      phone: '+91-9815300730'
     }
   };
 
   return (
-    <div ref={invoiceRef} className="max-w-[85rem] px-4 sm:px-6 lg:px-8 mx-auto my-4 sm:my-10">
-      <div className="sm:w-11/12 lg:w-3/4 mx-auto">
-        {/* Card */}
-        <div className="flex flex-col p-4 sm:p-10 bg-white shadow-md rounded-xl">
-          {/* Header */}
-          <div className="flex justify-between">
+    <div ref={invoiceRef} className="invoice-container">
+      <div className="invoice-wrapper">
+        <div className="invoice-card">
+          <div className="header">
             <div>
-              {invoiceData.company.logo}
-              <h1 className="mt-2 text-lg md:text-xl font-semibold text-blue-600">
-                {invoiceData.company.name}
-              </h1>
+              {/* <img src={CompanyLogo} alt="Logo" className='h-18' /> */}
+              <h1 className="company-name">{companyDetails?.companyName}</h1>
             </div>
-
-            <div className="text-end">
-              <h2 className="text-2xl md:text-3xl font-semibold text-gray-800">Invoice #{invoiceData.invoiceNumber}</h2>
-              <address className="mt-4 not-italic text-gray-800">
-                {invoiceData.company.address.map((line, index) => (
-                  <React.Fragment key={index}>
-                    {line}<br />
-                  </React.Fragment>
-                ))}
+            <div className="invoice-info">
+              <h2 className="invoice-number">Invoice #{invoiceData.invoiceNumber}</h2>
+              <address className="company-address">
+                <dd>{companyDetails?.address1}</dd>
+                <dd>{companyDetails?.address2}</dd>
+                <dd>{companyDetails?.address3}</dd>
+                <dd>{companyDetails?.address4}</dd>
               </address>
             </div>
           </div>
 
-          {/* Client Info */}
-          <div className="mt-8 grid sm:grid-cols-2 gap-3">
+          <div className="client-section">
             <div>
-              <h3 className="text-lg font-semibold text-gray-800">Bill to:</h3>
-              <h3 className="text-lg font-semibold text-gray-800">{invoiceData.client.name}</h3>
-              <address className="mt-2 not-italic text-gray-500">
-                {invoiceData.client.address.map((line, index) => (
+              <h3 className="section-title">Bill to:</h3>
+              <h3 className="client-name">{singleSalesData?.supplier}</h3>
+              <address className="client-address">
+                {/* {invoiceData.client.address.map((line, index) => (
                   <React.Fragment key={index}>
                     {line}<br />
                   </React.Fragment>
-                ))}
+                ))} */}
+                {
+                  singleSalesData?.shippingAddress
+                }
               </address>
             </div>
-
-            <div className="sm:text-end space-y-2">
-              <div className="grid grid-cols-2 sm:grid-cols-1 gap-3 sm:gap-2">
-                <dl className="grid sm:grid-cols-5 gap-x-3">
-                  <dt className="col-span-3 font-semibold text-gray-800">Invoice date:</dt>
-                  <dd className="col-span-2 text-gray-500">{invoiceData.dates.invoiceDate}</dd>
-                </dl>
-                <dl className="grid sm:grid-cols-5 gap-x-3">
-                  <dt className="col-span-3 font-semibold text-gray-800">Due date:</dt>
-                  <dd className="col-span-2 text-gray-500">{invoiceData.dates.dueDate}</dd>
-                </dl>
+            <div className="dates">
+              <div className="date-items">
+                <div className="date-item">
+                  <dt className="date-label">Invoice date:</dt>
+                  <dd className="date-value">{singleSalesData?.orderingDate}</dd>
+                </div>
+                {/* <div className="date-item">
+                  <dt className="date-label">Due date:</dt>
+                  <dd className="date-value">{invoiceData.dates.dueDate}</dd>
+                </div> */}
               </div>
             </div>
           </div>
 
-          {/* Items Table */}
-          <div className="mt-6">
-            <div className="border border-gray-200 p-4 rounded-lg space-y-4">
-              {/* Table Header */}
-              <div className="hidden sm:grid sm:grid-cols-5">
-                <div className="sm:col-span-2 text-xs font-medium text-gray-500 uppercase">Item</div>
-                <div className="text-start text-xs font-medium text-gray-500 uppercase">Qty</div>
-                <div className="text-start text-xs font-medium text-gray-500 uppercase">Rate</div>
-                <div className="text-end text-xs font-medium text-gray-500 uppercase">Amount</div>
+          <div className="items-table">
+            <div className="table-container">
+              <div className="table-header">
+                <div className="header-item item-col">Item</div>
+                <div className="header-item qty-col">Qty</div>
+                <div className="header-item rate-col">Rate</div>
+                <div className="header-item amount-col">Amount</div>
               </div>
-              <div className="hidden sm:block border-b border-gray-200"></div>
+              <div className="table-divider"></div>
 
-              {/* Table Rows */}
-              {invoiceData.items.map((item, index) => (
-                <React.Fragment key={index}>
-                  <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
-                    <div className="col-span-full sm:col-span-2">
-                      <h5 className="sm:hidden text-xs font-medium text-gray-500 uppercase">Item</h5>
-                      <p className="font-medium text-gray-800">{item.name}</p>
-                    </div>
-                    <div>
-                      <h5 className="sm:hidden text-xs font-medium text-gray-500 uppercase">Qty</h5>
-                      <p className="text-gray-800">{item.quantity}</p>
-                    </div>
-                    <div>
-                      <h5 className="sm:hidden text-xs font-medium text-gray-500 uppercase">Rate</h5>
-                      <p className="text-gray-800">${item.rate}</p>
-                    </div>
-                    <div>
-                      <h5 className="sm:hidden text-xs font-medium text-gray-500 uppercase">Amount</h5>
-                      <p className="sm:text-end text-gray-800">${item.amount}</p>
-                    </div>
-                  </div>
-                  {index < invoiceData.items.length - 1 && (
-                    <div className="sm:hidden border-b border-gray-200"></div>
-                  )}
-                </React.Fragment>
-              ))}
+              <div className="table-row">
+                <div className="row-item item-col">
+                  <h5 className="mobile-label">Item</h5>
+                  <p className="item-name">{singleSalesData?.productName}</p>
+                </div>
+                <div className="row-item qty-col">
+                  <h5 className="mobile-label">Qty</h5>
+                  <p>{singleSalesData?.quantity}</p>
+                </div>
+                <div className="row-item rate-col">
+                  <h5 className="mobile-label">Rate</h5>
+                  <p>${singleSalesData?.price}</p>
+                </div>
+                <div className="row-item amount-col">
+                  <h5 className="mobile-label">Amount</h5>
+                  <p>${singleSalesData?.totalPrice}</p>
+                </div>
+              </div>
+
             </div>
           </div>
 
-          {/* Totals */}
-          <div className="mt-8 flex sm:justify-end">
-            <div className="w-full max-w-2xl sm:text-end space-y-2">
-              <div className="grid grid-cols-2 sm:grid-cols-1 gap-3 sm:gap-2">
-                <dl className="grid sm:grid-cols-5 gap-x-3">
-                  <dt className="col-span-3 font-semibold text-gray-800">Subtotal:</dt>
-                  <dd className="col-span-2 text-gray-500">${invoiceData.totals.subtotal.toFixed(2)}</dd>
-                </dl>
-
-                <dl className="grid sm:grid-cols-5 gap-x-3">
-                  <dt className="col-span-3 font-semibold text-gray-800">Tax:</dt>
-                  <dd className="col-span-2 text-gray-500">${invoiceData.totals.tax.toFixed(2)}</dd>
-                </dl>
-
-                <dl className="grid sm:grid-cols-5 gap-x-3">
-                  <dt className="col-span-3 font-semibold text-gray-800">Total:</dt>
-                  <dd className="col-span-2 text-gray-500">${invoiceData.totals.total.toFixed(2)}</dd>
-                </dl>
-
-                <dl className="grid sm:grid-cols-5 gap-x-3">
-                  <dt className="col-span-3 font-semibold text-gray-800">Amount paid:</dt>
-                  <dd className="col-span-2 text-gray-500">${invoiceData.totals.amountPaid.toFixed(2)}</dd>
-                </dl>
-
-                <dl className="grid sm:grid-cols-5 gap-x-3">
-                  <dt className="col-span-3 font-semibold text-gray-800">Due balance:</dt>
-                  <dd className="col-span-2 text-gray-500">${invoiceData.totals.dueBalance.toFixed(2)}</dd>
-                </dl>
+          <div className="totals">
+            <div className="totals-container">
+              <div className="total-items">
+                <div className="total-item">
+                  <dt className="total-label">Subtotal:</dt>
+                  <dd className="total-value">₹{Number(singleSalesData?.totalPrice).toFixed(2)}</dd>
+                </div>
+                <div className="total-item">
+                  <dd className="total-label">Tax:</dd>
+                  <dt className="total-value">{Number(singleSalesData?.tax)}%</dt>
+                </div>
+                <div className="total-item">
+                  <dd className="total-label">Discount:</dd>
+                  <dt className="total-value">{Number(singleSalesData?.discount)}%</dt>
+                </div>
+                <div className="total-item">
+                  <dd className="total-label">Total:</dd>
+                  <dt className="total-value">₹{Number(singleSalesData?.totalPrice).toFixed(2)}</dt>
+                </div>
+                <div className="total-item">
+                  <dd className="total-label">Amount paid:</dd>
+                  <dt className="total-value">₹{calculateInstallments(singleSalesData?.installments).toFixed(2)}</dt>
+                </div>
+                <div className="total-item">
+                  <dd className="total-label">Due balance:</dd>
+                  <dt className="total-value">₹{calculatePendingAmount(calculateInstallments(singleSalesData?.installments), singleSalesData?.totalPrice!).toFixed(2)}</dt>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Footer */}
-          <div className="mt-8 sm:mt-12">
-            <h4 className="text-lg font-semibold text-gray-800">Thank you!</h4>
-            <p className="text-gray-500">If you have any questions concerning this invoice, use the following contact information:</p>
-            <div className="mt-2">
-              <p className="block text-sm font-medium text-gray-800">{invoiceData.contact.email}</p>
-              <p className="block text-sm font-medium text-gray-800">{invoiceData.contact.phone}</p>
+          <div className="footer">
+            <h4 className="footer-title+">Thank you!</h4>
+            <p className="footer-text">If you have any questions concerning this invoice, use the following contact information:</p>
+            <div className="contact-info">
+              <p className="contact-email">{invoiceData.contact.email}</p>
+              <p className="contact-phone">{invoiceData.contact.phone}</p>
             </div>
+            <p className="copyright">© {new Date().getFullYear()} {invoiceData.company.name}.</p>
           </div>
-
-          <p className="mt-5 text-sm text-gray-500">© {new Date().getFullYear()} {invoiceData.company.name}.</p>
         </div>
 
-        {/* Buttons */}
-        <div className="mt-6 flex justify-end gap-x-3">
-          <button 
-          onClick={handleDownloadPDF}
-          className="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-2xs hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none focus:outline-hidden focus:bg-gray-50">
-            <svg className="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-              <polyline points="7 10 12 15 17 10"/>
-              <line x1="12" x2="12" y1="15" y2="3"/>
-            </svg>
+        <div className="buttons">
+          <button
+            onClick={handiveDownloadPDF}
+            className="download-btn"
+          >
+
             Invoice PDF
           </button>
-          <button className="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-hidden focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none">
-            <svg className="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="6 9 6 2 18 2 18 9"/>
-              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
-              <rect width="12" height="8" x="6" y="14"/>
-            </svg>
+          <button className="print-btn">
             Print
           </button>
         </div>
       </div>
+
+      <style>{`
+        .invoice-container {
+          max-width: 85rem;
+          padding: 1rem;
+        }
+
+        @media (min-width: 640px) {
+          .invoice-container {
+            padding: 1.5rem;
+          }
+        }
+
+        .invoice-wrapper {
+          width: 100%;
+          margin: 0 auto;
+        }
+
+        @media (min-width: 640px) {
+          .invoice-wrapper {
+            width: 91.666667%;
+          }
+        }
+
+        @media (min-width: 1024px) {
+          .invoice-wrapper {
+            width: 75%;
+          }
+        }
+
+        .invoice-card {
+          display: flex;
+          flex-direction: column;
+          padding: 1rem;
+          background-color: white;
+        }
+
+        @media (min-width: 640px) {
+          .invoice-card {
+            padding: 2.5rem;
+          }
+        }
+
+        .header {
+          display: flex;
+          justify-content: space-between;
+        }
+
+        .logo {
+          width: 2.5rem;
+          height: 2.5rem;
+        }
+
+        .stroke-blue {
+          stroke: #2563eb;
+        }
+
+        .fill-blue {
+          fill: #2563eb;
+        }
+
+        .company-name {
+          margin-top: 0.5rem;
+          font-size: 2.125rem;
+          font-weight: 600;
+          color: #2563eb;
+        }
+
+        @media (min-width: 768px) {
+          .company-name {
+            font-size: 1.25rem;
+          }
+        }
+
+        .invoice-info {
+          text-align: right;
+        }
+
+        .invoice-number {
+          font-size: 1.5rem;
+          font-weight: 600;
+          color: #1f2937;
+        }
+
+        @media (min-width: 768px) {
+          .invoice-number {
+            font-size: 1.875rem;
+          }
+        }
+
+        .company-address {
+          margin-top: 1rem;
+          color: #1f2937;
+        }
+
+        .client-section {
+          margin-top: 2rem;
+          display: grid;
+          gap: 0.75rem;
+        }
+
+        @media (min-width: 640px) {
+          .client-section {
+            grid-template-columns: 1fr 1fr;
+          }
+        }
+
+        .section-title, .client-name {
+          font-size: 1.125rem;
+          font-weight: 600;
+          color: #1f2937;
+        }
+
+        .client-address {
+          margin-top: 0.5rem;
+          color: #6b7280;
+        }
+
+        .dates {
+          space-y: 0.2rem;
+        }
+
+        @media (min-width: 640px) {
+          .dates {
+            text-align: right;
+          }
+        }
+
+        .date-items {
+          display: grid;
+          gap: 0.2rem;
+        }
+
+        .date-item {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 0.2rem;
+        }
+
+        @media (min-width: 640px) {
+          .date-item {
+            grid-template-columns: 3fr 2fr;
+          }
+        }
+
+        .date-label {
+          font-weight: 600;
+          color: #1f2937;
+        }
+
+        .date-value {
+          color: #6b7280;
+        }
+
+        .items-table {
+          margin-top: 1.5rem;
+        }
+
+        .table-container {
+          border: 1px solid #e5e7eb;
+          padding: 1rem;
+          border-radius: 0.5rem;
+        }
+
+        .table-header {
+          display: none;
+        }
+
+        @media (min-width: 640px) {
+          .table-header {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+          }
+        }
+
+        .header-item {
+          font-size: 0.75rem;
+          font-weight: 500;
+          color: #6b7280;
+          text-transform: uppercase;
+        }
+
+        .table-divider {
+          display: none;
+          border-bottom: 1px solid #e5e7eb;
+        }
+
+        @media (min-width: 640px) {
+          .table-divider {
+            display: block;
+          }
+        }
+
+        .table-row {
+          display: grid;
+          grid-template-columns: 1fr 1fr 1fr;
+          gap: 0.5rem;
+          padding: 0.5rem 0;
+        }
+
+        @media (min-width: 640px) {
+          .table-row {
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+          }
+        }
+
+        .mobile-label {
+          font-size: 0.75rem;
+          font-weight: 500;
+          color: #6b7280;
+          text-transform: uppercase;
+        }
+
+        @media (min-width: 640px) {
+          .mobile-label {
+            display: none;
+          }
+        }
+
+        .row-item {
+          color: #1f2937;
+        }
+
+        .item-name {
+          font-weight: 500;
+        }
+
+        .amount-col {
+          text-align: right;
+        }
+
+        .mobile-divider {
+          border-bottom: 1px solid #e5e7eb;
+        }
+
+        @media (min-width: 640px) {
+          .mobile-divider {
+            display: none;
+          }
+        }
+
+        .totals {
+          margin-top: 2rem;
+          display: flex;
+          justify-content: flex-end;
+        }
+
+        .totals-container {
+          width: 100%;
+          max-width: 32rem;
+        }
+
+        .total-items {
+          display: grid;
+          gap: 0.5rem;
+        }
+
+        @media (min-width: 640px) {
+          .totals-container {
+            text-align: right;
+          }
+        }
+
+        .total-item {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 0.75rem;
+        }
+
+        @media (min-width: 640px) {
+          .total-item {
+            grid-template-columns: 3fr 2fr;
+          }
+        }
+
+        .total-label {
+          font-weight: 600;
+          color: #1f2937;
+        }
+
+        .total-value {
+          color: #6b7280;
+        }
+
+        .footer {
+          margin-top: 2rem;
+        }
+
+        @media (min-width: 640px) {
+          .footer {
+            margin-top: 3rem;
+          }
+        }
+
+        .footer-title {
+          font-size: 1.125rem;
+          font-weight: 600;
+          color: #1f2937;
+        }
+
+        .footer-text {
+          color: #6b7280;
+        }
+
+        .contact-info {
+          margin-top: 0.5rem;
+        }
+
+        .contact-email, .contact-phone {
+          font-size: 0.875rem;
+          font-weight: 500;
+          color: #1f2937;
+        }
+
+        .copyright {
+          margin-top: 1.25rem;
+          font-size: 0.875rem;
+          color: #6b7280;
+        }
+
+        .buttons {
+          margin-top: 1.5rem;
+          display: flex;
+          justify-content: flex-end;
+          gap: 0.75rem;
+        }
+
+        .download-btn, .print-btn {
+          padding: 0.5rem 0.75rem;
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          font-size: 0.875rem;
+          font-weight: 500;
+          border-radius: 0.5rem;
+          cursor: pointer;
+        }
+
+        .download-btn {
+          border: 1px solid #e5e7eb;
+          background-color: white;
+          color: #1f2937;
+          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .download-btn:hover {
+          background-color: #f9fafb;
+        }
+
+        .print-btn {
+          border: 1px solid transparent;
+          background-color: #2563eb;
+          color: white;
+        }
+
+        .print-btn:hover {
+          background-color: #1d4ed8;
+        }
+
+        .btn-icon {
+          width: 1rem;
+          height: 1rem;
+          flex-shrink: 0;
+        }
+      `}</style>
+
     </div>
   );
 };

@@ -1,24 +1,29 @@
 import React from 'react'
 import { RxCross2 } from 'react-icons/rx'
 import { motion } from 'motion/react'
-import { MdCircle } from 'react-icons/md'
+import { MdCircle, MdOutlineLocalPrintshop } from 'react-icons/md'
 import { useSingleSalesStore } from '@renderer/state_manager/singleSalesData'
 import { LiaFileInvoiceSolid } from "react-icons/lia";
+import InvoiceContainer from './InvoiceContainer'
+import { calculateInstallments, calculatePendingAmount } from '@renderer/utils/Helper'
+
+
 const SinglePurchase: React.FC = () => {
   const { singleSalesData, setSingleSalesData } = useSingleSalesStore();
+  const [isShowInvoice, setIsShowInvoice] = React.useState<boolean>(false)
 
   return (
-    <div className="absolute z-10 select-none hide-scb w-full h-screen overflow-y-scroll p-12 top-0  mx-auto bg-neutral-800/10 backdrop-blur-2xl left-0">
-      <div className="lg:w-8/12 md:w-11/12  mx-auto"></div>
+    <div className="absolute z-10 select-none  w-full h-screen  p-12 top-0  mx-auto bg-neutral-800/10 backdrop-blur-2xl left-0  overflow-y-scroll hide-scb  ">
+
       <div className="w-full h-auto bg-zinc-800/20 border border-zinc-700 backdrop-blur-md p-4  px-12 rounded-lg ">
         <div className="w-full  mt-12 flex  items-center justify-between ">
           <h1 className="text-3xl  truncate">{singleSalesData?.productName}</h1>
           <div className="flex items-center gap-2">
-          
+
             <motion.div
               whileTap={{ scale: 0.9 }}
               className="cursor-pointer  p-2  duration-300 flex items-center bg-neutral-700/40 rounded-lg"
-              onClick={() => {}}
+              onClick={() => setIsShowInvoice(!isShowInvoice)}
             >
               <LiaFileInvoiceSolid size={20} />
               Invoice
@@ -29,7 +34,7 @@ const SinglePurchase: React.FC = () => {
               onClick={() => setSingleSalesData(null)}
             >
               <RxCross2 size={20} />
-            
+
             </motion.div>
           </div>
         </div>
@@ -173,7 +178,7 @@ const SinglePurchase: React.FC = () => {
               <p>Payment Pending</p>
             </div>
             <div className="w-full">
-              <p>{singleSalesData?.pending}</p>
+              <p> {calculatePendingAmount(calculateInstallments(singleSalesData?.installments), singleSalesData?.totalPrice!)} </p>
             </div>
           </div>
           <div className="flex gap-12 py-4">
@@ -186,6 +191,13 @@ const SinglePurchase: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {
+        isShowInvoice && (
+          <InvoiceContainer isShowInvoice={isShowInvoice} setIsShowInvoice={setIsShowInvoice} />
+        )
+      }
+
     </div>
   )
 }

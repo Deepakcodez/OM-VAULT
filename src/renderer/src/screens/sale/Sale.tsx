@@ -8,10 +8,10 @@ import { useSingleSalesStore } from "@renderer/state_manager/singleSalesData";
 import Searchbar from "../purchase/components/Searchbar";
 import { useSalesData } from "@renderer/state_manager/salesData";
 import { fetchSaleData } from "./service";
-import { FiPrinter } from "react-icons/fi";
 import { AddButton } from "@renderer/components/ui";
 import { exportSaleToExcel } from "./components/exportSaleInExcel";
 import useYearFilterStore from '@renderer/state_manager/yearFilter'
+import { HiFolderDownload } from "react-icons/hi";
 
 const Sale: React.FC = () => {
   const { showForm, setShowForm } = useFormStore();
@@ -37,7 +37,7 @@ const Sale: React.FC = () => {
 
 
   return (
-    <div className="text-white ">
+    <div className="text-white overflow-hidden h-screen hide-scb">
        <Searchbar
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
@@ -51,22 +51,23 @@ const Sale: React.FC = () => {
                 <motion.div whileTap={{ scale: 0.9 }}
                 onClick={()=>exportSaleToExcel(salesData)}
                 className="hover:bg-zinc-800 p-2 rounded-full">
-                <FiPrinter/>
+                        <HiFolderDownload size={25}/>
+
               </motion.div>
                 <AddButton onClickHandler={()=>setShowForm()} />
                 </div>
       </div>
 
       {showForm && (
-        <div className="absolute z-10  hide-scb w-full h-screen overflow-y-scroll p-12 top-0  mx-auto bg-zinc-800/50 backdrop-blur-xl left-0">
+        <div className="absolute z-10  hide-scb w-full h-screen overflow-y-scroll p-12 top-0  mx-auto bg-zinc-800/50 backdrop-blur-xl left-0 " >
           <div className="lg:w-8/12 md:w-11/12  mx-auto">
             <SaleForm />
           </div>
         </div>
       )}
       {singleSalesData && (
-        <div className="absolute z-10  hide-scb w-full h-screen overflow-y-scroll p-12 top-0  mx-auto bg-zinc-800/50 backdrop-blur-lg left-0">
-          <div className="lg:w-8/12 md:w-11/12  mx-auto">
+        <div className="absolute z-10  hide-scb w-full h-screen overflow-y-scroll p-12 top-0  mx-auto bg-neutral-800/50 backdrop-blur-lg left-0   ">
+          <div className="lg:w-8/12 md:w-11/12  mx-auto  ">
            <SingleSale/>
         </div>
         </div>

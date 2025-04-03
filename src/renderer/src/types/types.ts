@@ -51,4 +51,24 @@ type TableHeadingsTypes = {
   label: string
 }
 
-export type { InstallmentType, PurchaseDataType, TableHeadingsTypes, SalesDataType }
+
+type Company = {
+  id: string
+  companyName: string
+  description?: string | null
+  companyLogoUrl?: string | null
+  address1?: string | null
+  address2?: string | null
+  address3?: string | null
+  address4?: string | null
+  email1?: string | null
+  email2?: string | null
+  phone1?: string | null
+  phone2?: string | null
+  createdAt?: string
+  updatedAt?: string
+}
+
+
+
+export type { InstallmentType, Company, PurchaseDataType, TableHeadingsTypes, SalesDataType }

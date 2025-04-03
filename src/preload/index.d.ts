@@ -1,6 +1,7 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
 import { UserDetailType } from '@renderer/types/auth.types'
 import { InstallmentType, PurchaseDataType, SalesDataType } from '@renderer/types/types'
+import { get } from 'http'
 
 declare global {
   interface Window {
@@ -40,6 +41,13 @@ declare global {
       generatePDF: (html: any) => Promise<any>,
       savePDFDialog: (filename: any) => Promise<any>
       savePDFFile: (pdfData: any, filePath: any) => Promise<any>
+
+      //company details 
+      getCompanyLogo: () => Promise<any>
+      setCompanyLogo: (buffer: ArrayBuffer, filename: string) => Promise<any>
+      setCompany: (companyDetail:any) => Promise<any>
+      getCompany: () => Promise<any>
+
     }
   }
 }
