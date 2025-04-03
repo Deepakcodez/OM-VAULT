@@ -28,5 +28,4 @@ const PurchaseInstallmentData: React.FC = () => {
     </div>
   )
 }
-
 export default PurchaseInstallmentData
