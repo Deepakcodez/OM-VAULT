@@ -1,25 +1,24 @@
 import Login from "./auth/Login";
 import Register from "./auth/Register";
 import Home from "./home/Home";
-import Credit from "./credit/Credit";
 import Dashboard from "./dashboard/Dashboard";
 import Sale from "./sale/Sale";
-import Debit from "./debit/Debit";
-import Gst from "./gst/Gst";
+import Clients from "./Client/Client";
 import Purchase from "./purchase/Purchase";
 import Transaction from "./transactions/Transaction";
 import Profile from "./profile/Profile";
+import AddClient from "./Client/AddClient/AddClient";
+
 
 export {
     Login,
     Register,
     Home,
     Dashboard,
-    Credit,
     Sale,
-    Debit,
-    Gst,
+    Clients,
     Purchase,
     Transaction,
     Profile,
+    AddClient,
 }

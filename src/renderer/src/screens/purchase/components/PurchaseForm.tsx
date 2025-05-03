@@ -9,6 +9,7 @@ import { PurchaseDataType } from '../../../types/types';
 import { calculateTotalPrice } from '../../../libs/utilityFunc';
 import { z } from 'zod';
 import { v4 as uuid } from 'uuid';
+import ClientSearcher from './ClientSearcher';
 
 const PurchaseSchema = z.object({
   id: z.string().optional(),
@@ -21,9 +22,11 @@ const PurchaseSchema = z.object({
     .max(100, 'Discount cannot exceed 100%'),
   tax: z.number().min(0, 'Tax cannot be negative').max(100, 'Tax cannot exceed 100%'),
   supplier: z.string().min(1, 'Supplier is required'),
+  gst: z.string().min(1, 'GST is required'),
+  hsn: z.string().min(1, 'GST is required'),
   supplierContact: z
     .string()
-    .min(10, 'Supplier Contact is required')
+    .min(9, 'Supplier Contact is required')
     .max(15, 'Supplier Contact is too long'),
   supplierEmail: z.string().email('Invalid email address'),
   supplierAddress: z.string().min(1, 'Supplier Address is required'),
@@ -55,8 +58,11 @@ const PurchaseSchema = z.object({
 
 const PurchaseForm: React.FC = () => {
   const { setShowForm } = useFormStore();
+  const[isShowSuggestion, setIsShowSuggestion] = useState<boolean>(false);
   const [isInstallment, setIsInstallment] = useState<boolean>(false);
   const [pendingPaymentAmount, setPendingPaymentAmount] = useState<number>(0);
+  const[supplier, setSupplier] = useState<any[]>([]);
+  const SuggestionContainerRef = React.useRef<HTMLDivElement>(null);
   const [purchaseData, setPurchaseData] = useState<PurchaseDataType>({
     id: '',
     productName: '',
@@ -65,6 +71,8 @@ const PurchaseForm: React.FC = () => {
     discount: 0,
     tax: 0,
     supplier: '',
+    gst : '',
+    hsn : '',
     supplierContact: '',
     supplierEmail: '',
     supplierAddress: '',
@@ -85,10 +93,25 @@ const PurchaseForm: React.FC = () => {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const handleChange = (
+  const handleChange = async(
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
+
+    if(name == 'supplier') {
+
+      const result = await  window.electron.searchClientsByName(value);
+      setSupplier(result);
+      setErrors(prev => ({
+        ...prev,
+        supplier: '',
+        supplierContact: '',
+        supplierEmail: '',
+        supplierAddress: ''
+      }));
+
+
+    }
 
     // Convert numeric fields to numbers
     const parsedValue = ['price', 'quantity', 'discount', 'tax'].includes(name)
@@ -192,7 +215,8 @@ const PurchaseForm: React.FC = () => {
       // If validation passes, proceed with submission
       const resp = await window.electron.addPurchase(validatedData);
       setShowForm();
-      console.log('Response on render side:', resp);
+      console.log('Response on render side:', resp, validatedData);
+
     } catch (error) {
       if (error instanceof z.ZodError) {
         // Convert Zod errors to a key-value pair for easier display
@@ -216,6 +240,37 @@ const PurchaseForm: React.FC = () => {
       }
     }
   };
+
+
+
+  const handleInstallmentDateChange = (index: number, value: string) => {
+    setPurchaseData(prev => {
+      const newInstallments = [...prev.installments];
+      newInstallments[index] = {
+        ...newInstallments[index],
+        date: value
+      };
+      return { ...prev, installments: newInstallments };
+    });
+
+    // Validate the date
+    try {
+      const dateSchema = PurchaseSchema.shape.installments.unwrap().element.shape.date;
+      dateSchema.parse(value);
+      setErrors(prev => ({
+        ...prev,
+        [`installments[${index}].date`]: ''
+      }));
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        setErrors(prev => ({
+          ...prev,
+          [`installments[${index}].date`]: error.errors[0].message
+        }));
+      }
+    }
+  };
+
 
   React.useEffect(() => {
     // Calculate the total price based on the price, tax, discount, and quantity
@@ -251,34 +306,6 @@ const PurchaseForm: React.FC = () => {
     pendingPaymentAmount,
   ]);
 
-  const handleInstallmentDateChange = (index: number, value: string) => {
-    setPurchaseData(prev => {
-      const newInstallments = [...prev.installments];
-      newInstallments[index] = {
-        ...newInstallments[index],
-        date: value
-      };
-      return { ...prev, installments: newInstallments };
-    });
-  
-    // Validate the date
-    try {
-      const dateSchema = PurchaseSchema.shape.installments.unwrap().element.shape.date;
-      dateSchema.parse(value);
-      setErrors(prev => ({
-        ...prev,
-        [`installments[${index}].date`]: ''
-      }));
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        setErrors(prev => ({
-          ...prev,
-          [`installments[${index}].date`]: error.errors[0].message
-        }));
-      }
-    }
-  };
-
   React.useEffect(() => {
     if (isInstallment) {
       setPurchaseData((prev) => ({
@@ -291,6 +318,20 @@ const PurchaseForm: React.FC = () => {
     if (purchaseData.paymentStatus !== 'paid')
       setPurchaseData((prev) => ({ ...prev, pending: pendingPaymentAmount }));
   }, [isInstallment, pendingPaymentAmount]);
+    // Handle click outside to close
+    React.useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+        if (SuggestionContainerRef.current && !SuggestionContainerRef.current.contains(event.target as Node)) {
+          setIsShowSuggestion(false);
+        }
+      };
+
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }, []);
+
 
   return (
     <div className="absolute z-10  hide-scb w-full h-screen overflow-y-scroll p-12 top-0  mx-auto bg-zinc-800/50 backdrop-blur-xl left-0 select-none">
@@ -356,14 +397,43 @@ const PurchaseForm: React.FC = () => {
           </div>
           <div className="flex flex-col gap-2">
             <div className="flex gap-2 w-full">
+              <div ref={SuggestionContainerRef} >
               <Input
                 name="supplier"
                 value={purchaseData.supplier}
                 onChange={handleChange}
                 label="Supplier"
                 type="text"
+                onFocus={()=>setIsShowSuggestion(true)}
+ />
+                 {(isShowSuggestion && supplier.length >0) && <ClientSearcher data={supplier} setPurchaseData={setPurchaseData}   setErrors={setErrors} /> }
+                </div>
+              <Input
+                name="gst"
+                value={purchaseData.gst}
+                onChange={handleChange}
+                label="GST"
+                type="text"
+                style=""
               />
               <Input
+                name="hsn"
+                value={purchaseData.hsn}
+                onChange={handleChange}
+                label="HSN"
+                type="text"
+                style=""
+              />
+
+            </div>
+            <div>
+              {errors.supplier && <p className="text-red-500 text-sm">{errors.supplier}</p>}
+
+            </div>
+          </div>
+          <div className="flex-col gap-2 w-full">
+            <div className="flex w-full gap-2">
+            <Input
                 name="orderingDate"
                 value={purchaseData.orderingDate}
                 onChange={handleChange}
@@ -371,15 +441,6 @@ const PurchaseForm: React.FC = () => {
                 type="date"
                 style=""
               />
-            </div>
-            <div>
-              {errors.supplier && <p className="text-red-500 text-sm">{errors.supplier}</p>}
-
-              {errors.orderingDate && <p className="text-red-500 text-sm">{errors.orderingDate}</p>}
-            </div>
-          </div>
-          <div className="flex-col gap-2 w-full">
-            <div className="flex w-full gap-2">
               <Input
                 name="supplierContact"
                 value={purchaseData.supplierContact}
@@ -406,13 +467,15 @@ const PurchaseForm: React.FC = () => {
               {errors.supplierEmail && (
                 <p className="text-red-500 text-sm">{errors.supplierEmail}</p>
               )}
+              {errors.orderingDate && <p className="text-red-500 text-sm">{errors.orderingDate}</p>}
+
             </div>
           </div>
           <div className="flex gap-2">
             <div className="w-full">
               <p>Supplier Address</p>
               <textarea
-                className="max-h-24 min-h-24 focus:outline-none w-full pe-4 bg-zinc-800 border-b border-gray-300 py-2 px-2 rounded-sm resize-none"
+                className="max-h-24 min-h-24 focus:outline-none w-full pe-4 bg-zinc-800 border-b border-gray-300 py-2 px-2  resize-none"
                 name="supplierAddress"
                 value={purchaseData.supplierAddress}
                 onChange={handleChange}
@@ -424,7 +487,7 @@ const PurchaseForm: React.FC = () => {
             <div className="w-full">
               <p>Shipping Address</p>
               <textarea
-                className="max-h-24 min-h-24 focus:outline-none w-full pe-4 bg-zinc-800 border-b border-gray-300 py-2 px-2 rounded-sm resize-none"
+                className="max-h-24 min-h-24 focus:outline-none w-full pe-4 bg-zinc-800 border-b border-gray-300 py-2 px-2  resize-none"
                 name="shippingAddress"
                 value={purchaseData.shippingAddress}
                 onChange={handleChange}
@@ -438,7 +501,7 @@ const PurchaseForm: React.FC = () => {
           <div className="flex gap-2 items-center">
             <div className="w-full">
               <label htmlFor="paymentMethod">Payment Status</label>
-              <div className="w-full pe-4 bg-zinc-800 border-b border-gray-300 py-2 px-2 rounded-sm">
+              <div className="w-full pe-4 bg-zinc-800 border-b border-gray-300 py-2 px-2">
                 <select
                   name="paymentStatus"
                   value={purchaseData.paymentStatus}
@@ -453,7 +516,7 @@ const PurchaseForm: React.FC = () => {
             </div>
             <div className={`w-full`}>
               <label htmlFor="paymentMethod">Payment Mode</label>
-              <div className="w-full pe-4 bg-zinc-800 border-b border-gray-300 py-2 px-2 rounded-sm">
+              <div className="w-full pe-4 bg-zinc-800 border-b border-gray-300 py-2 px-2 ">
                 <select
                   disabled={isInstallment}
                   name="paymentMethod"

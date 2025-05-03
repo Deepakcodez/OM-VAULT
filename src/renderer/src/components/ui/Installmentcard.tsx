@@ -1,7 +1,6 @@
 import { InstallmentType, PurchaseDataType } from '@renderer/types/types'
 import React, { useState } from 'react'
 import { RiExpandDiagonalFill } from 'react-icons/ri'
-import { MdLocalPrintshop } from 'react-icons/md'
 import { AiOutlineShrink } from 'react-icons/ai'
 import { GoPlus } from 'react-icons/go'
 import { motion, AnimatePresence } from 'framer-motion'

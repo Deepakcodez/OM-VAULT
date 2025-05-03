@@ -70,7 +70,7 @@ const Register: React.FC = () => {
         </div>
         <div className="flex flex-col gap-1">
           <label htmlFor="email" className="text-white">
-            Password
+            Password                
           </label>
           <input
             type="password"

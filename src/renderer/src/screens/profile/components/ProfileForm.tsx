@@ -1,8 +1,9 @@
 import { Input } from '@renderer/components/ui'
 import Button from '@renderer/components/ui/Button';
 import useCompany from '@renderer/hooks/useCompany';
+import { useLocalImage } from '@renderer/hooks/useLocalImage';
 import React from 'react'
-import { z } from 'zod';
+import {  z } from 'zod';
 
 
 const CompanyDetailSchema = z.object({
@@ -20,13 +21,11 @@ const CompanyDetailSchema = z.object({
 })
 type CompanyDetailType = z.infer<typeof CompanyDetailSchema>
 
-const ProfileForm: React.FC = () => {
-    const { companyDetails: cd } = useCompany()
-    React.useEffect(() => {
-        console.log("cd", cd);
-    }, [cd])
+const ProfileForm = () => {
+    const { companyDetails: cd, refetch } = useCompany()
+    const { setFilePath } = useLocalImage();
+    const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-    // const [companyLogo, setCompanyLogo] = React.useState<File | null>(null);
     const [companyDetails, setCompanyDetails] = React.useState<CompanyDetailType>({
         companyName: cd?.companyName || '',
         companyDescription: cd?.description || '',
@@ -46,33 +45,63 @@ const ProfileForm: React.FC = () => {
     const handleImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
+        handleDropImage(file);
+    }
+
+    const handleSubmit = async () => {
+        try {
+            setIsSubmitting(true);
+            const res = CompanyDetailSchema.safeParse(companyDetails);
+            if (!res.success) {
+                console.log(res.error);
+                return;
+            }
+            await window.electron.setCompany(res.data);
+            await refetch();
+        } catch (error) {
+            await window.electron.openDialog("Something Wrong","Fail to Updata the Details",'error')
+        }
+        finally {
+            setIsSubmitting(false);
+        }
+
+    }
+
+    const handleOndragOver = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        console.log(e.dataTransfer);
+        e.dataTransfer.dropEffect = "copy";
+      };
+
+      const handleOnDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+
+      };
+
+      const handleOnDrop = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+
+        if (!e.dataTransfer.files[0]) return;
+
+        if (e.dataTransfer.files[0]) {
+            handleDropImage(e.dataTransfer.files[0]);
+        }
+      };
+
+      const handleDropImage = async (file:File) => {
         if (file) {
             console.log(file.type.split('/')[0]);
             if (file.type.split('/')[0] !== 'image') return;
             const arrayBuffer = await file.arrayBuffer();
-            // const buffer = Buffer.from(arrayBuffer);
+
 
             const logoPath = await window.electron.setCompanyLogo(arrayBuffer, file.name);
+            setFilePath(logoPath);
             console.log(logoPath);
-            setCompanyDetails(prev => ({ ...prev, companyLogoUrl: "https://om-enterprises.vercel.app/assets/logo-CCn-I4SE.png" }));
+            setCompanyDetails(prev => ({ ...prev, companyLogoUrl: logoPath }));
         }
-    }
+      }
 
-    const handleSubmit = async () => {
-        const res = CompanyDetailSchema.safeParse(companyDetails);
-        if (!res.success) {
-            console.log(res.error);
-            return;
-        }
-        console.log(res.data);
-        const resp = await window.electron.setCompany(res.data);
-        console.log(resp);
-    }
-
-
-    React.useEffect(() => {
-        console.log(companyDetails.companyName);
-    }, [companyDetails.companyName])
 
     return (
         <div className='col-span-8 w-full h-full  flex flex-col p-5 rounded-2xl border border-t-neutral-500 border-neutral-700 bg-gradient-to-b from-neutral-700/20 select-none'>
@@ -81,7 +110,7 @@ const ProfileForm: React.FC = () => {
                 <Input
                     label='Company Name'
                     style='text-white '
-                    value={cd?.companyName as string || ''}
+                    value={companyDetails?.companyName }
                     placeholder='Enter Company Name'
                     onChange={(e) => setCompanyDetails(prev => ({ ...prev, companyName: e.target.value }))}
                 />
@@ -90,39 +119,43 @@ const ProfileForm: React.FC = () => {
                     label='Company Description'
                     style='text-white'
                     placeholder='Enter Company Description'
-                    value={cd?.description as string || ''}
+
                     onChange={(e) => setCompanyDetails(prev => ({ ...prev, companyDescription: e.target.value }))}
                 />
 
-                <div className='w-full h-[12rem] bg-neutral-200/50 rounded-lg border-dashed border border-white p-12'>
+                <div
+                onDragOver={handleOndragOver}
+                onDragLeave={handleOnDragLeave}
+                onDrop={handleOnDrop}
+                className='relative w-full h-[14rem] bg-neutral-200/50 rounded-lg border-dashed border border-white px-12 pt-12 pb-24'>
                     <h1 className='text-white text-3xl text-center'>Drag & Drop here</h1>
-                    <div className='w-full flex justify-center  items-center h-24 '>
+
                         <Input
                             type='file'
-                            style='text-white w-[14rem] '
+                            style='text-white w-[14rem] absolute left-0 right-0 bottom-6  m-auto  '
                             onChange={handleImage} />
-                    </div>
+
                 </div>
 
                 <Input
                     label=' Address1'
                     style='text-white'
                     placeholder='Enter Company Address1 (Street)'
-                    value={cd?.address1 as string || ""}
+
                     onChange={(e) => setCompanyDetails(prev => ({ ...prev, companyAddress1: e.target.value }))}
                 />
                 <Input
                     label=' Address2'
                     style='text-white'
                     placeholder='Enter Company Address1 (City)'
-                    value={cd?.address2 as string || ''}
+
                     onChange={(e) => setCompanyDetails(prev => ({ ...prev, companyAddress2: e.target.value }))}
                 />
                 <Input
                     label=' Address3'
                     style='text-white'
                     placeholder='Enter Company Address1 (State)'
-                    value={cd?.address3 as string || ''}
+
                     onChange={(e) => setCompanyDetails(prev => ({ ...prev, companyAddress3: e.target.value }))}
                 />
 
@@ -130,7 +163,7 @@ const ProfileForm: React.FC = () => {
                     label='Address4'
                     style='text-white'
                     placeholder='Enter Company Address1 (Nation)'
-                    value={cd?.address4 as string || ''}
+
                     onChange={(e) => setCompanyDetails(prev => ({ ...prev, companyAddress4: e.target.value }))}
                 />
 
@@ -138,32 +171,32 @@ const ProfileForm: React.FC = () => {
                     label='Email 1'
                     style='text-white'
                     placeholder='Enter Email 1'
-                    value={cd?.email1 as string || ''}
+
                     onChange={(e) => setCompanyDetails(prev => ({ ...prev, companyEmail1: e.target.value }))}
                 />
                 <Input
                     label='Email 2'
                     style='text-white'
                     placeholder='Enter Email 2'
-                    value={cd?.email2 as string || ''}
+
                     onChange={(e) => setCompanyDetails(prev => ({ ...prev, companyEmail2: e.target.value }))}
                 />
                 <Input
                     label='Phone 1'
                     style='text-white'
                     placeholder='Enter Phone 1'
-                    value={cd?.phone1 as string || ""}
+
                     onChange={(e) => setCompanyDetails(prev => ({ ...prev, companyPhone1: e.target.value }))}
                 />
                 <Input
                     label='Phone 2'
                     style='text-white'
                     placeholder='Enter Phone 2'
-                    value={cd?.phone2 as string || ""}
+
                     onChange={(e) => setCompanyDetails(prev => ({ ...prev, companyPhone2: e.target.value }))}
                 />
                 <Button
-                    label='Submit'
+                    label={isSubmitting ? 'Submitting...' : 'Submit'}
                     className='text-white'
                     onPress={handleSubmit}
                 />
@@ -174,3 +207,5 @@ const ProfileForm: React.FC = () => {
 }
 
 export default ProfileForm
+
+

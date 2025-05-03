@@ -9,6 +9,8 @@ const sanitizeSales = (sale: any) => ({
   discount: sale.discount ?? null,
   tax: sale.tax ?? null,
   supplier: sale.supplier ? String(sale.supplier) : null,
+  gst : sale.gst ? String(sale.gst) : null,
+  hsn : sale.hsn ? String(sale.hsn) : null,
   supplierContact: sale.supplierContact ? String(sale.supplierContact) : null,
   supplierEmail: sale.supplierEmail ? String(sale.supplierEmail) : null,
   supplierAddress: sale.supplierAddress ? String(sale.supplierAddress) : null,
@@ -38,6 +40,8 @@ type sale = {
   discount: number | null;
   tax: number | null;
   supplier: string | null;
+  gst : string | null;
+  hsn : string | null;
   supplierContact: string | null;
   supplierEmail: string | null;
   supplierAddress: string | null;
@@ -57,11 +61,11 @@ export const insertSales = (sale: any) => {
   console.log('inside db of sales insesrt')
   const stmt = db.prepare(`
     INSERT INTO sales (
-      id, productName, price, quantity, discount, tax, supplier, supplierContact,
+      id, productName, price, quantity, discount, tax, supplier, gst, hsn, supplierContact,
       supplierEmail, supplierAddress, shippingAddress, paymentStatus, paymentMethod,
       orderingDate, isInstallment, installments, pending, totalPrice
     ) VALUES (
-      @id, @productName, @price, @quantity, @discount, @tax, @supplier, @supplierContact,
+      @id, @productName, @price, @quantity, @discount, @tax, @supplier, @gst, @hsn, @supplierContact,
       @supplierEmail, @supplierAddress, @shippingAddress, @paymentStatus, @paymentMethod,
       @orderingDate, @isInstallment, @installments, @pending, @totalPrice
     )

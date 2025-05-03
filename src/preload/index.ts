@@ -1,4 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron'
+import path from 'path';
+import fs from 'fs'
 
 contextBridge.exposeInMainWorld('electron', {
 
@@ -9,6 +11,7 @@ contextBridge.exposeInMainWorld('electron', {
   //-----------------get preloads---------------------
   //uses preloads
   getAllUsers: () => ipcRenderer.invoke('getAllUsers'),
+  doesAnyUserExist : ()=> ipcRenderer.invoke('doesAnyUserExist'),
 
   //purchase preloada
   getAllPurchases: (year: string) => ipcRenderer.invoke('getAllPurchases', year),
@@ -40,6 +43,17 @@ contextBridge.exposeInMainWorld('electron', {
   // other utils preloads
   openDialog: (title: string, message: string, type: 'info' | 'error' | 'warning' | 'question') =>
     ipcRenderer.invoke('open-dialog', { title, message, type }),
+  getLocalImage: (filePath) => {
+    return new Promise((resolve) => {
+      const normalizedPath = path.normalize(filePath);
+      if (fs.existsSync(normalizedPath)) {
+        const base64 = fs.readFileSync(normalizedPath, 'base64');
+        resolve(`data:image/jpeg;base64,${base64}`);
+      } else {
+        resolve(null);
+      }
+    });
+  },
 
   //pdf preloads
   generateStyledPDF: (html) => ipcRenderer.invoke('generate-styled-pdf', html),
@@ -50,6 +64,13 @@ contextBridge.exposeInMainWorld('electron', {
   //company  preloads
   getCompanyLogo: () => ipcRenderer.invoke('getCompanyLogo'),
   setCompanyLogo: (buffer: ArrayBuffer, filename: string) => ipcRenderer.invoke('setCompanyLogo', buffer, filename),
-  setCompany: (companyDetail:any) => ipcRenderer.invoke('setCompany', companyDetail),
+  setCompany: (companyDetail: any) => ipcRenderer.invoke('setCompany', companyDetail),
   getCompany: () => ipcRenderer.invoke('getCompany'),
+
+  //client preloads
+  addClient: (clientDetail:any) => ipcRenderer.invoke('insert-client', clientDetail),
+  getClients: () => ipcRenderer.invoke('get-clients'),
+  searchClientsByName: (searchTerm: string) => ipcRenderer.invoke('search-clients-by-name', searchTerm),
+  deleteClientById : (id: string) => ipcRenderer.invoke('delete-client', id),
+
 })

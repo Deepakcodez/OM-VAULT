@@ -1,7 +1,7 @@
 import React from 'react'
 import { RxCross2 } from 'react-icons/rx'
 import { motion } from 'motion/react'
-import { MdCircle, MdOutlineLocalPrintshop } from 'react-icons/md'
+import { MdCircle } from 'react-icons/md'
 import { useSingleSalesStore } from '@renderer/state_manager/singleSalesData'
 import { LiaFileInvoiceSolid } from "react-icons/lia";
 import InvoiceContainer from './InvoiceContainer'
@@ -77,6 +77,22 @@ const SinglePurchase: React.FC = () => {
             </div>
             <div className="w-full">
               <p>{singleSalesData?.supplier} </p>
+            </div>
+          </div>
+          <div className="flex gap-12 py-4">
+            <div className="w-full">
+              <p>GST</p>
+            </div>
+            <div className="w-full">
+              <p>{singleSalesData?.gst} </p>
+            </div>
+          </div>
+          <div className="flex gap-12 py-4">
+            <div className="w-full">
+              <p>HSN</p>
+            </div>
+            <div className="w-full">
+              <p>{singleSalesData?.hsn} </p>
             </div>
           </div>
           <div className="flex gap-12 py-4">

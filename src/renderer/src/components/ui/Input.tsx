@@ -9,6 +9,7 @@ type InputProps = {
   style?: string
   label?: string
   name?: string
+  onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void
 }
 
 const Input: React.FC<InputProps> = ({
@@ -18,7 +19,8 @@ const Input: React.FC<InputProps> = ({
   name,
   onChange,
   label,
-  style
+  style,
+  onFocus
 }) => {
   return (
     <div className=" w-full flex flex-col">
@@ -29,8 +31,9 @@ const Input: React.FC<InputProps> = ({
         value={value}
         name={name}
         onChange={onChange}
+        onFocus={onFocus}
         className={cn(
-          'focus:outline-none focus:ring-0 border-0 border-b bg-zinc-800 border-gray-300 py-2  text-white placeholder:text-gray-500 px-2 rounded-sm',
+          'focus:outline-none focus:ring-0 border-0 border-b bg-zinc-800 border-gray-300 py-2  text-white placeholder:text-gray-500 px-2 ',
           style
         )}
       />

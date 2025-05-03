@@ -1,10 +1,8 @@
 import React from 'react'
 import { Route, Routes } from 'react-router-dom'
 import {
-  Credit,
+  Clients,
   Dashboard,
-  Debit,
-  Gst,
   Home,
   Login,
   Profile,
@@ -26,12 +24,10 @@ const Router: React.FC = () => {
         <Route path="/" element={<UserLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/home" element={<Home />} />
-          <Route path="/credit" element={<Credit />} />
           <Route path="/installments" element={<Installments />} />
           <Route path="/sale" element={<Sale />} />
-          <Route path="/gst" element={<Gst />} />
+          <Route path="/clients" element={<Clients />} />
           <Route path="/transactions" element={<Transaction />} />
-          <Route path="/debit" element={<Debit />} />
           <Route path="/purchase" element={<Purchase />} />
           <Route path="/profile" element={<Profile />} />
         </Route>

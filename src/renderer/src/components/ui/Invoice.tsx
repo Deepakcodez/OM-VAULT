@@ -1,86 +1,19 @@
-import useCompany from '@renderer/hooks/useCompany';
 import React from 'react';
-import CompanyLogo from '../../assets/images/logo.png'
+import useCompany from '@renderer/hooks/useCompany';
 import { useSingleSalesStore } from '@renderer/state_manager/singleSalesData';
 import { calculateInstallments, calculatePendingAmount } from '@renderer/utils/Helper';
-const Invoice = () => {
-  const invoiceRef = React.useRef(null);
+
+
+type InvoicePropsTypes = {
+  invoiceId: string;
+
+}
+const Invoice = React.forwardRef<HTMLDivElement, InvoicePropsTypes>(({  invoiceId }, ref) => {
   const { companyDetails } = useCompany()
   const { singleSalesData } = useSingleSalesStore();
 
-  const handiveDownloadPDF = async () => {
-    if (!invoiceRef.current) return;
-
-    try {
-      const invoiceClone = invoiceRef.current?.cloneNode(true);
-      const style = document.createElement('style');
-      style.textContent = `
-        @media print {
-          body { 
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-          }
-          .no-print { display: none !important; }
-        }
-      `;
-      invoiceClone.appendChild(style);
-
-      const html = invoiceClone.outerHTML;
-      const pdfData = await window.electron.generateStyledPDF(html);
-
-      const blob = new Blob([pdfData], { type: 'application/pdf' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `invoice-${invoiceData.invoiceNumber}.pdf`;
-      a.click();
-
-      setTimeout(() => URL.revokeObjectURL(url), 100);
-    } catch (error) {
-      console.error('PDF generation failed:', error);
-    }
-  };
-
-  const invoiceData = {
-    invoiceNumber: '3682303',
-    company: {
-      name: 'Om Enterprises Group',
-      address: ['45 Roker Terrace', 'Latheronwheel', 'KW5 8NW, London', 'United Kingdom'],
-      logo: (
-        <svg className="logo" width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M1 26V13C1 6.37258 6.37258 1 13 1C19.6274 1 25 6.37258 25 13C25 19.6274 19.6274 25 13 25H12" className="stroke-blue" stroke="currentColor" strokeWidth="2" />
-          <path d="M5 26V13.16C5 8.65336 8.58172 5 13 5C17.4183 5 21 8.65336 21 13.16C21 17.6666 17.4183 21.32 13 21.32H12" className="stroke-blue" stroke="currentColor" strokeWidth="2" />
-          <circle cx="13" cy="13.0214" r="5" fill="currentColor" className="fill-blue" />
-        </svg>
-      )
-    },
-    client: {
-      name: 'Sara Williams',
-      address: ['280 Suzanne Throughway', 'Breannabury, OR 45801', 'United States']
-    },
-    dates: {
-      invoiceDate: '03/10/2018',
-      dueDate: '03/11/2018'
-    },
-    items: [
-      { name: 'Design UX and UI', quantity: 1, rate: 500, amount: 500 },
-
-    ],
-    totals: {
-      subtotal: 2750,
-      tax: 39,
-      total: 2789,
-      amountPaid: 2789,
-      dueBalance: 0
-    },
-    contact: {
-      email: 'info@omenterprisesgroup.in',
-      phone: '+91-9815300730'
-    }
-  };
-
   return (
-    <div ref={invoiceRef} className="invoice-container">
+    <div ref={ref} className="invoice-container">
       <div className="invoice-wrapper">
         <div className="invoice-card">
           <div className="header">
@@ -89,7 +22,7 @@ const Invoice = () => {
               <h1 className="company-name">{companyDetails?.companyName}</h1>
             </div>
             <div className="invoice-info">
-              <h2 className="invoice-number">Invoice #{invoiceData.invoiceNumber}</h2>
+              <h2 className="invoice-number">Invoice #{invoiceId}</h2>
               <address className="company-address">
                 <dd>{companyDetails?.address1}</dd>
                 <dd>{companyDetails?.address2}</dd>
@@ -120,10 +53,7 @@ const Invoice = () => {
                   <dt className="date-label">Invoice date:</dt>
                   <dd className="date-value">{singleSalesData?.orderingDate}</dd>
                 </div>
-                {/* <div className="date-item">
-                  <dt className="date-label">Due date:</dt>
-                  <dd className="date-value">{invoiceData.dates.dueDate}</dd>
-                </div> */}
+
               </div>
             </div>
           </div>
@@ -195,25 +125,14 @@ const Invoice = () => {
             <h4 className="footer-title+">Thank you!</h4>
             <p className="footer-text">If you have any questions concerning this invoice, use the following contact information:</p>
             <div className="contact-info">
-              <p className="contact-email">{invoiceData.contact.email}</p>
-              <p className="contact-phone">{invoiceData.contact.phone}</p>
+              <p className="contact-email">{companyDetails?.email1}</p>
+              <p className="contact-phone">{companyDetails?.phone1}</p>
             </div>
-            <p className="copyright">© {new Date().getFullYear()} {invoiceData.company.name}.</p>
+            <p className="copyright">© {new Date().getFullYear()} {companyDetails?.companyName}.</p>
           </div>
         </div>
 
-        <div className="buttons">
-          <button
-            onClick={handiveDownloadPDF}
-            className="download-btn"
-          >
-
-            Invoice PDF
-          </button>
-          <button className="print-btn">
-            Print
-          </button>
-        </div>
+      
       </div>
 
       <style>{`
@@ -583,6 +502,6 @@ const Invoice = () => {
 
     </div>
   );
-};
+});
 
 export default Invoice;

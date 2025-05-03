@@ -7,8 +7,9 @@ declare global {
   interface Window {
     electron: ElectronAPI & {
       addPurchase: (purchaseData: any) => Promise<void>
-      addSales: (salesData: PurchaseDataType) => Promise<void>
+      addSales: (salesData: any) => Promise<void>
       addUser: (userDetail: UserDetailType) => Promise<void>
+      doesAnyUserExist : ()=>Promise<boolean>
       loginUser: (
         email: string,
         password: string
@@ -42,11 +43,24 @@ declare global {
       savePDFDialog: (filename: any) => Promise<any>
       savePDFFile: (pdfData: any, filePath: any) => Promise<any>
 
-      //company details 
+      //company details
       getCompanyLogo: () => Promise<any>
       setCompanyLogo: (buffer: ArrayBuffer, filename: string) => Promise<any>
-      setCompany: (companyDetail:any) => Promise<any>
+      setCompany: (companyDetail: any) => Promise<any>
       getCompany: () => Promise<any>
+
+
+      //image Utils
+      getLocalImage: (filePath: string) => Promise<string | null>
+
+
+      // clients preloads
+      addClient: (clientDetail: any) => Promise<any>,
+      getClients: () => Promise<any>,
+      searchClientsByName: (searchTerm: string) => Promise<any>,
+      deleteClientById: (id: string) => Promise<any>,
+
+
 
     }
   }

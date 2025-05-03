@@ -39,3 +39,5 @@ export const exportSaleToExcel = (data:SalesDataType[]) => {
   // Export the workbook as an Excel file
   XLSX.writeFile(workbook, 'sales.xlsx')
 }
+
+

@@ -15,6 +15,8 @@ type Purchase = {
   discount: number | null
   tax: number | null
   supplier: string | null
+  gst : string| null
+  hsn :string | null
   supplierContact: string | null
   supplierEmail: string | null
   supplierAddress: string | null
@@ -22,21 +24,23 @@ type Purchase = {
   paymentStatus: string | null
   paymentMethod: string | null
   orderingDate: string | null
-  isInstallment: number 
-  installments: string | null 
+  isInstallment: number
+  installments: string | null
   pending: number | null
   totalPrice: number | null
 }
 
 // Helper function to sanitize purchase data
 const sanitizePurchase = (purchase: Partial<Purchase>): Purchase => ({
-  id: purchase.id ?? randomUUID(), 
+  id: purchase.id ?? randomUUID(),
   productName: String(purchase.productName || ''),
   price: purchase.price ?? null,
   quantity: purchase.quantity ?? null,
   discount: purchase.discount ?? null,
   tax: purchase.tax ?? null,
   supplier: purchase.supplier ? String(purchase.supplier) : null,
+  gst: purchase.gst ? String(purchase.gst) : null,
+  hsn: purchase.hsn ? String(purchase.hsn) : null,
   supplierContact: purchase.supplierContact ? String(purchase.supplierContact) : null,
   supplierEmail: purchase.supplierEmail ? String(purchase.supplierEmail) : null,
   supplierAddress: purchase.supplierAddress ? String(purchase.supplierAddress) : null,
@@ -55,11 +59,11 @@ export const insertPurchase = (purchase: any) => {
   const data = sanitizePurchase(purchase)
   const stmt = db.prepare(`
     INSERT INTO purchases (
-      id, productName, price, quantity, discount, tax, supplier, supplierContact,
+      id, productName, price, quantity, discount, tax, supplier, gst, hsn, supplierContact,
       supplierEmail, supplierAddress, shippingAddress, paymentStatus, paymentMethod,
       orderingDate, isInstallment, installments, pending, totalPrice
     ) VALUES (
-      @id, @productName, @price, @quantity, @discount, @tax, @supplier, @supplierContact,
+      @id, @productName, @price, @quantity, @discount, @tax, @supplier, @gst, @hsn, @supplierContact,
       @supplierEmail, @supplierAddress, @shippingAddress, @paymentStatus, @paymentMethod,
       @orderingDate, @isInstallment, @installments, @pending, @totalPrice
     )
@@ -69,7 +73,7 @@ export const insertPurchase = (purchase: any) => {
 
 
 export const getAllPurchases = () => {
-  
+
 
   try {
     // Fetch all purchases from the database
@@ -139,7 +143,7 @@ export const getPurchaseByPaymentMethodAndYear = (paymentMethod: string, year?:s
     // Fetch all purchases from the database
     const stmt = db.prepare('SELECT * FROM purchases WHERE paymentMethod = ?')
     const result = stmt.all(paymentMethod)
-    
+
     // Filter results where orderingDate includes the specified year
     const filteredResult = result.filter((purchase: any) => {
       // Ensure orderingDate is a string and includes the year

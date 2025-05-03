@@ -4,11 +4,27 @@ import { loginType } from '../../types/auth.types'
 
 const Login: React.FC = () => {
   const navigate = useNavigate()
+  const [isUserExist, setIsUserExist] = useState(false) // Check if user exist
   const [userData, setUserData] = useState<loginType>({
     email: '',
     password: ''
   })
   const [isSubmitting, setIsSubmitting] = useState(false) // Prevent multiple submits
+
+  React.useEffect(() => {
+
+    const checkUserExist = async () => {
+      try {
+        const resp = await  window.electron.doesAnyUserExist();
+        console.log(resp)
+        setIsUserExist(resp)
+
+      } catch {
+        console.log('Error')
+      }
+    }
+    checkUserExist()
+  },[])
 
   const handleLogin = async () => {
     if (isSubmitting) return // Prevent multiple clicks
@@ -19,7 +35,6 @@ const Login: React.FC = () => {
     if (response.success && response.isAuthenticated) {
       navigate('/dashboard')
     } else {
-      navigate('/dashboard')
       await window.electron.openDialog('Login Failed', 'Try Correct crentendials.', 'error')
     }
 
@@ -66,7 +81,7 @@ const Login: React.FC = () => {
         >
           {isSubmitting ? 'Logging in...' : 'Login'}
         </button>
-
+{  !isUserExist &&
         <p className="text-white/50">
           Not Have an Account?{' '}
           <Link to={'/register'} className="text-violet-400 cursor-pointer">
@@ -75,6 +90,7 @@ const Login: React.FC = () => {
           </Link>
         </p>
 
+}
         <div className="absolute bottom-0 left-0 justify-center h-1 w-full items-center gap-1">
           <span className="bg-violet-800 w-full h-1 absolute bottom-0 left-0 rounded-b-md"></span>
           <span className="bg-violet-400 w-full h-[2px] group-hover:blur-lg blur-sm right-0 absolute bottom-0 left-0 rounded-b-md"></span>

@@ -15,6 +15,8 @@ db.exec(`
     discount REAL,
     tax REAL,
     supplier TEXT,
+    gst TEXT,
+    hsn TEXT,
     supplierContact TEXT,
     supplierEmail TEXT,
     supplierAddress TEXT,
@@ -40,6 +42,8 @@ db.exec(`
     discount REAL,
     tax REAL,
     supplier TEXT,
+    gst TEXT,
+    hsn TEXT,
     supplierContact TEXT,
     supplierEmail TEXT,
     supplierAddress TEXT,
@@ -82,6 +86,20 @@ db.exec(`
     email2 TEXT,
     phone1 TEXT,
     phone2 TEXT,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  )
+`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS client (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL,
+    phone TEXT NOT NULL,
+    gst TEXT NOT NULL,
+    hsn TEXT NOT NULL,
+    address TEXT ,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   )

@@ -12,6 +12,8 @@ type PurchaseDataType = {
   discount: number | null
   tax: number | null
   supplier: string
+  gst:string,
+  hsn:string
   supplierContact: string
   supplierEmail: string
   supplierAddress: string
@@ -33,6 +35,8 @@ type SalesDataType = {
   discount: number | null
   tax: number | null
   supplier: string
+  gst:string,
+  hsn:string
   supplierContact: string
   supplierEmail: string
   supplierAddress: string
@@ -69,6 +73,16 @@ type Company = {
   updatedAt?: string
 }
 
+ interface ClientType {
+  id?: string
+  name: string
+  email: string
+  phone: string
+  gst: string
+  hsn: string
+  address: string
+}
 
 
-export type { InstallmentType, Company, PurchaseDataType, TableHeadingsTypes, SalesDataType }
+
+export type { InstallmentType, Company, PurchaseDataType, TableHeadingsTypes, SalesDataType, ClientType}

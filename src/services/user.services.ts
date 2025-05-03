@@ -70,5 +70,22 @@ function deleteUser(id: number): Database.RunResult | null {
   }
 }
 
+
+// Check if any user exists in the database
+function doesAnyUserExist(): boolean {
+  try {
+    const stmt = db.prepare('SELECT EXISTS(SELECT 1 FROM users LIMIT 1) AS userExists');
+    const result = stmt.get() as { userExists: number };
+    console.log("--->",result);
+    return result.userExists === 1;
+  } catch (error) {
+    console.error('Error checking if any user exists:', error);
+    return false;
+  }
+}
+
+
+
+
 // Export functions
-export { insertUser, getUserByEmail, getAllUsers, updateUser, deleteUser };
+export { insertUser, getUserByEmail, getAllUsers, updateUser, deleteUser, doesAnyUserExist };
